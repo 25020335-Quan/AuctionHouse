@@ -3,8 +3,11 @@ package auction.model;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class AuctionManager {
+    // Lock để tránh race conditino
+    private final ReentrantLock lock = new ReentrantLock();
     // 1. Singleton Instance
     private static AuctionManager instance;
 
@@ -64,5 +67,49 @@ public class AuctionManager {
                 .mapToDouble(BidTransaction::getBidAmount)
                 .max()
                 .orElse(0.0);
+    }
+
+    public boolean attemptBid(Item item, String bidderId, double amount) {
+        lock.lock(); // Đảm bảo an toàn đa luồng (phần Server)
+        try {
+            // 1. Kiểm tra trạng thái phiên đấu giá
+            if (item.getState() == AuctionState.CLOSED || item.getState() == AuctionState.SOLD) {
+                System.out.println("Lỗi: Phiên đấu giá đã kết thúc.");
+                return false;
+            }
+
+            if (item.getState() == AuctionState.PENDING) {
+                System.out.println("Lỗi: Phiên đấu giá chưa bắt đầu.");
+                return false;
+            }
+
+            // 2. Kiểm tra bước giá (Ví dụ: giá mới phải cao hơn giá cũ)
+            if (amount < item.getCurrentPrice()) {
+                System.out.println("Lỗi: Giá đặt phải cao hơn giá hiện tại.");
+                return false;
+            }
+
+            // 3. Kiểm tra vai trò (Người bán không được tự đấu giá đồ của mình)
+            if (item.getOwnerId().equals(bidderId)) {
+                System.out.println("Lỗi: Người bán không được tự đấu giá đồ của mình).");
+                return false;
+            }
+
+
+            // Nếu mọi thứ hợp lệ -> Cập nhật Model
+            item.setPrice(amount);
+            if (item.getState() == AuctionState.OPEN) {
+                item.setState(AuctionState.RUNNING);
+            }
+
+            // Ghi nhận giao dịch thông qua AuctionManager
+            String txId = "TX-" + System.currentTimeMillis();
+            BidTransaction tx = new BidTransaction(txId, bidderId, item.getId(), amount);
+            AuctionManager.getInstance().addTransaction(tx);
+
+            return true;
+        } finally {
+            lock.unlock();
+        }
     }
 }
