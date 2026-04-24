@@ -1,16 +1,11 @@
 package auction.model;
 
 /**
- * Lớp Seller (Người bán) kế thừa từ User.
+ * Interface Seller
  */
-public class Seller extends User {
 
-    public Seller(String id, String username, String password) {
-        super(id, username, password);
-    }
+interface Seller {
 
-    @Override
-    public void displayRole() {
-        System.out.println("[Vai trò] Người bán: Tôi có thể đăng sản phẩm và quản lý phiên đấu giá của mình.");
-    }
+    void createItem(String type, String id, String name, double startingPrice);
+    void postItem(Item item);
 }
