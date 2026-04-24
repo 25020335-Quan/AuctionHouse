@@ -20,7 +20,7 @@ public class AuctionManagerTest {
 
     @Test
     void testAddItem() {
-        Item item = ItemFactory.createItem("ELECTRONICS", "T1", "Test Item", 100.0);
+        Item item = ItemFactory.factoryItem("ELECTRONICS", "U01", "T1", "Test Item", 100.0);
         int initialSize = manager.getAllItems().size();
         manager.addItem(item);
         assertEquals(initialSize + 1, manager.getAllItems().size(), "Danh sách sản phẩm phải tăng thêm 1.");
