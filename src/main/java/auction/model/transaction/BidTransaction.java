@@ -1,4 +1,6 @@
-package auction.model;
+package auction.model.transaction;
+
+import auction.model.Entity;
 
 import java.time.LocalDateTime;
 

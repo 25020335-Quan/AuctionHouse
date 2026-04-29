@@ -1,4 +1,7 @@
-package auction.model;
+package auction.model.item;
+
+import auction.model.Entity;
+import auction.model.state.AuctionState;
 
 public abstract class Item extends Entity {
     private final String ownerId;

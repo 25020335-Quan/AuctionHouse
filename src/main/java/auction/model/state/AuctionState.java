@@ -1,4 +1,4 @@
-package auction.model;
+package auction.model.state;
 
 public enum AuctionState {
     PENDING,    // Chờ duyệt

@@ -1,6 +1,12 @@
-package auction.model;
+package auction.model.users;
 
 import auction.exception.InvalidBidException;
+import auction.model.*;
+import auction.model.interfaces.Bidder;
+import auction.model.interfaces.Seller;
+import auction.model.item.Item;
+import auction.model.item.ItemFactory;
+import auction.model.state.AuctionState;
 
 import java.util.List;
 import java.util.ArrayList;

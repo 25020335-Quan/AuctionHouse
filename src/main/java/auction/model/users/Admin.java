@@ -1,4 +1,4 @@
-package auction.model;
+package auction.model.users;
 
 /**
  * Lớp Admin (Quản trị viên) kế thừa từ User.

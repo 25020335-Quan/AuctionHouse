@@ -1,4 +1,8 @@
-package auction.model;
+package auction.model.item;
+
+import auction.model.item.Art;
+import auction.model.item.Electronics;
+import auction.model.item.Vehicle;
 
 public class ItemFactory {
     public static Item factoryItem(String type, String ownerId, String id, String name, double startingPrice) {
