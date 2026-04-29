@@ -1,5 +1,7 @@
 package auction.model;
 
+import auction.exception.InvalidBidException;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -69,30 +71,26 @@ public class AuctionManager {
                 .orElse(0.0);
     }
 
-    public boolean attemptBid(Item item, String bidderId, double amount) {
+    public void attemptBid(Item item, String bidderId, double amount) throws InvalidBidException {
         lock.lock(); // Đảm bảo an toàn đa luồng (phần Server)
         try {
             // 1. Kiểm tra trạng thái phiên đấu giá
             if (item.getState() == AuctionState.CLOSED || item.getState() == AuctionState.SOLD) {
-                System.out.println("Lỗi: Phiên đấu giá đã kết thúc.");
-                return false;
+                throw new InvalidBidException("Phiên đấu giá đã kết thúc!");
             }
 
             if (item.getState() == AuctionState.PENDING) {
-                System.out.println("Lỗi: Phiên đấu giá chưa bắt đầu.");
-                return false;
+                throw new InvalidBidException("Lỗi: Phiên đấu giá chưa bắt đầu.");
             }
 
             // 2. Kiểm tra bước giá (Ví dụ: giá mới phải cao hơn giá cũ)
             if (amount < item.getCurrentPrice()) {
-                System.out.println("Lỗi: Giá đặt phải cao hơn giá hiện tại.");
-                return false;
+                throw new InvalidBidException("Giá đặt phải lớn hơn giá hiện tại!");
             }
 
             // 3. Kiểm tra vai trò (Người bán không được tự đấu giá đồ của mình)
             if (item.getOwnerId().equals(bidderId)) {
-                System.out.println("Lỗi: Người bán không được tự đấu giá đồ của mình).");
-                return false;
+                throw new InvalidBidException("Lỗi: Người bán không được tự đấu giá đồ của mình).");
             }
 
 
@@ -107,7 +105,7 @@ public class AuctionManager {
             BidTransaction tx = new BidTransaction(txId, bidderId, item.getId(), amount);
             AuctionManager.getInstance().addTransaction(tx);
 
-            return true;
+
         } finally {
             lock.unlock();
         }

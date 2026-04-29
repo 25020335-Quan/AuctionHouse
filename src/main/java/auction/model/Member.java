@@ -1,5 +1,7 @@
 package auction.model;
 
+import auction.exception.InvalidBidException;
+
 import java.util.List;
 import java.util.ArrayList;
 
@@ -11,8 +13,13 @@ public class Member extends User implements Bidder, Seller {
     }
 
     @Override
-    public Boolean bid(Item item, double amount) {
-        return AuctionManager.getInstance().attemptBid(item, id, amount);
+    public void bid(Item item, double amount) {
+        AuctionManager instance = AuctionManager.getInstance();
+        try {
+            instance.attemptBid(item, id, amount);
+        } catch (InvalidBidException e) {
+            System.err.println(e.getMessage());
+        }
     }
 
     @Override
