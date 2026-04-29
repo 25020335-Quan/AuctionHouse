@@ -1,6 +1,9 @@
 package auction.model;
 
 import auction.exception.InvalidBidException;
+import auction.model.item.Item;
+import auction.model.state.AuctionState;
+import auction.model.transaction.BidTransaction;
 
 import java.util.ArrayList;
 import java.util.List;

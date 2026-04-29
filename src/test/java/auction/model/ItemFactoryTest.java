@@ -1,5 +1,6 @@
 package auction.model;
 
+import auction.model.item.*;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 

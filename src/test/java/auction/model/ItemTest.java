@@ -1,8 +1,11 @@
 package auction.model;
 
-import org.junit.jupiter.api.BeforeEach;
+import auction.model.item.Item;
+import auction.model.item.ItemFactory;
+import auction.model.users.Member;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.BeforeEach;
 
 public class ItemTest {
     private Item testItem;

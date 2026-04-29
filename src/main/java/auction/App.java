@@ -1,6 +1,6 @@
 package auction;
 
-import auction.model.*;
+import auction.model.users.Member;
 
 public class App {
     public static void main(String[] args) {
