@@ -8,10 +8,11 @@ import auction.model.item.Item;
 import auction.model.item.ItemFactory;
 import auction.model.state.AuctionState;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.ArrayList;
 
-public class Member extends User implements Bidder, Seller {
+public class Member extends User implements Bidder, Seller, Serializable {
     private List<Item> ownedItems = new ArrayList<>();
 
     public Member(String id, String username, String password) {
