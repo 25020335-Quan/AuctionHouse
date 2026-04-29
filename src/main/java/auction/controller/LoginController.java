@@ -1,6 +1,10 @@
 package auction.controller;
+import auction.client.AuctionClient;
+import auction.model.users.User;
+import auction.util.LoginRequest;
 import auction.util.SceneSwitcher;
 import javafx.application.Application;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -28,26 +32,39 @@ public class LoginController{
         String logName = username.getText();
         String logPassword = password.getText();
         //Khi người dùng nhập đúng tên đăng nhập và mật khẩu thì chuyển qua scene tiếp theo
-        if(logName.equals("abcd1234") && logPassword.equals("1234")){
-            wrongLogin.setText("Success");
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/mainscreen.fxml"));
-            Parent root = loader.load();
+        Task<Object> loginTask = new Task<>() {
+            @Override
+            protected User call() throws Exception {
+                // Gửi yêu cầu đăng nhập tới Server
+                return (User) AuctionClient.getInstance().sendRequest(new LoginRequest(logName, logPassword));
+            }
+        };
 
-            MainScreenController mainScreen =  loader.getController();
-            mainScreen.displayName(logName);
+        loginTask.setOnSucceeded(e -> {
+            User loggedInUser = (User) loginTask.getValue();
+            if (loggedInUser != null) {
+                wrongLogin.setText("Success");
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/mainscreen.fxml"));
+                try {
+                    Parent root = loader.load();
+                    MainScreenController mainScreen =  loader.getController();
+                    mainScreen.displayName(logName);
 
-            Scene scene = new Scene(root);
-            Stage stage = (Stage)((Node)event.getSource()).getScene().getWindow();
-            stage.setScene(scene);
-            stage.show();
-        }
-        //Trường hợp người dùng không nhập gì cả
-        else if(logName.equals("") && logPassword.equals("")){
-            wrongLogin.setText("Please enter your username and password");
-        }
-        //Trường hợp nhập sai
-        else{
-            wrongLogin.setText("Wrong username or password");
-        }
+                    Scene scene = new Scene(root);
+                    Stage stage = (Stage)((Node)event.getSource()).getScene().getWindow();
+                    stage.setScene(scene);
+                    stage.show();
+                } catch (IOException exc) {
+                    exc.printStackTrace();
+                }
+            } else {
+                wrongLogin.setText("Wrong username or password");
+                wrongLogin.setStyle("-fx-text-fill: red;");
+            }
+        });
+
+        Thread thread = new Thread(loginTask);
+        thread.start();
+
     }
 }
