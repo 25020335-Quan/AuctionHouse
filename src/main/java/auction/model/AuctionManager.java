@@ -74,7 +74,7 @@ public class AuctionManager {
                 .orElse(0.0);
     }
 
-    public void attemptBid(Item item, String bidderId, double amount) throws InvalidBidException {
+    public synchronized void attemptBid(Item item, String bidderId, double amount) throws InvalidBidException {
         lock.lock(); // Đảm bảo an toàn đa luồng (phần Server)
         try {
             // 1. Kiểm tra trạng thái phiên đấu giá
