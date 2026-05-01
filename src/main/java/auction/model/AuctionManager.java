@@ -87,7 +87,7 @@ public class AuctionManager {
             }
 
             // 2. Kiểm tra bước giá (Ví dụ: giá mới phải cao hơn giá cũ)
-            if (amount < item.getCurrentPrice()) {
+            if (amount <= item.getCurrentPrice()) {
                 throw new InvalidBidException("Giá đặt phải lớn hơn giá hiện tại!");
             }
 
