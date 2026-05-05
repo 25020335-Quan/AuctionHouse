@@ -49,9 +49,9 @@ public class BidRaceConditionTest {
         CountDownLatch startGun = new CountDownLatch(1);
         CountDownLatch finishLine = new CountDownLatch(THREAD_COUNT);
         List<Double> successAmounts = Collections.synchronizedList(new ArrayList<>());
-
+        ExecutorService executor = Executors.newFixedThreadPool(THREAD_COUNT);
         // try-with-resources đảm bảo executor luôn được đóng
-        try (ExecutorService executor = Executors.newFixedThreadPool(THREAD_COUNT)) {
+        try {
             for (int i = 0; i < THREAD_COUNT; i++) {
                 final String bidder = "U-" + String.format("%02d", i);
                 final double amount = 1100.0 + (i * 100.0);
@@ -74,6 +74,8 @@ public class BidRaceConditionTest {
             startGun.countDown();
             boolean finished = finishLine.await(10, TimeUnit.SECONDS);
             assertTrue(finished, "Timeout - không phải tất cả luồng kịp chạy xong");
+        } finally {
+            executor.shutdown();
         }
 
         assertTrue(testItem.getCurrentPrice() > 1000.0,
@@ -100,8 +102,9 @@ public class BidRaceConditionTest {
         CountDownLatch finishLine = new CountDownLatch(THREAD_COUNT);
         AtomicInteger successCount = new AtomicInteger(0);
         final double sameBid = 2000.0;
+        ExecutorService executor = Executors.newFixedThreadPool(THREAD_COUNT);
 
-        try (ExecutorService executor = Executors.newFixedThreadPool(THREAD_COUNT)) {
+        try {
             for (int i = 0; i < THREAD_COUNT; i++) {
                 final String bidder = "U-" + String.format("%02d", i);
 
@@ -123,6 +126,8 @@ public class BidRaceConditionTest {
             startGun.countDown();
             boolean finished = finishLine.await(10, TimeUnit.SECONDS);
             assertTrue(finished, "Timeout - không phải tất cả luồng kịp chạy xong");
+        } finally {
+            executor.shutdown();
         }
 
         assertEquals(1, successCount.get(),
@@ -142,8 +147,9 @@ public class BidRaceConditionTest {
         CountDownLatch startGun = new CountDownLatch(1);
         CountDownLatch finishLine = new CountDownLatch(heavy);
         List<Exception> unexpectedErrors = Collections.synchronizedList(new ArrayList<>());
+        ExecutorService executor = Executors.newFixedThreadPool(heavy);
 
-        try (ExecutorService executor = Executors.newFixedThreadPool(heavy)) {
+        try {
             for (int i = 0; i < heavy; i++) {
                 final String bidder = "U-" + i;
                 final double amount = 1001.0 + (i * 10.0);
@@ -166,6 +172,8 @@ public class BidRaceConditionTest {
             startGun.countDown();
             boolean finished = finishLine.await(15, TimeUnit.SECONDS);
             assertTrue(finished, "Timeout - không phải tất cả luồng kịp chạy xong");
+        } finally {
+            executor.shutdown();
         }
 
         assertTrue(unexpectedErrors.isEmpty(),
