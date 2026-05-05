@@ -1,19 +1,67 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
 <AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="auction.controller.MainScreenController">
    <children>
-      <Label alignment="CENTER" layoutX="158.0" layoutY="73.0" prefHeight="24.0" prefWidth="283.0" text="This is the main screen">
-         <font>
-            <Font size="17.0" />
-         </font>
-      </Label>
-      <Label fx:id="welcomeText" layoutX="11.0" layoutY="11.0" prefHeight="32.0" prefWidth="283.0">
-         <font>
-            <Font size="22.0" />
-         </font></Label>
+      <TabPane layoutX="-8.0" prefHeight="400.0" prefWidth="600.0" tabClosingPolicy="UNAVAILABLE">
+        <tabs>
+          <Tab text="Marketplace">
+            <content>
+              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="258.0" prefWidth="600.0">
+                     <children>
+                        <Label fx:id="welcomeText" alignment="CENTER" layoutX="2.0" layoutY="7.0" prefHeight="33.0" prefWidth="170.0" />
+                        <ScrollPane fitToWidth="true" layoutY="80.0" prefHeight="290.0" prefWidth="600.0">
+                           <content>
+                              <VBox fx:id="marketplaceContainer" />
+                           </content>
+                        </ScrollPane>
+                        <Label alignment="CENTER" layoutX="14.0" layoutY="60.0" prefHeight="20.0" prefWidth="42.0" text="ID" />
+                        <Label layoutX="115.0" layoutY="60.0" prefHeight="21.0" prefWidth="38.0" text="Name" />
+                        <Label alignment="CENTER" layoutX="231.0" layoutY="60.0" prefHeight="21.0" prefWidth="33.0" text="Price" />
+                        <Label alignment="CENTER" layoutX="342.0" layoutY="60.0" prefHeight="23.0" prefWidth="58.0" text="OwnerID" />
+                        <Label alignment="CENTER" layoutX="475.0" layoutY="60.0" prefHeight="24.0" prefWidth="38.0" text="State" />
+                        <Label alignment="CENTER" layoutX="213.0" layoutY="12.0" prefHeight="42.0" prefWidth="186.0" text="Marketplace" textFill="#e70606">
+                           <font>
+                              <Font name="System Bold" size="24.0" />
+                           </font>
+                        </Label>
+                     </children>
+                  </AnchorPane>
+            </content>
+          </Tab>
+          <Tab text="MyItems">
+               <content>
+                  <AnchorPane prefHeight="367.0" prefWidth="600.0">
+                     <children>
+                        <Label fx:id="welcomeText2" alignment="CENTER" layoutX="6.0" layoutY="7.0" prefHeight="27.0" prefWidth="158.0" />
+                        <ScrollPane layoutY="79.0" prefHeight="292.0" prefWidth="600.0">
+                           <content>
+                              <VBox fx:id="mymarketplaceContainer" />
+                           </content>
+                        </ScrollPane>
+                        <Label alignment="CENTER" layoutX="14.0" layoutY="61.0" prefHeight="18.0" prefWidth="40.0" text="ID" />
+                        <Label alignment="CENTER" layoutX="116.0" layoutY="62.0" text="Name" />
+                        <Label alignment="CENTER" layoutX="231.0" layoutY="60.0" prefHeight="21.0" prefWidth="31.0" text="Price" />
+                        <Label alignment="CENTER" layoutX="342.0" layoutY="60.0" prefHeight="22.0" prefWidth="52.0" text="OwnerID" />
+                        <Label alignment="CENTER" layoutX="475.0" layoutY="62.0" prefHeight="18.0" prefWidth="36.0" text="State" />
+                        <Label alignment="CENTER" layoutX="173.0" layoutY="16.0" prefHeight="35.0" prefWidth="266.0" text="My Items" textFill="#ef0f0f">
+                           <font>
+                              <Font name="System Bold" size="24.0" />
+                           </font>
+                        </Label>
+                        <Button fx:id="postItem" layoutX="480.0" mnemonicParsing="false" onAction="#openAddItemPopup" prefHeight="34.0" prefWidth="121.0" text="Post New Item" textFill="#070fef" />
+                     </children>
+                  </AnchorPane>
+               </content></Tab>
+        </tabs>
+      </TabPane>
    </children>
 </AnchorPane>
