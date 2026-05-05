@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.HBox?>
+
+<HBox maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="25.0" prefWidth="600.0" spacing="30.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="auction.controller.ProductRowController">
+   <children>
+      <Label fx:id="productId" alignment="CENTER" prefHeight="24.0" prefWidth="72.0" text="Label" />
+      <Label fx:id="productName" alignment="CENTER" prefHeight="26.0" prefWidth="58.0" text="Label" />
+      <Label fx:id="productPrice" alignment="CENTER" lineSpacing="35.0" prefHeight="26.0" prefWidth="111.0" text="Label" />
+      <Label fx:id="productOwnerId" alignment="CENTER" prefHeight="26.0" prefWidth="74.0" text="Label" />
+      <Label fx:id="productState" alignment="CENTER" prefHeight="26.0" prefWidth="110.0" text="Label" />
+   </children>
+</HBox>
