@@ -18,7 +18,7 @@ public class Launcher extends Application {
     public void start(Stage stage) {
         try{
             //Load file FMXL
-        Parent root = FXMLLoader.load(Launcher.class.getResource("/fxml/Login.fxml"));
+            Parent root = FXMLLoader.load(Launcher.class.getResource("/fxml/login.fxml"));
         primaryStage = stage;
         stage.setResizable(false);
         stage.setTitle("UET Auction House");
