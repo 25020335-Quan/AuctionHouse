@@ -27,6 +27,7 @@ public class LoginController{
     private PasswordField password;
     @FXML
     private Button loginButton;
+
     @FXML
     void userLogin(ActionEvent event) throws IOException {
         String logName = username.getText();
@@ -48,6 +49,7 @@ public class LoginController{
                 try {
                     Parent root = loader.load();
                     MainScreenController mainScreen =  loader.getController();
+                    mainScreen.setLoggedInUser(loggedInUser);
                     mainScreen.displayName(logName);
 
                     Scene scene = new Scene(root);
