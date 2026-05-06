@@ -1,8 +1,8 @@
 package auction.model;
 
 import auction.exception.InvalidBidException;
+import auction.model.factory.FactoryProvider;
 import auction.model.item.Item;
-import auction.model.item.ItemFactory;
 import auction.model.users.Member;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -33,7 +33,7 @@ public class BidRaceConditionTest {
     @BeforeEach
     void setUp() {
         manager = AuctionManager.getInstance();
-        testItem = ItemFactory.factoryItem("ELECTRONICS", "U99", "RACE-01", "Race Item", 1000.0);
+        testItem = FactoryProvider.createItemByType("ELECTRONICS", "U99", "RACE-01", "Race Item", 1000.0);
 
         Member poster = new Member("U00", "poster", "pass");
         poster.postItem(testItem);

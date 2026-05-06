@@ -1,8 +1,8 @@
 package auction.model;
 
 import auction.exception.InvalidBidException;
+import auction.model.factory.FactoryProvider;
 import auction.model.item.Item;
-import auction.model.item.ItemFactory;
 import auction.model.state.AuctionState;
 import auction.model.users.Member;
 import org.junit.jupiter.api.BeforeEach;
@@ -34,7 +34,7 @@ public class ItemTest {
     void setUp() {
         testMember = new Member("U01", "Quan25020335", "password");
         seller   = new Member("U02", "Viet_seller", "password");
-        testItem = ItemFactory.factoryItem("ELECTRONICS", "U02", "I01", "Laptop", 1000.0);
+        testItem = FactoryProvider.createItemByType("ELECTRONICS", "I01", "U02", "Laptop", 1000.0);
 
         // postItem() → setState(OPEN): item sẵn sàng để đấu giá
         testMember.postItem(testItem);
@@ -111,7 +111,7 @@ public class ItemTest {
     @DisplayName("Bid khi phiên PENDING (chưa mở) → InvalidBidException")
     void testBid_WhenPending_ShouldThrow() {
         // Tạo item mới, KHÔNG gọi postItem() → trạng thái PENDING
-        Item pendingItem = ItemFactory.factoryItem("ART", "U02", "I02", "Painting", 500.0);
+        Item pendingItem = FactoryProvider.createItemByType("ART", "U02", "I02", "Painting", 500.0);
 
         InvalidBidException ex = assertThrows(
                 InvalidBidException.class,
