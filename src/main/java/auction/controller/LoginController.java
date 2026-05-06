@@ -33,11 +33,18 @@ public class LoginController{
         String logName = username.getText();
         String logPassword = password.getText();
         //Khi người dùng nhập đúng tên đăng nhập và mật khẩu thì chuyển qua scene tiếp theo
-        Task<Object> loginTask = new Task<>() {
+        Task<User> loginTask = new Task<User>() {
             @Override
             protected User call() throws Exception {
-                // Gửi yêu cầu đăng nhập tới Server
-                return (User) AuctionClient.getInstance().sendRequest(new LoginRequest(logName, logPassword));
+                // 2. Gửi yêu cầu và nhận Object chung
+                Object response = AuctionClient.getInstance().sendRequest(new LoginRequest(logName, logPassword));
+
+                // 3. Kiểm tra kiểu dữ liệu trước khi ép kiểu để tránh lỗi Incompatible types
+                if (response instanceof User) {
+                    return (User) response;
+                } else {
+                    throw new Exception("Server không trả về đối tượng Item hợp lệ!");
+                }
             }
         };
 
