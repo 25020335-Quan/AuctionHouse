@@ -2,10 +2,10 @@ package auction.model.users;
 
 import auction.exception.InvalidBidException;
 import auction.model.*;
+import auction.model.factory.FactoryProvider;
 import auction.model.interfaces.Bidder;
 import auction.model.interfaces.Seller;
 import auction.model.item.Item;
-import auction.model.item.ItemFactory;
 import auction.model.state.AuctionState;
 
 import java.io.Serializable;
@@ -31,7 +31,7 @@ public class Member extends User implements Bidder, Seller, Serializable {
 
     @Override
     public void createItem(String type, String id, String name, double startingPrice) {
-        ownedItems.add(ItemFactory.factoryItem(type, this.id, id, name, startingPrice));
+        ownedItems.add(FactoryProvider.createItemByType(type, id, this.id, name, startingPrice));
         // this.id là ownerId
     }
 
