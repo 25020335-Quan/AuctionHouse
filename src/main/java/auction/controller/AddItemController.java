@@ -1,6 +1,7 @@
 package auction.controller;
 
 import auction.model.AuctionManager;
+import auction.model.factory.FactoryProvider;
 import auction.model.item.Art;
 import auction.model.item.Electronics;
 import auction.model.item.Item;
@@ -36,16 +37,17 @@ public class AddItemController {
         String itemId = "I" + System.currentTimeMillis();
         String ownerId = parentController.getCurrentUser().getId();
         String typeInput  = typeField.getText().trim().toLowerCase();
-        if (typeInput.contains("art")) {
-            newItem = new Art(itemId, ownerId, name, price);
-        } else if (typeInput.contains("electronics")) {
-            newItem = new Electronics(itemId, ownerId, name, price);
-        } else if (typeInput.contains("vehicle")) {
-            newItem = new Vehicle(itemId, ownerId, name, price);
-        } else {
-            // Mặc định hoặc báo lỗi nếu nhập sai loại
-            System.out.println("Loại sản phẩm không hợp lệ");
-        }
+//        if (typeInput.contains("art")) {
+//            newItem = new Art(itemId, ownerId, name, price);
+//        } else if (typeInput.contains("electronics")) {
+//            newItem = new Electronics(itemId, ownerId, name, price);
+//        } else if (typeInput.contains("vehicle")) {
+//            newItem = new Vehicle(itemId, ownerId, name, price);
+//        } else {
+//            // Mặc định hoặc báo lỗi nếu nhập sai loại
+//            System.out.println("Loại sản phẩm không hợp lệ");
+//        }
+        Item newItem = FactoryProvider.createItemByType(typeInput, itemId, ownerId, name, price);
         AuctionManager.getInstance().addItem(newItem);
         parentController.refreshUI();
         ((Stage)nameField.getScene().getWindow()).close();
