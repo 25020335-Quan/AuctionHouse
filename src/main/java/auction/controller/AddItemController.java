@@ -47,7 +47,7 @@ public class AddItemController {
 //            // Mặc định hoặc báo lỗi nếu nhập sai loại
 //            System.out.println("Loại sản phẩm không hợp lệ");
 //        }
-        FactoryProvider.createItemByType(typeInput, itemId, ownerId, name, price);
+        Item newItem = FactoryProvider.createItemByType(typeInput, itemId, ownerId, name, price);
         AuctionManager.getInstance().addItem(newItem);
         parentController.refreshUI();
         ((Stage)nameField.getScene().getWindow()).close();
