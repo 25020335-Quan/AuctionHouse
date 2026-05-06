@@ -2,7 +2,9 @@ package auction.server;
 
 import auction.model.service.DatabaseService;
 import auction.model.users.User;
+import auction.util.AddItemRequest;
 import auction.util.LoginRequest;
+import auction.util.NotificationRequest;
 
 import java.io.*;
 import java.net.*;
@@ -31,6 +33,12 @@ public class ClientHandler extends Thread {
                 if (request instanceof LoginRequest loginData) {
                     User user = dbService.checkLogin(loginData.getUsername(), loginData.getPassword());
                     out.writeObject(user);
+                } else if (request instanceof AddItemRequest itemData) {
+                    AuctionServer.broadcast(new NotificationRequest("Có sản phẩm mới: " + itemData.getItem().getName()));
+                    System.out.println("Server: Đang xử lý thêm đồ: " + itemData.getItem().getName());;
+                    out.writeObject(itemData.getItem());
+                    out.flush();
+
                 }
 
                 // Gửi kết quả về Client
@@ -41,4 +49,12 @@ public class ClientHandler extends Thread {
         }
     }
 
+    public void sendMessage(Object message) {
+        try {
+            out.writeObject(message);
+            out.flush();
+        } catch (IOException e) {
+            AuctionServer.removeClient(this); // Xóa nếu client ngắt kết nối
+        }
+    }
 }
