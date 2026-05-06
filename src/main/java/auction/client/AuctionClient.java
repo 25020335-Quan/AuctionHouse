@@ -1,5 +1,8 @@
 package auction.client;
 
+import auction.util.NotificationRequest;
+import javafx.application.Platform;
+
 import java.io.*;
 import java.net.Socket;
 
@@ -11,8 +14,8 @@ public class AuctionClient {
 
     private AuctionClient() {
         try {
-            // Kết nối tới IP của Server (localhost) và Port 25565
-            socket = new Socket("localhost", 1234);
+            // Kết nối tới IP của Server (localhost) và Port 1234
+            socket = new Socket("10.11.216.213", 1234);
             out = new ObjectOutputStream(socket.getOutputStream());
             in = new ObjectInputStream(socket.getInputStream());
         } catch (IOException e) {
