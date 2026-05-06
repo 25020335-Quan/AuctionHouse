@@ -74,6 +74,7 @@ public class AddItemController {
 
         addItemTask.setOnSucceeded(e -> {
             AuctionManager.getInstance().addItem(newItem);
+            parentController.loadProducts(AuctionManager.getInstance().getAllItems());
             parentController.refreshUI();
             ((Stage)nameField.getScene().getWindow()).close();
             System.out.println("Đã thêm sản phẩm thành công!");

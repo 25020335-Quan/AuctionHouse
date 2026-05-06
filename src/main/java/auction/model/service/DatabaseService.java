@@ -1,5 +1,6 @@
 package auction.model.service;
 
+import auction.model.item.Item;
 import auction.model.users.Admin;
 import auction.model.users.Member;
 import auction.model.users.User;
@@ -36,6 +37,37 @@ public class DatabaseService {
             e.printStackTrace();
         }
         return null; // Trả về null nếu không tìm thấy người dùng
+    }
+
+    public Item addItem(Item item) {
+        // SQL: id thường tự tăng nên không cần chèn vào, state mặc định thường là 'OPEN'
+        String sql = "INSERT INTO items (id, name, current_price, state) VALUES (?, ?, ?, ?)";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
+
+            pstmt.setString(1, item.getName());
+            pstmt.setDouble(2, item.getCurrentPrice());
+            pstmt.setString(3, item.getState().name()); // Ví dụ: "OPEN" hoặc "ACTIVE"
+
+            int affectedRows = pstmt.executeUpdate();
+
+            if (affectedRows > 0) {
+                // Lấy ID vừa được tạo tự động từ Database gán lại cho đối tượng Item
+                try (ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
+                    if (generatedKeys.next()) {
+                        // Nếu id trong DB là kiểu INT, dùng getInt, nếu là String dùng getString
+                        item.setId(generatedKeys.getString(1));
+                    }
+                }
+                System.out.println("Đã thêm sản phẩm vào DB: " + item.getName());
+                return item;
+            }
+        } catch (SQLException e) {
+            System.err.println("Lỗi SQL khi thêm Item: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public void printAllUsers() {

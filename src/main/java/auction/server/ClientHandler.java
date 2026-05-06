@@ -35,6 +35,7 @@ public class ClientHandler extends Thread {
                     out.writeObject(user);
                 } else if (request instanceof AddItemRequest itemData) {
                     AuctionServer.broadcast(new NotificationRequest("Có sản phẩm mới: " + itemData.getItem().getName()));
+                    dbService.addItem(itemData.getItem());
                     System.out.println("Server: Đang xử lý thêm đồ: " + itemData.getItem().getName());;
                     out.writeObject(itemData.getItem());
                     out.flush();
