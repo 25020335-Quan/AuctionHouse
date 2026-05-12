@@ -1,11 +1,15 @@
 package auction.model.service;
 
+import auction.model.AuctionManager;
+import auction.model.factory.FactoryProvider;
 import auction.model.item.Item;
+import auction.model.state.AuctionState;
 import auction.model.users.Admin;
 import auction.model.users.Member;
 import auction.model.users.User;
 
 import java.sql.*;
+import java.util.List;
 
 public class DatabaseService {
     public User checkLogin(String username, String password) {
@@ -41,14 +45,17 @@ public class DatabaseService {
 
     public Item addItem(Item item) {
         // SQL: id thường tự tăng nên không cần chèn vào, state mặc định thường là 'OPEN'
-        String sql = "INSERT INTO items (id, name, current_price, state) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO items (id, type, owner_id, name, current_price, state) VALUES (?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
+            PreparedStatement pstmt = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
 
-            pstmt.setString(1, item.getName());
-            pstmt.setDouble(2, item.getCurrentPrice());
-            pstmt.setString(3, item.getState().name()); // Ví dụ: "OPEN" hoặc "ACTIVE"
+            pstmt.setString(1, item.getId());
+            pstmt.setString(2, item.getItemType());
+            pstmt.setString(3, item.getOwnerId());
+            pstmt.setString(4, item.getName());
+            pstmt.setDouble(5, item.getCurrentPrice());
+            pstmt.setString(6, item.getState().name()); // Ví dụ: "OPEN" hoặc "ACTIVE"
 
             int affectedRows = pstmt.executeUpdate();
 
@@ -68,6 +75,43 @@ public class DatabaseService {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public void loadAllItemsToManager() {
+        // 1. Truy cập danh sách trong Singleton AuctionManager
+        List<Item> managerList = AuctionManager.getInstance().getAllItems();
+        managerList.clear(); // Xóa dữ liệu cũ để nạp mới hoàn toàn
+
+        String sql = "SELECT id, type, owner_id, name, current_price, state FROM items";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql);
+             ResultSet rs = pstmt.executeQuery()) {
+
+            while (rs.next()) {
+                // Đọc các giá trị từ ResultSet
+                String id = rs.getString("id");
+                String type = rs.getString("type");
+                String ownerId = rs.getString("owner_id");
+                String name = rs.getString("name");
+                double price = rs.getDouble("current_price");
+                String state = rs.getString("state");
+
+                // Tạo đối tượng Item (Hãy đảm bảo Constructor của Item nhận các tham số này)
+                Item item = FactoryProvider.createItemByType(type, id, ownerId, name, price);
+
+                assert item != null;
+                item.setState(AuctionState.valueOf(state));
+
+                // Thêm vào danh sách quản lý
+                managerList.add(item);
+            }
+            AuctionManager.getInstance().updateList(managerList);
+            System.out.println("Đã nạp " + managerList.size() + " món đồ vào hệ thống.");
+
+        } catch (SQLException e) {
+            System.err.println("Lỗi khi load database: " + e.getMessage());
+        }
     }
 
     public void printAllUsers() {
