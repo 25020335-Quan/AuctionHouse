@@ -1,6 +1,8 @@
 package auction.controller;
+
 import auction.model.item.*;
 import auction.model.*;
+import auction.model.service.DatabaseService;
 import auction.model.users.User;
 import auction.util.SceneSwitcher;
 import javafx.event.ActionEvent;
@@ -18,6 +20,9 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.util.Duration;
 
 public class MainScreenController {
     @FXML
@@ -32,11 +37,20 @@ public class MainScreenController {
 
     @FXML
     public void initialize() {
-        AuctionManager manager = AuctionManager.getInstance();
-        Item art1 = new Art("I01", "U01", "A", 50000);
-        Item art2 = new Art("I02", "U02", "B", 60000);
-        manager.addItem(art1);
-        manager.addItem(art2);
+        startAutoRefresh();
+    }
+
+
+    public void startAutoRefresh() {
+        // Tạo một Timeline chạy mỗi 5 giây (Duration.seconds(5))
+        Timeline autoRefresh = new Timeline(new KeyFrame(Duration.seconds(5), event -> {
+            refreshUI(); // Gọi phương thức refresh của bạn
+            System.out.println("Giao diện đã được tự động cập nhật!");
+        }));
+
+        // Thiết lập lặp lại vô hạn
+        autoRefresh.setCycleCount(Timeline.INDEFINITE);
+        autoRefresh.play();
     }
 
     @FXML
@@ -83,9 +97,10 @@ public class MainScreenController {
 
     void refreshUI() {
         // Lấy danh sách mới nhất từ Manager
-        List<Item> updatedItems = AuctionManager.getInstance().getAllItems();
+        DatabaseService dbService = new DatabaseService();
+        dbService.loadAllItemsToManager();
         // Gọi hàm load chung mà bạn đã viết ở bước trước
-        loadProducts(updatedItems);
+        loadProducts(AuctionManager.getInstance().getAllItems());
     }
     @FXML
     public void openAddItemPopup(ActionEvent event) {
