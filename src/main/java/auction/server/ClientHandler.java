@@ -1,13 +1,18 @@
 package auction.server;
 
+import auction.model.AuctionManager;
+import auction.model.item.Item;
 import auction.model.service.DatabaseService;
 import auction.model.users.User;
 import auction.util.AddItemRequest;
+import auction.util.GetItemListRequest;
 import auction.util.LoginRequest;
 import auction.util.NotificationRequest;
 
 import java.io.*;
 import java.net.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ClientHandler extends Thread {
     private Socket socket;
@@ -40,6 +45,17 @@ public class ClientHandler extends Thread {
                     out.writeObject(itemData.getItem());
                     out.flush();
 
+                } else if (request instanceof GetItemListRequest) {
+                    // 1. Server gọi hàm đọc từ DB vào AuctionManager (chỉ máy Server mới làm việc này)
+                    dbService.loadAllItemsToManager();
+
+                    // 2. Lấy danh sách từ Manager
+                    List<Item> currentItems = AuctionManager.getInstance().getAllItems();
+
+                    // 3. Gửi danh sách này ngược lại cho Client
+                    // Gói vào ArrayList để đảm bảo Serializable hoạt động tốt
+                    out.writeObject(new ArrayList<>(currentItems));
+                    out.flush();
                 }
 
                 // Gửi kết quả về Client
