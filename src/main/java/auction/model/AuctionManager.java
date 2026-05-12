@@ -36,6 +36,10 @@ public class AuctionManager {
 
     // --- QUẢN LÝ SẢN PHẨM ---
 
+    public void updateList(List<Item> item) {
+        items = item;
+    }
+
     public void addItem(Item item) {
         items.add(item);
     }
