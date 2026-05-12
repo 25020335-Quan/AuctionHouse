@@ -1,10 +1,13 @@
 package auction.controller;
 
+import auction.client.AuctionClient;
 import auction.model.item.*;
 import auction.model.*;
 import auction.model.service.DatabaseService;
 import auction.model.users.User;
+import auction.util.GetItemListRequest;
 import auction.util.SceneSwitcher;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -85,6 +88,32 @@ public class MainScreenController {
         }
     }
 
+    public void refreshUI() {
+        Task<List<Item>> refreshTask = new Task<>() {
+            @Override
+            protected List<Item> call() throws Exception {
+                // Gửi yêu cầu lấy đồ
+                Object response = AuctionClient.getInstance().sendRequest(new GetItemListRequest());
+
+                // Ép kiểu về List nếu Server trả về đúng
+                if (response instanceof List) {
+                    return (List<Item>) response;
+                }
+                return null;
+            }
+        };
+
+        refreshTask.setOnSucceeded(e -> {
+            List<Item> newList = (List<Item>) refreshTask.getValue();
+            if (newList != null) {
+                // Cập nhật lên UI
+                loadProducts(newList);
+            }
+        });
+
+        new Thread(refreshTask).start();
+    }
+
     public void setLoggedInUser(User user) {
         this.currentUser = user;
         List<Item> items = AuctionManager.getInstance().getAllItems();
@@ -95,13 +124,6 @@ public class MainScreenController {
         return this.currentUser;
     }
 
-    void refreshUI() {
-        // Lấy danh sách mới nhất từ Manager
-        DatabaseService dbService = new DatabaseService();
-        dbService.loadAllItemsToManager();
-        // Gọi hàm load chung mà bạn đã viết ở bước trước
-        loadProducts(AuctionManager.getInstance().getAllItems());
-    }
     @FXML
     public void openAddItemPopup(ActionEvent event) {
         try{
