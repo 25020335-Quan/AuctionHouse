@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<AnchorPane prefHeight="588.0" prefWidth="780.0" stylesheets="@../css/viewItem.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="auction.controller.ViewItemController">
+   <children>
+      <VBox layoutY="-2.0" prefHeight="588.0" prefWidth="780.0" spacing="20.0">
+         <children>
+            <HBox alignment="CENTER_LEFT" prefHeight="67.0" prefWidth="600.0">
+               <children>
+                  <Label fx:id="titleLabel" prefHeight="94.0" prefWidth="226.0" styleClass="title-label" text="Label" />
+                  <Region prefHeight="39.0" prefWidth="252.0" HBox.hgrow="ALWAYS" />
+                  <Button fx:id="backButton" mnemonicParsing="false" onAction="#backToMarketplace" prefHeight="34.0" prefWidth="140.0" styleClass="btn-close" text="Close Page">
+                     <HBox.margin>
+                        <Insets />
+                     </HBox.margin></Button>
+               </children>
+            </HBox>
+            <HBox prefHeight="506.0" prefWidth="740.0">
+               <children>
+                  <VBox prefHeight="334.0" prefWidth="320.0" spacing="15.0">
+                     <children>
+                        <StackPane fx:id="mainImagePane" prefHeight="314.0" prefWidth="320.0" styleClass="image-container" />
+                        <HBox fx:id="thumbnailBox" alignment="CENTER_LEFT" prefHeight="185.0" prefWidth="311.0" spacing="10.0" styleClass="thumbnail-container" />
+                     </children>
+                  </VBox>
+                  <VBox prefHeight="334.0" prefWidth="420.0">
+                     <children>
+                        <Label prefHeight="85.0" prefWidth="270.0" styleClass="section-header" text="Product Description">
+                           <VBox.margin>
+                              <Insets left="20.0" />
+                           </VBox.margin></Label>
+                        <Label fx:id="descLabel" prefHeight="339.0" prefWidth="418.0" styleClass="description-body" text="Label" wrapText="true">
+                           <VBox.margin>
+                              <Insets left="20.0" />
+                           </VBox.margin></Label>
+                     </children>
+                  </VBox>
+               </children></HBox>
+         </children>
+         <padding>
+            <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+         </padding>
+      </VBox>
+   </children>
+</AnchorPane>
