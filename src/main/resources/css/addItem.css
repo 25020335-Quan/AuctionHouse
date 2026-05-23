@@ -1,0 +1,80 @@
+/* --- Khung thẻ trắng nền đổ bóng --- */
+.form-card {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 20;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 20, 0, 0, 5);
+}
+
+/* --- Tiêu đề chữ đỏ --- */
+.title{
+    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-font-size: 24px;
+    -fx-font-weight: 900; /* In đậm cực đại */
+    -fx-text-fill: #dc2626; /* Đỏ đô */
+}
+
+.subtitle{
+    -fx-text-fill: #475569;
+    -fx-font-size: 14px;
+    -fx-padding: 0 0 20 0; /* Cách phần dưới 20px */
+}
+
+/* --- Các ô nhập liệu --- */
+.input-field {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #cbd5e1;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-padding: 8 12;
+    -fx-font-size: 14px;
+}
+.input-field:focused {
+    -fx-border-color: #3b82f6; /* Viền xanh khi click vào */
+    -fx-border-width: 1.5;
+}
+
+/* --- Khung Drag & Drop nét đứt --- */
+.drag-drop-box {
+    -fx-background-color: #f1f5f9;
+    -fx-border-color: #94a3b8;
+    -fx-border-style: dashed; /* Nét đứt xịn sò */
+    -fx-border-width: 2;
+    -fx-border-radius: 12;
+    -fx-background-radius: 12;
+    -fx-padding: 20;
+    -fx-alignment: center;
+    -fx-cursor: hand;
+}
+.drag-drop-box:hover {
+    -fx-background-color: #e2e8f0;
+}
+
+/* --- Nút đỏ POST ITEM --- */
+.btn-primary {
+    -fx-background-color: #ff3b30; /* Đỏ tươi rực rỡ */
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 16px;
+    -fx-background-radius: 12;
+    -fx-padding: 12 0;
+    -fx-cursor: hand;
+    /* Đổ bóng màu đỏ mờ đằng sau nút */
+    -fx-effect: dropshadow(three-pass-box, rgba(255, 59, 48, 0.4), 15, 0, 0, 5);
+}
+.btn-primary:hover {
+    -fx-background-color: #e6352b;
+}
+
+/* --- Nút xám Select Files --- */
+.btn-secondary {
+    -fx-background-color: #f1f5f9;
+    -fx-border-color: #cbd5e1;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-text-fill: #0f172a;
+    -fx-padding: 8 0;
+    -fx-cursor: hand;
+}
+.btn-secondary:hover {
+    -fx-background-color: #e2e8f0;
+}
