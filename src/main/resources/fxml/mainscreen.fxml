@@ -1,76 +1,194 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.String?>
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.MenuButton?>
+<?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.control.Tab?>
-<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="auction.controller.MainScreenController">
-   <children>
-      <TabPane layoutX="-8.0" prefHeight="400.0" prefWidth="600.0" tabClosingPolicy="UNAVAILABLE">
-        <tabs>
-          <Tab text="Marketplace">
-            <content>
-              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="258.0" prefWidth="600.0">
+<BorderPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="800.0" prefWidth="1450.0" stylesheets="@../css/mainscreen.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="auction.controller.MainScreenController">
+   <left>
+      <VBox prefHeight="850.0" prefWidth="271.0" styleClass="sidebar" BorderPane.alignment="CENTER">
+         <children>
+            <Label graphicTextGap="10.0" prefHeight="134.0" prefWidth="270.0" styleClass="sidebar-logo" text="AuctionHouse">
+               <graphic>
+                  <ImageView fitHeight="94.0" fitWidth="70.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../images/logo.png" />
+                     </image>
+                  </ImageView>
+               </graphic>
+            </Label>
+            <Button fx:id="btnMarketplace" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#switchMarketplace" prefHeight="76.0" prefWidth="278.0" text="Marketplace">
+               <styleClass>
+                  <String fx:value="sidebar-btn-active" />
+                  <String fx:value="sidebar-btn" />
+               </styleClass></Button>
+            <Button fx:id="btnMyItems" alignment="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#switchMyItems" prefHeight="86.0" prefWidth="272.0" styleClass="sidebar-btn" text="MyItems" />
+            <Button fx:id="btnMyBids" mnemonicParsing="false" onAction="#switchMyBids" prefHeight="82.0" prefWidth="277.0" styleClass="sidebar-btn" text="My Bids" />
+            <Button fx:id="btnProfile" mnemonicParsing="false" onAction="#switchProfile" prefHeight="92.0" prefWidth="270.0" styleClass="sidebar-btn" text="Profile" />
+         </children>
+      </VBox>
+   </left>
+   <center>
+      <BorderPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+         <center>
+            <StackPane BorderPane.alignment="CENTER">
+               <children>
+                  <AnchorPane fx:id="mymarketplacePane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="664.0" prefWidth="1286.0" style="-fx-background-color: #f4f4f4;">
                      <children>
-                        <Label fx:id="welcomeText" alignment="CENTER" layoutX="2.0" layoutY="7.0" prefHeight="33.0" prefWidth="170.0" />
-                        <ScrollPane fitToWidth="true" layoutY="80.0" prefHeight="290.0" prefWidth="600.0">
-                           <content>
-                              <VBox fx:id="marketplaceContainer" />
-                           </content>
-                        </ScrollPane>
-                        <HBox layoutX="14.0" layoutY="60.0" spacing="20.0">
+                        <VBox layoutX="16.0" layoutY="92.0" prefHeight="592.0" prefWidth="1241.0" AnchorPane.bottomAnchor="18.0" AnchorPane.leftAnchor="16.0" AnchorPane.rightAnchor="29.0" AnchorPane.topAnchor="92.0">
                            <children>
-                              <Label alignment="CENTER" maxWidth="-Infinity" minWidth="-Infinity" prefHeight="20.0" prefWidth="70.0" text="ID" />
-                              <Label alignment="CENTER" maxWidth="-Infinity" minWidth="-Infinity" prefHeight="21.0" prefWidth="150.0" text="Name" />
-                              <Label alignment="CENTER" maxWidth="-Infinity" minWidth="-Infinity" prefHeight="21.0" prefWidth="80.0" text="Price" />
-                              <Label alignment="CENTER" maxWidth="-Infinity" minWidth="-Infinity" prefHeight="23.0" prefWidth="100.0" text="OwnerID" />
-                              <Label alignment="CENTER" lineSpacing="40.0" maxWidth="-Infinity" minWidth="-Infinity" prefHeight="24.0" prefWidth="100.0" text="State" />
+                              <HBox prefHeight="48.0" prefWidth="1119.0" spacing="40.0" styleClass="table-header">
+                                 <children>
+                                    <Label maxWidth="-Infinity" minWidth="-Infinity" prefHeight="18.0" prefWidth="70.0" text="ID">
+                                       <font>
+                                          <Font name="System Bold" size="21.0" />
+                                       </font>
+                                    </Label>
+                                    <Label maxWidth="-Infinity" minWidth="-Infinity" prefWidth="335.0" text="Name">
+                                       <font>
+                                          <Font name="System Bold" size="21.0" />
+                                       </font>
+                                    </Label>
+                                    <Label maxWidth="-Infinity" minWidth="-Infinity" prefHeight="21.0" prefWidth="120.0" text="Price">
+                                       <font>
+                                          <Font name="System Bold" size="21.0" />
+                                       </font>
+                                    </Label>
+                                    <Label maxWidth="-Infinity" minWidth="-Infinity" prefHeight="22.0" prefWidth="70.0" text="OwnerID">
+                                       <font>
+                                          <Font name="System Bold" size="21.0" />
+                                       </font>
+                                    </Label>
+                                    <Label maxWidth="-Infinity" minWidth="-Infinity" prefHeight="19.0" prefWidth="71.0" text="State">
+                                       <font>
+                                          <Font name="System Bold" size="21.0" />
+                                       </font>
+                                    </Label>
+                                    <Label text="Time Left">
+                                       <HBox.margin>
+                                          <Insets left="20.0" />
+                                       </HBox.margin>
+                                    </Label>
+                                    <Label text="Actions">
+                                       <HBox.margin>
+                                          <Insets left="40.0" />
+                                       </HBox.margin>
+                                    </Label>
+                                 </children>
+                                 <opaqueInsets>
+                                    <Insets />
+                                 </opaqueInsets>
+                              </HBox>
+                              <ScrollPane prefHeight="562.0" prefWidth="1154.0" styleClass="table-body">
+                                 <content>
+                                    <VBox fx:id="mymarketplaceContainer" />
+                                 </content>
+                              </ScrollPane>
                            </children>
-                        </HBox>
-                        <Label alignment="CENTER" layoutX="207.0" layoutY="14.0" prefHeight="42.0" prefWidth="186.0" text="Marketplace" textFill="#1164b7">
+                        </VBox>
+                        <Label alignment="CENTER" layoutX="-10.0" layoutY="16.0" prefHeight="35.0" prefWidth="266.0" styleClass="page-title" text="My Items" textFill="#1164b7">
                            <font>
-                              <Font name="System Bold" size="24.0" />
+                              <Font name="System Bold" size="41.0" />
+                           </font>
+                        </Label>
+                        <Button layoutX="999.0" layoutY="20.0" mnemonicParsing="false" onAction="#openAddItemPopup" prefHeight="42.0" prefWidth="199.0" styleClass="add-item-btn" text="Add New Item" />
+                     </children>
+                  </AnchorPane>
+                  <AnchorPane fx:id="marketplacePane" minHeight="0.0" minWidth="0.0" prefHeight="690.0" prefWidth="1286.0" style="-fx-background-color: #f4f4f4;">
+                     <children>
+                        <VBox layoutX="4.0" layoutY="99.2" prefHeight="583.0" prefWidth="1246.0" AnchorPane.bottomAnchor="20.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="99.0">
+                           <children>
+                              <HBox prefHeight="59.0" prefWidth="1246.0" spacing="40.0" styleClass="table-header">
+                                 <children>
+                                    <Label maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minWidth="-Infinity" prefHeight="19.0" prefWidth="70.0" text="ID">
+                                       <font>
+                                          <Font name="System Bold" size="21.0" />
+                                       </font>
+                                    </Label>
+                                    <Label maxWidth="-Infinity" minWidth="-Infinity" prefHeight="21.0" prefWidth="335.0" text="Name">
+                                       <font>
+                                          <Font name="System Bold" size="21.0" />
+                                       </font>
+                                    </Label>
+                                    <Label maxWidth="-Infinity" minWidth="-Infinity" prefHeight="21.0" prefWidth="120.0" text="Price">
+                                       <font>
+                                          <Font name="System Bold" size="21.0" />
+                                       </font>
+                                    </Label>
+                                    <Label maxWidth="-Infinity" minWidth="-Infinity" prefHeight="34.0" prefWidth="70.0" text="OwnerID">
+                                       <font>
+                                          <Font name="System Bold" size="21.0" />
+                                       </font>
+                                    </Label>
+                                    <Label lineSpacing="40.0" maxWidth="-Infinity" minWidth="-Infinity" prefHeight="21.0" prefWidth="71.0" text="State">
+                                       <font>
+                                          <Font name="System Bold" size="21.0" />
+                                       </font>
+                                    </Label>
+                                    <Label text="Time Left">
+                                       <HBox.margin>
+                                          <Insets left="20.0" />
+                                       </HBox.margin></Label>
+                                    <Label alignment="CENTER" text="Actions">
+                                       <HBox.margin>
+                                          <Insets left="40.0" />
+                                       </HBox.margin>
+                                    </Label>
+                                 </children>
+                              </HBox>
+                              <ScrollPane fitToHeight="true" fitToWidth="true" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="899.0" prefWidth="1546.0" styleClass="table-body">
+                                 <content>
+                                    <VBox fx:id="marketplaceContainer" prefHeight="626.0" prefWidth="1275.0" />
+                                 </content>
+                              </ScrollPane>
+                           </children>
+                        </VBox>
+                        <Label alignment="CENTER" layoutX="-26.0" layoutY="14.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="42.0" prefWidth="300.0" styleClass="page-title" text="Marketplace" textFill="#1164b7">
+                           <font>
+                              <Font name="System Bold" size="41.0" />
                            </font>
                         </Label>
                      </children>
                   </AnchorPane>
-            </content>
-          </Tab>
-          <Tab text="MyItems">
-               <content>
-                  <AnchorPane prefHeight="367.0" prefWidth="600.0">
-                     <children>
-                        <Label fx:id="welcomeText2" alignment="CENTER" layoutX="6.0" layoutY="7.0" prefHeight="27.0" prefWidth="158.0" />
-                        <ScrollPane layoutY="79.0" prefHeight="292.0" prefWidth="600.0">
-                           <content>
-                              <VBox fx:id="mymarketplaceContainer" />
-                           </content>
-                        </ScrollPane>
-                        <HBox layoutX="14.0" layoutY="60.0" spacing="20.0">
-                           <children>
-                              <Label alignment="CENTER" maxWidth="-Infinity" minWidth="-Infinity" prefHeight="18.0" prefWidth="70.0" text="ID" />
-                              <Label alignment="CENTER" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="150.0" text="Name" />
-                              <Label alignment="CENTER" maxWidth="-Infinity" minWidth="-Infinity" prefHeight="21.0" prefWidth="80.0" text="Price" />
-                              <Label alignment="CENTER" maxWidth="-Infinity" minWidth="-Infinity" prefHeight="22.0" prefWidth="100.0" text="OwnerID" />
-                              <Label alignment="CENTER" maxWidth="-Infinity" minWidth="-Infinity" prefHeight="18.0" prefWidth="100.0" text="State" />
-                           </children>
-                        </HBox>
-                        <Label alignment="CENTER" layoutX="173.0" layoutY="16.0" prefHeight="35.0" prefWidth="266.0" text="My Items" textFill="#1164b7">
-                           <font>
-                              <Font name="System Bold" size="24.0" />
-                           </font>
-                        </Label>
-                        <Button fx:id="postItem" layoutX="480.0" mnemonicParsing="false" onAction="#openAddItemPopup" prefHeight="34.0" prefWidth="121.0" text="Post New Item" textFill="#f43c09" />
-                     </children>
-                  </AnchorPane>
-               </content></Tab>
-        </tabs>
-      </TabPane>
-   </children>
-</AnchorPane>
+               </children>
+            </StackPane>
+         </center>
+         <top>
+            <HBox prefHeight="97.0" prefWidth="1286.0" spacing="300.0" styleClass="top-header" BorderPane.alignment="CENTER">
+               <children>
+                  <TextField fx:id="searchField" prefHeight="46.0" prefWidth="672.0" promptText="Search for items or users" styleClass="search-bar">
+                     <HBox.margin>
+                        <Insets left="20.0" />
+                     </HBox.margin>
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </TextField>
+                  <MenuButton fx:id="menuButton" alignment="CENTER" mnemonicParsing="false" prefHeight="42.0" prefWidth="242.0" styleClass="profile-menu">
+                    <items>
+                      <MenuItem mnemonicParsing="false" text="Account Information" />
+                      <MenuItem mnemonicParsing="false" text="Logout" />
+                    </items>
+                     <HBox.margin>
+                        <Insets right="30.0" />
+                     </HBox.margin>
+                  </MenuButton>
+               </children>
+            </HBox>
+         </top>
+      </BorderPane>
+   </center>
+</BorderPane>
