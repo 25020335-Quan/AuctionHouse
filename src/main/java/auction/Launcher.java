@@ -1,5 +1,8 @@
 package auction;
 
+import auction.controller.MainScreenController;
+import auction.model.users.Member;
+import auction.model.users.User;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -18,17 +21,24 @@ public class Launcher extends Application {
     public void start(Stage stage) {
         try{
             //Load file FMXL
-            Parent root = FXMLLoader.load(Launcher.class.getResource("/fxml/login.fxml"));
-        primaryStage = stage;
-        stage.setResizable(false);
-        stage.setTitle("UET Auction House");
-        //Đưa root vào scene và đưa scene vào root
-        stage.setScene(new Scene(root));
-        //Hiển thị stage
-        stage.show();
-    }
+            //Tạm thời bỏ qua phần login
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/mainscreen.fxml"));
+            Parent root = loader.load();
+            MainScreenController mainScreenController = loader.getController() ;
+            Member testUser = new Member("U99" , "test" , "123456");
+            mainScreenController.setLoggedInUser(testUser);
+            mainScreenController.displayName(testUser.getUsername());
+            primaryStage = stage;
+            stage.setResizable(true);
+            stage.setFullScreen(true);
+            stage.setTitle("UET Auction House");
+            //Đưa root vào scene và đưa scene vào root
+            stage.setScene(new Scene(root));
+            //Hiển thị stage
+            stage.show();
+        }
         catch(Exception e){
             e.printStackTrace();
         }
-}
+    }
 }
