@@ -44,6 +44,14 @@ public class AuctionManager {
         items.add(item);
     }
 
+    public void removeItemByID(String itemId) {
+        lock.lock();
+        try {
+            items.removeIf(item -> item.getId().equals(itemId));
+        } finally {
+            lock.unlock();
+        }
+    }
     public List<Item> getAllItems() {
         return new ArrayList<>(items); // Trả về bản sao để bảo vệ dữ liệu gốc
     }
