@@ -1,0 +1,204 @@
+
+.root {
+    -fx-font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    -fx-background-color: #f4f5f7; /* Màu nền xám nhạt */
+    -fx-text-fill: #1f2937; /* Màu văn bản mặc định */
+}
+
+/* --- Container cửa sổ ứng dụng --- */
+.main-application {
+    -fx-background-radius: 16px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 4);
+}
+
+/* --- Thẻ Trắng Chứa Toàn Bộ Nội Dung --- */
+.central-card {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 16px;
+    -fx-padding: 20px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 5, 0, 0, 2);
+}
+
+/* --- Sidebar/Header --- */
+.back-button {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #e5e7eb;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-padding: 8px 16px;
+    -fx-text-fill: #1f2937;
+    -fx-cursor: hand;
+}
+.back-button:hover {
+    -fx-background-color: #f8fafc;
+}
+
+/* --- Phần Bên Trái: Thông Tin Sản Phẩm --- */
+
+/* Hộp sản phẩm chính */
+.product-details {
+    -fx-spacing: 20px;
+}
+
+/* Khối Hình Ảnh Sản Phẩm */
+.product-image-box {
+    -fx-background-radius: 12px;
+}
+.product-image {
+    -fx-background-radius: 12px;
+    -fx-preserve-ratio: true;
+}
+.image-label {
+    -fx-font-size: 12px;
+    -fx-text-fill: #6b7280;
+    -fx-padding: 4px 0 0 0;
+}
+
+
+.app-title {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #111827;
+}
+
+/* Nhãn Trạng Thái */
+.status-badge {
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #ffffff;
+    -fx-background-radius: 20px;
+    -fx-padding: 3px 8px;
+}
+.status-active {
+    -fx-background-color: #16a34a; /* Xanh Active */
+    -fx-text-fill: #ffffff;
+}
+
+/* Đếm ngược */
+.countdown-timer {
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #dc2626; /* Đỏ Timer */
+    -fx-padding: 0 0 0 8px;
+}
+
+
+/* Giá hiện tại */
+.current-bid {
+    -fx-spacing: 0px;
+    -fx-padding: 10px 0 0 0;
+}
+.price-label {
+    -fx-font-size: 22px;
+    -fx-text-fill: #6b7280;
+}
+.price-text {
+    -fx-font-size: 32px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2563eb; /* Xanh lam nhấn mạnh */
+}
+
+/* Phân cách ngang */
+.separator-horizontal {
+    -fx-background-color: #e5e7eb;
+}
+
+/* --- Phần Dưới: Form Đặt Giá --- */
+.bidding-section {
+    -fx-spacing: 15px;
+    -fx-alignment: center-left;
+}
+
+/* Thanh nhập giá */
+.input-field {
+    -fx-background-color: transparent;
+    -fx-prompt-text-fill: #9ca3af;
+    -fx-font-size: 14px;
+    -fx-padding: 8px 12px;
+    -fx-background-color: #ffffff;
+    -fx-border-color: #d1d5db;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+}
+.input-field:focused {
+    -fx-border-color: #3b82f6;
+}
+
+/* Nút "Place Bid" */
+.submit-btn {
+    -fx-background-color: #2563eb; /* Màu xanh nhấn chính */
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-background-radius: 8px;
+    -fx-cursor: hand;
+    -fx-padding: 8px 20px;
+}
+.submit-btn:hover {
+    -fx-background-color: #1d4ed8;
+}
+
+/* --- Phần Bên Phải: Lịch Sử Đặt Giá --- */
+
+/* Phân cách dọc */
+.separator-vertical {
+    -fx-background-color: #e5e7eb;
+}
+
+/* Container cho ListView */
+.history-sidebar {
+    -fx-spacing: 10px;
+}
+
+/* ListView và kiểu dáng */
+.history-list {
+    -fx-background-color: transparent; /* Ẩn nền mặc định */
+}
+.history-list .list-cell {
+    -fx-padding: 10px;
+    -fx-background-color: #ffffff;
+    -fx-border-color: transparent transparent #e5e7eb transparent;
+    -fx-font-family: "Segoe UI", "Helvetica Neue", Arial;
+        -fx-font-size: 14px;
+        -fx-text-fill: #4b5563;
+}
+.history-list .list-view {
+    -fx-border-color: transparent;
+}
+.history-list .list-view:focused {
+    -fx-border-color: transparent;
+}
+
+/* Tiêu đề ListView */
+.live-history-header {
+    -fx-background-color: #f3f4f6;
+    -fx-background-radius: 8px;
+    -fx-padding: 8px 12px;
+}
+.live-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1f2937;
+    -fx-wrap-text: true;
+}
+
+/* Các mục danh sách cụ thể */
+
+/* Mặc định cho người dùng*/
+.history-item-default {
+    -fx-font-size: 13px;
+    -fx-text-fill: #4b5563;
+}
+
+.history-list .list-cell {
+    -fx-padding: 10px;
+    -fx-background-color: #ffffff;
+    -fx-border-color: transparent transparent #e5e7eb transparent;
+
+    -fx-font-family: "Segoe UI", "Helvetica Neue", Arial;
+    -fx-font-size: 22px;
+    -fx-text-fill: #4b5563;
+    -fx-font-weight: bold;
+}

@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.String?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="800.0" prefWidth="1450.0" stylesheets="@../css/auction.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="auction.controller.AuctionRoomController">
+   <children>
+      <HBox layoutX="-2.0" prefHeight="802.0" prefWidth="1454.0" spacing="15.0" styleClass="central-card">
+         <padding>
+            <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+         </padding>
+         <children>
+            <VBox prefHeight="772.0" prefWidth="871.0" styleClass="product-details">
+               <children>
+                  <Button mnemonicParsing="false" onAction="#handleBack" prefHeight="46.0" prefWidth="182.0" styleClass="back-button" text="Back To Marketplace" />
+                  <HBox prefHeight="594.0" prefWidth="871.0">
+                     <children>
+                        <ImageView fx:id="productAuctionImage" fitHeight="376.0" fitWidth="395.0" pickOnBounds="true" preserveRatio="true">
+                           <HBox.margin>
+                              <Insets />
+                           </HBox.margin>
+                           <styleClass>
+                              <String fx:value="product-image" />
+                              <String fx:value="product-image-box" />
+                           </styleClass>
+                        </ImageView>
+                        <VBox prefHeight="777.0" prefWidth="458.0">
+                           <children>
+                              <Label fx:id="titleLabel" alignment="CENTER" prefHeight="166.0" prefWidth="461.0" styleClass="app-title" text="TÊN SẢN PHẨM">
+                                 <VBox.margin>
+                                    <Insets right="30.0" />
+                                 </VBox.margin></Label>
+                              <HBox prefHeight="50.0" prefWidth="442.0">
+                                 <children>
+                                    <Label prefHeight="54.0" prefWidth="119.0" text="ACTIVE">
+                                       <HBox.margin>
+                                          <Insets top="6.0" />
+                                       </HBox.margin>
+                                       <styleClass>
+                                          <String fx:value="status-active" />
+                                          <String fx:value="status-badge" />
+                                       </styleClass>
+                                    </Label>
+                                    <HBox prefHeight="46.0" prefWidth="323.0">
+                                       <children>
+                                          <ImageView fitHeight="60.0" fitWidth="52.0" pickOnBounds="true" preserveRatio="true">
+                                             <image>
+                                                <Image url="@../images/logo_clock.png" />
+                                             </image>
+                                          </ImageView>
+                                          <Label prefHeight="71.0" prefWidth="268.0" styleClass="countdown-timer" text="14D 35M 36S" />
+                                       </children>
+                                    </HBox>
+                                 </children>
+                              </HBox>
+                              <Label prefHeight="54.0" prefWidth="230.0" text="Highest Bid">
+                                 <font>
+                                    <Font name="System Bold" size="90.0" />
+                                 </font>
+                                 <styleClass>
+                                    <String fx:value="price-label" />
+                                    <String fx:value="current-bid" />
+                                 </styleClass>
+                              </Label>
+                              <Label fx:id="currentPriceLabel" prefHeight="102.0" prefWidth="210.0" styleClass="price-text" text="90000 VND" />
+                           </children>
+                           <padding>
+                              <Insets left="10.0" />
+                           </padding>
+                        </VBox>
+                     </children>
+                  </HBox>
+                  <Separator prefWidth="200.0" styleClass="separator-horizontal" />
+                  <HBox prefHeight="337.0" prefWidth="871.0" spacing="50.0" styleClass="bidding-section">
+                     <children>
+                        <TextField fx:id="bidAmountField" prefHeight="76.0" prefWidth="549.0" promptText="Place Bid..." styleClass="input-field" />
+                        <Label prefHeight="76.0" prefWidth="170.0" styleClass="price-label" text="VND">
+                           <font>
+                              <Font size="24.0" />
+                           </font>
+                        </Label>
+                        <Button fx:id="btnPlaceBid" mnemonicParsing="false" onAction="#handlePlaceBid" prefHeight="70.0" prefWidth="270.0" styleClass="submit-btn" text="Place Bid" />
+                     </children>
+                  </HBox>
+               </children>
+            </VBox>
+            <Separator orientation="VERTICAL" prefHeight="200.0" styleClass="separator-vertical" />
+            <VBox prefHeight="772.0" prefWidth="538.0" styleClass="history-sidebar">
+               <children>
+                  <HBox prefHeight="134.0" prefWidth="527.0" styleClass="live-history-header">
+                     <children>
+                        <Label prefHeight="136.0" prefWidth="527.0" styleClass="live-title" text="LIVE Bid History" />
+                     </children>
+                  </HBox>
+                  <ListView fx:id="historyListView" prefHeight="646.0" prefWidth="527.0" styleClass="history-list" />
+               </children>
+            </VBox>
+         </children>
+      </HBox>
+   </children>
+</AnchorPane>
