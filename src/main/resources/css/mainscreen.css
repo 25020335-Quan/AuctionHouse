@@ -1,0 +1,211 @@
+.root {
+    -fx-font-family: 'Segoe UI', sans-serif;
+    -fx-font-size: 14px;
+}
+.sidebar {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #e2e8f0;
+    -fx-border-width: 0 1 0 0;
+}
+.sidebar-btn {
+    -fx-background-color: transparent;
+    -fx-text-fill: #64748b;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-alignment: center-left; /* Ép chữ sang trái */
+    -fx-padding: 15 20; /* Tăng độ rộng cho nút */
+    -fx-cursor: hand;
+}
+.sidebar .button:hover {
+    -fx-background-color: #f9fafb;
+}
+.sidebar-btn-active {
+    -fx-background-color: #eff6ff;
+    -fx-text-fill: #2563eb;
+    -fx-border-color: #2563eb;
+    -fx-border-width: 0 0 0 4;
+}
+.sidebar-logo {
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #0f172a;
+    -fx-padding: 20 20 40 20;
+}
+.main-content {
+    -fx-background-color: #f3f4f6; /* Nền xám nhạt */
+}
+.page-title {
+    -fx-font-size: 36px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #111827; /* Đen đậm */
+}
+.top-header {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #e2e8f0;
+    -fx-border-width: 0 0 1 0; /* Chỉ kẻ một đường mỏng ở dưới đáy */
+    -fx-alignment: center-left;
+}
+.table-header {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #e5e7eb;
+    -fx-border-width: 1 1 1 1;
+    -fx-padding: 12 15 12 6;
+    -fx-background-radius: 8 8 0 0; /* Bo tròn 2 góc phía trên */
+    -fx-border-radius: 8 8 0 0;
+}
+.table-header .label {
+    -fx-font-weight: bold;
+    -fx-text-fill: #6b7280;
+    -fx-font-size: 13px;
+}
+.table-body {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+    -fx-border-color: transparent #e5e7eb #e5e7eb #e5e7eb; /* Bỏ viền trên vì dính liền với HBox rồi */
+    -fx-border-width: 0 1 1 1;
+    -fx-background-radius: 0 0 8 8; /* Bo tròn 2 góc phía dưới */
+    -fx-border-radius: 0 0 8 8;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 10, 0, 0, 3); /* Đổ bóng cho toàn bộ bảng */
+}
+.table-body > .viewport {
+    -fx-background-color: transparent;
+}
+
+/* VBox chứa các hàng dữ liệu */
+.list-container {
+
+    -fx-background-color: #ffffff;
+    -fx-border-color: transparent transparent #e2e8f0 transparent;
+    -fx-border-width: 0 0 1 0;
+}
+.badge {
+    -fx-padding: 4px 10px;
+    -fx-background-radius: 12px;
+    -fx-font-weight: bold;
+    -fx-font-size: 11px;
+}
+
+/* Các class màu sắc cho từng trạng thái */
+.badge-pending {
+    -fx-background-color: #fef3c7;
+    -fx-text-fill: #d97706;
+}
+
+.badge-open {
+    -fx-background-color: #d1fae5;
+    -fx-text-fill: #059669;
+}
+
+.badge-closed {
+    -fx-background-color: #f3f4f6;
+    -fx-text-fill: #4b5563;
+}
+
+/* --- Nút Menu bên ngoài --- */
+.profile-menu:focused {
+    -fx-background-color: #cbd5e1;
+}
+.profile-menu .label{
+    -fx-font-weight : bold;
+}
+/* --- Khung menu xổ xuống (Dropdown) --- */
+.profile-menu .context-menu {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 8;
+    -fx-padding: 5 0;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 4);
+}
+/* --- Từng dòng chữ bên trong --- */
+.profile-menu .menu-item {
+    -fx-padding: 8 20 8 15;
+    -fx-font-weight: bold;
+}
+
+/* Khi lướt chuột qua các lựa chọn */
+.profile-menu .menu-item:hover {
+    -fx-background-color: #f1f5f9;
+}
+.profile-menu .menu-item:focused .label {
+    -fx-text-fill: #0f172a; /* Giữ chữ màu đen nhám */
+}
+
+/* Thanh tìm kiếm */
+/* --- TRẠNG THÁI BÌNH THƯỜNG --- */
+.search-bar {
+    -fx-background-color: #f8fafc; /* Nền xám cực nhạt */
+    -fx-border-color: #e2e8f0;     /* Viền xám nhạt đồng màu */
+    -fx-background-radius: 20;     /* Bo tròn nền thành hình viên thuốc */
+    -fx-border-radius: 20;         /* Bo tròn viền tương ứng */
+    -fx-padding: 8 20 8 20;        /* Căn lề cho chữ thở (Trên-Phải-Dưới-Trái) */
+    -fx-text-fill: #1e293b;        /* Chữ gõ vào màu đen nhám */
+    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-font-size: 16px;
+}
+/* --- khi click chuột để gõ --- */
+.search-bar:focused {
+    -fx-background-color: #ffffff; /* Sáng bừng nền lên màu trắng tinh */
+    -fx-border-color: #3b82f6;
+    -fx-border-width: 1.5;         /* Viền dày lên một chút */
+}
+
+/* --- Nút add item --- */
+.add-item-btn{
+-fx-background-color: #2563eb; /* Màu xanh dương*/
+    -fx-text-fill: #ffffff;        /* Chữ màu trắng */
+    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-padding: 10 20 10 20;      /* Nút to, form chữ nhật bo góc */
+    -fx-background-radius: 8;      /* Bo tròn các góc */
+    -fx-cursor: hand;              /* Biến con trỏ thành bàn tay */
+
+    /* Đổ bóng màu xanh nhạt */
+    -fx-effect: dropshadow(three-pass-box, rgba(37, 99, 235, 0.3), 10, 0, 0, 4);
+}
+.add-item-btn :hover{
+-fx-background-color: #1d4ed8; /* Màu xanh đậm lên một chút */
+}
+.add-item-btn :pressed{
+-fx-background-color: #1e40af; /* Màu xanh đậm nhất */
+-fx-effect: dropshadow(three-pass-box, rgba(37, 99, 235, 0.1), 5, 0, 0, 2);
+}
+.btn-view {
+    -fx-background-color: #6b7280; /* Màu xám */
+    -fx-text-fill: white;
+    -fx-font-family: "Segoe UI", Arial, sans-serif;
+    -fx-font-weight: bold;
+    -fx-background-radius: 6; /* Bo góc */
+    -fx-padding: 6 16 6 16;
+    -fx-cursor: hand; /* Biến chuột thành hình bàn tay khi di vào */
+}
+
+/* Hiệu ứng khi di chuột vào nút View*/
+.btn-view:hover {
+    -fx-background-color: #4b5563;
+}
+
+/* --- Nút Bid ---- */
+.btn-bid {
+    -fx-background-color: #007bff; /* Màu xanh dương */
+    -fx-text-fill: white;
+    -fx-font-family: "Segoe UI", Arial, sans-serif;
+    -fx-font-weight: bold;
+    -fx-background-radius: 6;
+    -fx-padding: 6 16 6 16;
+    -fx-cursor: hand;
+}
+
+/* Hiệu ứng khi di chuột vào nút Bid */
+.btn-bid:hover {
+    -fx-background-color: #0056b3;
+}
+.btn-delete {
+    -fx-background-color: #ef4444;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+}
+.btn-delete:hover {
+    -fx-background-color: #dc2626;
+}
