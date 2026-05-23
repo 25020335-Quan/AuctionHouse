@@ -10,6 +10,7 @@ public abstract class Item extends Entity implements Serializable {
     private String name;
     private double currentPrice; // Giá hiện tại
     private AuctionState state;
+    private String description = "";
 
     public Item(String id, String ownerId, String name, double startingPrice) {
         super(id);
@@ -30,6 +31,9 @@ public abstract class Item extends Entity implements Serializable {
         return state;
     }
     public String getOwnerId() { return ownerId; }
+    public String getDescription() {
+        return description;
+    }
 
     // Setter
     public void setState(AuctionState state) {
@@ -44,4 +48,5 @@ public abstract class Item extends Entity implements Serializable {
     public void setPrice(double newPrice) {
         this.currentPrice = newPrice;
     }
+    public void setDescription(String description) { this.description = description; }
 }
