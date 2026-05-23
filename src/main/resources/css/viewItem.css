@@ -1,0 +1,78 @@
+.root {
+    -fx-background-color: #ffffff; /* Nền trắng */
+    -fx-font-family: "Segoe UI", Helvetica, Arial, sans-serif;
+}
+.title-label {
+    -fx-font-size: 32px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1e293b; /* Xanh than  */
+}
+.btn-close {
+    -fx-background-color: #1e293b;
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 6px; /* Bo tròn góc */
+    -fx-padding: 8px 16px; /* Cách chữ ra viền */
+    -fx-cursor: hand; /* Đổi chuột thành hình bàn tay khi chĩa vào */
+}
+
+/* Hiệu ứng khi di chuột qua nút (Hover) */
+.btn-close:hover {
+    -fx-background-color: #334155;
+}
+
+/* Hiệu ứng khi bấm click vào nút */
+.btn-close:pressed {
+    -fx-background-color: #0f172a;
+}
+.image-container {
+    -fx-background-color: #f8fafc; /* Màu nền xám nhạt */
+    -fx-border-color: #e2e8f0; /* Viền xám mờ */
+    -fx-border-width: 1px;
+    -fx-border-radius: 8px; /* Bo góc viền */
+    -fx-background-radius: 8px; /* Bo góc nền */
+    -fx-padding: 10px;
+}
+.section-header {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #64748b; /* Xám xanh */
+    /* Tạo đường kẻ gạch dưới */
+    -fx-border-color: transparent transparent #f1f5f9 transparent;
+    -fx-border-width: 0 0 2px 0;
+    -fx-padding: 0 0 8px 0;
+}
+.description-body {
+    -fx-font-size: 14px;
+    -fx-text-fill: #475569; /* Chữ xám trung tính, không bị chói mắt như màu đen */
+    -fx-line-spacing: 5px; /* Giãn dòng cho dễ đọc */
+}
+.thumbnail-container {
+    -fx-spacing: 12px; /* Khoảng cách giữa các ảnh nhỏ */
+    -fx-padding: 15px 0px 0px 0px; /* Cách ảnh to ở trên ra 15px */
+    -fx-alignment: center-left; /* Đẩy các ảnh bám sang lề trái */
+}
+.thumbnail-item {
+    -fx-border-color: transparent; /* Mặc định không hiện viền */
+    -fx-border-radius: 8px;
+    -fx-border-width: 2px;
+    -fx-padding: 2px; /* Tạo khoảng hở mỏng giữa ảnh và viền */
+    -fx-cursor: hand;
+}
+.thumbnail-item {
+    -fx-border-color: transparent; /* Mặc định không hiện viền */
+    -fx-border-radius: 8px;
+    -fx-border-width: 2px;
+    -fx-padding: 2px; /* Tạo khoảng hở mỏng giữa ảnh và viền */
+    -fx-cursor: hand;
+}
+
+/* Hiệu ứng: Khi lướt chuột qua, hiện viền xám bao quanh ảnh nhỏ */
+.thumbnail-item:hover {
+    -fx-border-color: #cbd5e1;
+}
+.drag-over {
+    -fx-border-color: #3b82f6;
+    -fx-background-color: #eff6ff; /* Nền xanh nhạt xíu */
+}
