@@ -14,10 +14,26 @@ import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.TextField;
+import javafx.geometry.Pos;
+import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.input.Dragboard;
+import javafx.scene.input.TransferMode;
+import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
+import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
+import java.util.List;
 
 public class AddItemController {
     @FXML
@@ -25,15 +41,130 @@ public class AddItemController {
     @FXML
     TextField priceField;
     @FXML
-    TextField typeField;
+    ComboBox<String> typeField;
+    @FXML
+    TextArea descriptionField;
     @FXML
     Button saveItem;
     @FXML
+    Button selectMoreFiles;
+    @FXML
+    VBox dragDropBox;
+    @FXML
     private MainScreenController parentController;
+    @FXML
+    private FlowPane imagePreviewPane;
     private Item newItem;
+    // Danh sách lưu trữ các file ảnh người dùng đã thả vào
+    private List<File> selectedFiles = new ArrayList<>();
+
+    @FXML
+    public void initialize() {
+        // 1. Khởi tạo dữ liệu cho ComboBox
+        typeField.getItems().addAll("Art", "Electronics", "Vehicle");
+
+        // 2. Kích hoạt tính năng Kéo Thả Ảnh
+        setupDragAndDrop();
+    }
+
+    //Xử lý ảnh sản phẩm
+    private void setupDragAndDrop() {
+        //Khi cầm file lướt qua khung
+        dragDropBox.setOnDragOver(event -> {
+            if (event.getGestureSource() != dragDropBox && event.getDragboard().hasFiles()) {
+                event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
+            }
+            event.consume();
+        });
+        //Khi nhả chuột thả file xuống box
+        dragDropBox.setOnDragDropped(event -> {
+            Dragboard db = event.getDragboard();
+            boolean success = false;
+
+            if (db.hasFiles()) {
+                for (File file : db.getFiles()) {
+                    String name = file.getName().toLowerCase();
+                    // Chỉ cho phép đuôi ảnh
+                    if (name.endsWith(".png") || name.endsWith(".jpg") || name.endsWith(".jpeg")) {
+                        if (selectedFiles.size() < 5) {
+                            selectedFiles.add(file);
+                        } else {
+                            showAlert("You are only allowed to upload 5 pictures");
+                            break;
+                        }
+                    }
+                }
+                success = true;
+                updateImagePreviews(); // Cập nhật lại giao diện
+            }
+            event.setDropCompleted(success);
+            event.consume();
+        });
+    }
+
+    public void updateImagePreviews() {
+        imagePreviewPane.getChildren().clear(); // Xóa UI cũ để cập nhật lại
+        for (File file : selectedFiles) {
+            // Tạo ảnh
+            Image img = new Image(file.toURI().toString());
+            ImageView imageView = new ImageView(img);
+            imageView.setFitWidth(77);
+            imageView.setFitHeight(78);
+
+            // Bo góc ảnh
+            Rectangle clip = new Rectangle(77, 78);
+            clip.setArcWidth(15);
+            clip.setArcHeight(15);
+            imageView.setClip(clip);
+
+            // Tạo nút Xóa đỏ
+            Button btnRemove = new Button("X");
+            btnRemove.setStyle("-fx-background-color: #ef4444; -fx-text-fill: white; -fx-font-size: 10px; -fx-font-weight: bold; -fx-background-radius: 15; -fx-cursor: hand;");
+            btnRemove.setOnAction(e -> {
+                selectedFiles.remove(file); // Xóa khỏi danh sách
+                updateImagePreviews(); // Vẽ lại UI
+            });
+
+            // Xếp chồng ảnh và nút X
+            StackPane container = new StackPane();
+            container.getChildren().addAll(imageView, btnRemove);
+            StackPane.setAlignment(btnRemove, Pos.TOP_RIGHT); // Ép nút X lên góc phải
+
+            imagePreviewPane.getChildren().add(container);
+        }
+    }
+
+    // Copy ảnh người dùng đã chọn vào thư mục dự án
+    private void saveImagesToLocalProject(String itemId) {
+        if (selectedFiles.isEmpty()) {
+            return;
+        }
+        ;
+        File dir = new File("src/main/resources/images");
+        if (!dir.exists()) dir.mkdirs();
+        for (int i = 0; i < selectedFiles.size(); i++) {
+            File sourceFile = selectedFiles.get(i);
+            // Đổi tên ảnh theo ID sản phẩm (VD: I-ABC123_0.jpg, I-ABC123_1.jpg)
+            String extension = sourceFile.getName().substring(sourceFile.getName().lastIndexOf("."));
+            String newFileName = itemId + "_" + i + extension;
+
+            Path sourcePath = Paths.get(sourceFile.getAbsolutePath());
+            Path targetPath = Paths.get(dir.getAbsolutePath() + "/" + newFileName);
+
+            try {
+                // Copy file từ máy tính vào project
+                Files.copy(sourcePath, targetPath, StandardCopyOption.REPLACE_EXISTING);
+                System.out.println("Đã lưu ảnh: " + newFileName);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
+    }
+
     public void setParentController(MainScreenController parent) {
         this.parentController = parent;
     }
+
     @FXML
     public void handleSave(ActionEvent event) {
         // Lấy thông tin từ các ô nhập liệu
@@ -43,17 +174,19 @@ public class AddItemController {
         // Tạo sản phẩm mới gắn với ID của người đang đăng nhập
         String itemId = "I" + System.currentTimeMillis();
         String ownerId = parentController.getCurrentUser().getId();
-        String typeInput  = typeField.getText().trim().toLowerCase();
-        if (typeInput.contains("art")) {
+        String typeInput = typeField.getValue().trim().toLowerCase();
+        if (typeInput.equals("art")) {
             newItem = new Art(itemId, ownerId, name, price);
-        } else if (typeInput.contains("electronics")) {
+        } else if (typeInput.equals("electronics")) {
             newItem = new Electronics(itemId, ownerId, name, price);
-        } else if (typeInput.contains("vehicle")) {
+        } else if (typeInput.equals("vehicle")) {
             newItem = new Vehicle(itemId, ownerId, name, price);
         } else {
             // Mặc định hoặc báo lỗi nếu nhập sai loại
             System.out.println("Loại sản phẩm không hợp lệ");
         }
+        newItem.setDescription(descriptionField.getText());
+        saveImagesToLocalProject(itemId);
 
         Task<Item> addItemTask = new Task<Item>() {
             @Override
@@ -73,20 +206,20 @@ public class AddItemController {
         };
 
         addItemTask.setOnSucceeded(e -> {
-            AuctionManager.getInstance().addItem(newItem);
-            parentController.refreshUI();
+            parentController.addNewItemLocally(newItem);
             ((Stage)nameField.getScene().getWindow()).close();
             System.out.println("Đã thêm sản phẩm thành công!");
         });
         Thread thread = new Thread(addItemTask);
         thread.start();
     }
+        private void showAlert (String message){
+            Alert alert = new Alert(Alert.AlertType.INFORMATION); // Loại thông báo có icon chữ 'i'
+            alert.setTitle("Thông báo hệ thống");
+            alert.setHeaderText(null); // Không dùng tiêu đề phụ
+            alert.setContentText(message);
+            alert.showAndWait(); // Hiển thị và bắt người dùng nhấn OK mới được làm tiếp
+        }
 
-    private void showAlert(String message) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION); // Loại thông báo có icon chữ 'i'
-        alert.setTitle("Thông báo hệ thống");
-        alert.setHeaderText(null); // Không dùng tiêu đề phụ
-        alert.setContentText(message);
-        alert.showAndWait(); // Hiển thị và bắt người dùng nhấn OK mới được làm tiếp
+        
     }
-}
