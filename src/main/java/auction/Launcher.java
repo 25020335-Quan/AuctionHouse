@@ -22,12 +22,12 @@ public class Launcher extends Application {
         try{
             //Load file FMXL
             //Tạm thời bỏ qua phần login
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/mainscreen.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/login.fxml"));
             Parent root = loader.load();
-            MainScreenController mainScreenController = loader.getController() ;
-            Member testUser = new Member("U99" , "test" , "123456");
-            mainScreenController.setLoggedInUser(testUser);
-            mainScreenController.displayName(testUser.getUsername());
+//            MainScreenController mainScreenController = loader.getController() ;
+//            Member testUser = new Member("U99" , "test" , "123456");
+//            mainScreenController.setLoggedInUser(testUser);
+//            mainScreenController.displayName(testUser.getUsername());
             primaryStage = stage;
             stage.setResizable(true);
             stage.setFullScreen(true);
