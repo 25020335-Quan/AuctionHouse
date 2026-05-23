@@ -15,6 +15,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 import java.io.IOException;
 //Class điều khiển quá trình đăng nhập
@@ -71,9 +72,12 @@ public class LoginController{
                 wrongLogin.setStyle("-fx-text-fill: red;");
             }
         });
-
         Thread thread = new Thread(loginTask);
         thread.start();
 
+    }
+    @FXML
+    void handleGoToSignUp(MouseEvent event){
+        SceneSwitcher.switchScene(event, "/fxml/signup.fxml", "SignUp");
     }
 }
