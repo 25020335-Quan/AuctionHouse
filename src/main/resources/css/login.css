@@ -1,0 +1,91 @@
+/* Nền ngoài cùng màu xám nhạt */
+.login-root {
+    -fx-background-color: #f3f4f6;
+}
+
+/* Cái thẻ trắng chứa toàn bộ form */
+.login-card {
+    -fx-background-color: white;
+    -fx-background-radius: 16;
+    /* Đổ bóng nhẹ cho form nổi lên */
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.05), 15, 0, 0, 4);
+}
+
+/* Khung chứa Icon và TextField */
+.input-box {
+    -fx-background-color: #f8fafc;
+    -fx-border-color: #e2e8f0;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+}
+/* Hiệu ứng khi click vào ô nhập thì viền xanh lên */
+.input-box:focused-within {
+    -fx-border-color: #3b82f6;
+}
+
+/* Ô nhập chữ */
+.input-field {
+    -fx-background-color: transparent;
+    -fx-prompt-text-fill: #9ca3af;
+    -fx-font-size: 14px;
+}
+
+/* Nút Đăng nhập */
+.login-btn {
+    -fx-background-color: #1f2937; /* Màu xanh đen nhám */
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-background-radius: 8;
+    -fx-cursor: hand;
+}
+.login-btn:hover {
+    -fx-background-color: #374151; /* Sáng lên khi di chuột */
+}
+
+/* Chữ bấm được (Quên mật khẩu, Đăng ký) */
+.link-text {
+    -fx-text-fill: #6b7280;
+    -fx-cursor: hand;
+    -fx-font-size: 12px;
+}
+.link-text:hover {
+    -fx-text-fill: #1f2937;
+    -fx-underline: true;
+}
+
+/* Tên App */
+.app-title {
+    -fx-font-size: 24px;
+    -fx-font-weight: 900; /* Đậm nhất */
+    -fx-text-fill: #111827; /* Đen tuyền */
+}
+
+/* Chữ "Chào mừng trở lại" */
+.welcome-title {
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1f2937; /* Đen xám */
+}
+
+/* Chữ "Vui lòng nhập thông tin để truy cập hệ thống" */
+.subtitle-text {
+    -fx-font-size: 13px;
+    -fx-text-fill: #6b7280; /* Màu xám nhạt để lùi về sau làm nền */
+    -fx-padding: 0 0 15 0; /* Cách phần form nhập liệu ở dưới ra một đoạn */
+}
+
+
+/* Chữ "Username" và "Password" */
+.input-label {
+    -fx-font-size: 13px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #4b5563;
+}
+.error-message {
+    -fx-text-fill: #dc2626;
+        -fx-font-family: "Segoe UI", "Inter", sans-serif;
+        -fx-font-size: 13px;
+        -fx-font-weight: bold;
+        -fx-visibility: hidden;
+}
