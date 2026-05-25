@@ -185,8 +185,33 @@ public class AddItemController {
             // Mặc định hoặc báo lỗi nếu nhập sai loại
             System.out.println("Loại sản phẩm không hợp lệ");
         }
-        newItem.setDescription(descriptionField.getText());
+        String userDesc = descriptionField.getText();
+        newItem.setStartingPrice(price);
         saveImagesToLocalProject(itemId);
+        // Lấy đúng khoảnh khắc người dùng bấm nút "Save" làm giờ bắt đầu
+        LocalDateTime startTime = LocalDateTime.now();
+
+        // Tự động cộng thêm 3 ngày làm giờ kết thúc
+        LocalDateTime endTime = startTime.plusDays(3);
+
+        // Đưa vào sản phẩm
+        newItem.setStartTime(startTime);
+        newItem.setEndTime(endTime);
+
+        //Định dạng lại ngày giờ để hiển thị lên màn hình
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+        StringBuilder desc = new StringBuilder();
+        desc.append("----------------------------------------\n");
+        desc.append("AUCTION DETAILS\n");
+        desc.append("----------------------------------------\n");
+        desc.append("▪ Product Name: ").append(name).append("\n");
+        desc.append(String.format("▪ Starting Price: %,.0f VND\n", price));
+        desc.append("▪ Start Time: ").append(startTime.format(formatter)).append("\n");
+        desc.append("▪ End Time: ").append(endTime.format(formatter)).append("\n");
+        desc.append("▪ Description:\n ");
+        desc.append(userDesc);
+        desc.append("---------------------------------------- \n");
+        newItem.setDescription(desc.toString());
 
         Task<Item> addItemTask = new Task<Item>() {
             @Override
