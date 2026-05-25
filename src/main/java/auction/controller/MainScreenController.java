@@ -157,6 +157,28 @@ public class MainScreenController {
 
     public void setLoggedInUser(User user) {
         this.currentUser = user;
+        // Code test
+        boolean hasTestItem = false;
+        for (Item i : AuctionManager.getInstance().getAllItems()) {
+            if (i.getId().equals("TEST-999")) hasTestItem = true;
+        }
+        if (!hasTestItem) {
+            // 1. Tạo món đồ do người khác bán
+            Item mockItem = new Art("TEST-999", "KhachLa", "Đồng hồ Rolex (Test)", 100000);
+
+            // 2. Ép thời gian đếm ngược chỉ còn đúng 10 giây
+            mockItem.setStartTime(LocalDateTime.now());
+            mockItem.setEndTime(LocalDateTime.now().plusSeconds(60));
+
+            // 3. Ép mình đang là người trả giá cao nhất (Winner)
+            mockItem.setHighestBidderName(user.getUsername());
+            mockItem.setState(AuctionState.RUNNING);
+
+            // Bơm vào kho
+            AuctionManager.getInstance().addItem(mockItem);
+        }
+        // =====================================================================
+
         List<Item> items = AuctionManager.getInstance().getAllItems();
         loadProducts(items);
     }
