@@ -32,6 +32,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -60,10 +62,10 @@ public class AddItemController {
 
     @FXML
     public void initialize() {
-        // 1. Khởi tạo dữ liệu cho ComboBox
+        // Khởi tạo dữ liệu cho ComboBox
         typeField.getItems().addAll("Art", "Electronics", "Vehicle");
 
-        // 2. Kích hoạt tính năng Kéo Thả Ảnh
+        // Kích hoạt tính năng Kéo Thả Ảnh
         setupDragAndDrop();
     }
 
