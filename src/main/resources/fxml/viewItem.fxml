@@ -15,7 +15,7 @@
          <children>
             <HBox alignment="CENTER_LEFT" prefHeight="67.0" prefWidth="600.0">
                <children>
-                  <Label fx:id="titleLabel" prefHeight="94.0" prefWidth="226.0" styleClass="title-label" text="Label" />
+                  <Label fx:id="titleLabel" prefHeight="44.0" prefWidth="438.0" styleClass="title-label" text="Label" />
                   <Region prefHeight="39.0" prefWidth="252.0" HBox.hgrow="ALWAYS" />
                   <Button fx:id="backButton" mnemonicParsing="false" onAction="#backToMarketplace" prefHeight="34.0" prefWidth="140.0" styleClass="btn-close" text="Close Page">
                      <HBox.margin>
