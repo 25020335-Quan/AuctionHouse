@@ -4,6 +4,7 @@ import auction.model.Entity;
 import auction.model.state.AuctionState;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 
 public abstract class Item extends Entity implements Serializable {
     private final String ownerId;
@@ -11,6 +12,10 @@ public abstract class Item extends Entity implements Serializable {
     private double currentPrice; // Giá hiện tại
     private AuctionState state;
     private String description = "";
+    private double startingPrice;
+    private LocalDateTime startTime;
+    private LocalDateTime endTime;
+    private String highestBidderName;
 
     public Item(String id, String ownerId, String name, double startingPrice) {
         super(id);
@@ -34,19 +39,27 @@ public abstract class Item extends Entity implements Serializable {
     public String getDescription() {
         return description;
     }
+    public double getStartingPrice() { return startingPrice; }
+    public LocalDateTime getStartTime() { return startTime; }
+    public LocalDateTime getEndTime() { return endTime; }
+    public String getHighestBidderName() { return highestBidderName; }
 
     // Setter
+    public void setStartingPrice(double startingPrice) { this.startingPrice = startingPrice; }
+    public void setStartTime(LocalDateTime startTime) { this.startTime = startTime; }
+    public void setEndTime(LocalDateTime endTime) { this.endTime = endTime; }
     public void setState(AuctionState state) {
         this.state = state;
         System.out.println("[Hệ thống] Sản phẩm " + getName() + " chuyển sang trạng thái: " + state);
     }
-
     public void setName(String name) {
         this.name = name;
     }
-
     public void setPrice(double newPrice) {
         this.currentPrice = newPrice;
     }
     public void setDescription(String description) { this.description = description; }
+    public void setHighestBidderName(String highestBidderName) {
+        this.highestBidderName = highestBidderName;
+    }
 }
