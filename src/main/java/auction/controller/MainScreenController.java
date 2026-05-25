@@ -2,6 +2,7 @@ package auction.controller;
 import auction.client.AuctionClient;
 import auction.model.item.*;
 import auction.model.*;
+import auction.model.state.AuctionState;
 import auction.model.users.User;
 import auction.util.GetItemListRequest;
 import auction.util.SceneSwitcher;
@@ -13,10 +14,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.MenuButton;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
@@ -26,6 +24,7 @@ import javafx.util.Duration;
 
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,6 +33,8 @@ public class MainScreenController {
     private VBox marketplaceContainer;
     @FXML
     private VBox mymarketplaceContainer;
+    @FXML
+    private VBox wonAuctionsContainer;
     private User currentUser;
     @FXML
     private MenuButton menuButton;
@@ -42,13 +43,15 @@ public class MainScreenController {
     @FXML
     private Button btnMyItems;
     @FXML
-    private Button btnMyBids;
+    private Button btnWonAuctions;
     @FXML
     private Button btnProfile;
     @FXML
     private AnchorPane marketplacePane;
     @FXML
     private AnchorPane mymarketplacePane;
+    @FXML
+    private AnchorPane wonAuctionsPane;
     @FXML
     private TextField searchField;
 
@@ -61,34 +64,51 @@ public class MainScreenController {
             manager.addItem(art1);
             manager.addItem(art2);
         }
-            loadProducts(manager.getAllItems());
-            setupRealTimeSearch();
-        }
+        setupRealTimeSearch();
+    }
+
     @FXML
     public void displayName(String name) {
         menuButton.setText("Hello," + name);
     }
 
     public void loadProducts(List<Item> itemList) {
-        marketplaceContainer.getChildren().clear();// Clear hết các sản phẩm cũ trước cũ load danh sách mới nếu không sẽ bị đè lên nhau
+        marketplaceContainer.getChildren().clear(); // Clear hết các sản phẩm cũ
         mymarketplaceContainer.getChildren().clear();
+
         for (Item item : itemList) {
             try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/productRow.fxml"));
-                HBox row = loader.load();
-                ProductRowController controller = loader.getController();
-                controller.setData(item , currentUser, this );
-                marketplaceContainer.getChildren().add(row);
-                if (currentUser != null && item.getOwnerId().equals(currentUser.getId())) {
-                    // Phải tạo một bản load mới (loader) vì một Object giao diện (row)
-                    // không thể xuất hiện ở 2 nơi cùng lúc trên màn hình được
+                // lọc Marketplace : Chỉ những món đang mở hoặc đang chạy mới được ra chợ
+                boolean isActiveForMarket = (item.getState() == AuctionState.OPEN ||
+                        item.getState() == AuctionState.PENDING ||
+                        item.getState() == AuctionState.RUNNING);
+
+                // lọc My Items : Kiểm tra xem món đồ này có phải của mình không
+                boolean isMyItem = (currentUser != null && item.getOwnerId().equals(currentUser.getId()));
+
+                // Nếu đồ đã CANCELED/SOLD và không phải đồ của mình
+                if (!isActiveForMarket && !isMyItem) {
+                    continue;
+                }
+
+                // Nếu đủ điều kiện ra chợ -> Đưa vào marketplaceContainer
+                if (isActiveForMarket) {
+                    FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/productRow.fxml"));
+                    HBox row = loader.load();
+                    ProductRowController controller = loader.getController();
+                    controller.setData(item, currentUser, this);
+                    marketplaceContainer.getChildren().add(row);
+                }
+
+                // Nếu là đồ của mình -> Đưa vào mymarketplaceContainer
+                if (isMyItem) {
                     FXMLLoader myLoader = new FXMLLoader(getClass().getResource("/fxml/productRow.fxml"));
                     HBox myRow = myLoader.load();
                     ProductRowController controllerMine = myLoader.getController();
-                    controllerMine.setData(item , currentUser , this);
-
+                    controllerMine.setData(item, currentUser, this);
                     mymarketplaceContainer.getChildren().add(myRow);
                 }
+
             } catch (IOException e) {
                 System.out.println("load product failed");
                 e.printStackTrace();
@@ -106,6 +126,7 @@ public class MainScreenController {
         autoRefresh.setCycleCount(Timeline.INDEFINITE);
         autoRefresh.play();
     }
+
     public void refreshUI() {
         Task<List<Item>> refreshTask = new Task<>() {
             @Override
@@ -134,7 +155,7 @@ public class MainScreenController {
     }
 
 
-   public void setLoggedInUser(User user) {
+    public void setLoggedInUser(User user) {
         this.currentUser = user;
         List<Item> items = AuctionManager.getInstance().getAllItems();
         loadProducts(items);
@@ -146,42 +167,87 @@ public class MainScreenController {
 
     @FXML
     public void openAddItemPopup(ActionEvent event) {
-        try{
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/addItem.fxml"));
-        Parent root = loader.load();
-        AddItemController controller = loader.getController();
-        controller.setParentController(this);
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/addItem.fxml"));
+            Parent root = loader.load();
+            AddItemController controller = loader.getController();
+            controller.setParentController(this);
             Stage stage = new Stage();
             stage.setTitle("Post New Item");
             stage.setScene(new Scene(root));
             stage.show();
+        } catch (IOException e) {
+            System.err.println("Lỗi load file FXML");
+            e.printStackTrace();
+        } catch (Exception e) {
+            System.err.println("Lỗi khởi tạo màn hình!");
+            e.printStackTrace();
+        }
     }
-     catch (IOException e) {
-        System.err.println("Lỗi load file FXML");
-        e.printStackTrace();
-    } catch (Exception e) {
-        System.err.println("Lỗi khởi tạo màn hình!");
-        e.printStackTrace();
-    }
-}
+
     @FXML
     public void switchMarketplace(ActionEvent event) {
         marketplacePane.toFront();
         setActiveButton(btnMarketplace);
     }
+
+    @FXML
     public void switchMyItems(ActionEvent event) {
         mymarketplacePane.toFront();
         setActiveButton(btnMyItems);
     }
+
     public void switchProfile(ActionEvent event) {
         setActiveButton(btnProfile);
     }
-    public void switchMyBids(ActionEvent event) {
-        setActiveButton(btnMyBids);
+
+    @FXML
+    public void handleShowWonAuctions(ActionEvent event) {
+        wonAuctionsPane.toFront();
+        setActiveButton(btnWonAuctions);
+
+        if (wonAuctionsContainer != null) {
+            wonAuctionsContainer.getChildren().clear();
+        }
+        List<Item> allItems = AuctionManager.getInstance().getAllItems();
+        for (Item item : allItems) {
+            // Kiểm tra phiên đấu giá đã kết thúc (CLOSED, SOLD, CANCELED)
+            boolean isEnded = (item.getState() == AuctionState.CLOSED ||
+                    item.getState() == AuctionState.SOLD ||
+                    item.getState() == AuctionState.CANCELED);
+
+            // Kiểm tra người dùng hiện tại có phải là người trả giá cao nhất không
+            boolean isWinner = item.getHighestBidderName() != null && currentUser != null &&
+                    item.getHighestBidderName().equals(currentUser.getUsername());
+
+            if (isEnded && isWinner) {
+                try {
+                    FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/productRow.fxml"));
+                    HBox row = loader.load();
+
+                    ProductRowController rowController = loader.getController();
+                    // Truyền currentUser và màn hình chính vào cho controller
+                    rowController.setData(item, currentUser, this);
+
+                    if (wonAuctionsContainer != null) {
+                        wonAuctionsContainer.getChildren().add(row);
+                    }
+                } catch (IOException e) {
+                    System.err.println("Lỗi tải giao diện cho mục Won Auctions");
+                    e.printStackTrace();
+                }
+            }
+        }
+        if (wonAuctionsContainer != null && wonAuctionsContainer.getChildren().isEmpty()) {
+            Label emptyLabel = new Label("You haven't won any auctions yet");
+            emptyLabel.setStyle("-fx-font-size: 16px; -fx-text-fill: #6b7280; -fx-padding: 20px;");
+            wonAuctionsContainer.getChildren().add(emptyLabel);
+        }
     }
+
     private void setActiveButton(Button clickedButton) {
         // Gom tất cả các nút trên Sidebar vào một mảng
-        Button[] sidebarButtons = {btnMarketplace, btnMyItems, btnMyBids, btnProfile};
+        Button[] sidebarButtons = {btnMarketplace, btnMyItems, btnWonAuctions, btnProfile};
 
         // Dùng vòng lặp đi qua từng nút và gỡ "active" của chúng nó
         for (Button btn : sidebarButtons) {
@@ -194,12 +260,14 @@ public class MainScreenController {
             clickedButton.getStyleClass().add("sidebar-btn-active");
         }
     }
+
     private void setupRealTimeSearch() {
         // Hàm này sẽ tự động chạy mỗi khi gõ thêm/xóa bớt 1 ký tự vào ô search
         searchField.textProperty().addListener((observable, oldValue, newValue) -> {
             applySearchFilter(newValue);
         });
     }
+
     private void applySearchFilter(String keyWord) {
         List<Item> allItems = AuctionManager.getInstance().getAllItems();
         // Nếu người dùng xóa trắng thanh search thì hiện lại toàn bộ danh sách gốc
@@ -207,21 +275,22 @@ public class MainScreenController {
             loadProducts(allItems);
             return;
         }
-    // Chuyển từ khóa về chữ thường để tìm kiếm không phân biệt Hoa/thường
-    String lowerCaseKeyword = keyWord.toLowerCase().trim();
-    List<Item> filteredList = new ArrayList<>();
+        // Chuyển từ khóa về chữ thường để tìm kiếm không phân biệt Hoa/thường
+        String lowerCaseKeyword = keyWord.toLowerCase().trim();
+        List<Item> filteredList = new ArrayList<>();
 
-    // Quét danh sách gốc, xem item nào có tên hoặc ID chứa từ khóa thì nhặt ra
+        // Quét danh sách gốc, xem item nào có tên hoặc ID chứa từ khóa thì nhặt ra
         for (Item item : allItems) {
-        if (item.getName().toLowerCase().contains(lowerCaseKeyword) ||
-                item.getId().toLowerCase().contains(lowerCaseKeyword)) {
-            filteredList.add(item);
+            if (item.getName().toLowerCase().contains(lowerCaseKeyword) ||
+                    item.getId().toLowerCase().contains(lowerCaseKeyword)) {
+                filteredList.add(item);
+            }
         }
+
+        // Gọi hàm vẽ lại UI với danh sách đã lọc
+        loadProducts(filteredList);
     }
 
-    // Gọi hàm vẽ lại UI với danh sách đã lọc
-    loadProducts(filteredList);
-}
     // Thêm hàm để nhận hàng mới từ AddItemController
     public void addNewItemLocally(Item newItem) {
         //Cất vào kho Local của AuctionManager
@@ -229,11 +298,75 @@ public class MainScreenController {
         //Ép bộ lọc chạy lại.
         applySearchFilter(searchField.getText());
     }
+
     public void refreshLocalUI() {
         if (searchField != null) {
             applySearchFilter(searchField.getText());
         } else {
             loadProducts(AuctionManager.getInstance().getAllItems());
         }
+    }
+
+    public void handlePayment(Item wonItem) {
+        // Confirm thanh toán
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Payment Confirmation");
+        alert.setHeaderText("Checkout for: " + wonItem.getName());
+        alert.setContentText(String.format("Grand total: %,.0f VND.\n\nDo you want to complete your payment now?", wonItem.getCurrentPrice()));
+        // Tạo 3 nút bấm
+        ButtonType btnPay = new ButtonType("Pay Now", ButtonBar.ButtonData.OK_DONE);
+        ButtonType btnCancelOrder = new ButtonType("Cancel Order", ButtonBar.ButtonData.LEFT);
+        ButtonType btnLater = new ButtonType("Later", ButtonBar.ButtonData.CANCEL_CLOSE);
+
+        alert.getButtonTypes().setAll(btnPay, btnCancelOrder, btnLater);
+        // Chờ người dùng bấm nút OK hoặc Cancel
+        alert.showAndWait().ifPresent(response -> {
+            if (response == btnPay) {
+                Task<Boolean> paymentTask = new Task<>() {
+                    @Override
+                    protected Boolean call() throws Exception {
+
+                        Thread.sleep(1000);
+                        return true;
+                    }
+                };
+                paymentTask.setOnSucceeded(e -> {
+                    boolean isSuccess = paymentTask.getValue();
+
+                    if (isSuccess) {
+                        // Cập nhật trạng thái món đồ thành SOLD
+                        wonItem.setState(AuctionState.SOLD);
+                        Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
+                        successAlert.setTitle("Payment successful");
+                        successAlert.setHeaderText(null);
+                        successAlert.setContentText("Payment successful! Your order ID is #" + wonItem.getId());
+                        successAlert.showAndWait();
+                        // Load lại màn hình cập nhật lại nút
+                        handleShowWonAuctions(null);
+                        List<Item> currentItems = AuctionManager.getInstance().getAllItems();
+                        loadProducts(currentItems);
+                    }
+                });
+                paymentTask.setOnFailed(e -> {
+                    Alert errorAlert = new Alert(Alert.AlertType.ERROR);
+                    errorAlert.setTitle("Payment Failed");
+                    errorAlert.setHeaderText(null);
+                    errorAlert.setContentText("Failed to connect to the payment server. Please try again later.");
+                    errorAlert.show();
+                });
+                new Thread(paymentTask).start();
+            } else if (response == btnCancelOrder) {
+                // Hủy giao dịch
+                Alert confirmCancel = new Alert(Alert.AlertType.WARNING, "Are you sure you want to cancel this winning bid? This action cannot be undone and may affect your account reputation.", ButtonType.YES, ButtonType.NO);
+                confirmCancel.showAndWait().ifPresent(confirm -> {
+                    if (confirm == ButtonType.YES) {
+                        wonItem.setState(AuctionState.CANCELED);
+                        handleShowWonAuctions(null); // Load lại màn hình
+                        List<Item> currentItems = AuctionManager.getInstance().getAllItems();
+                        loadProducts(currentItems);
+                    }
+                });
+            }
+        });
     }
 }
