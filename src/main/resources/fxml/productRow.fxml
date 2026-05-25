@@ -38,7 +38,7 @@
          <HBox.margin>
             <Insets top="44.0" />
          </HBox.margin></Label>
-      <Label fx:id="timeLeft" prefHeight="120.0" prefWidth="98.0" text="12H 36M 15S">
+      <Label fx:id="timeLeft" prefHeight="120.0" prefWidth="98.0">
          <HBox.margin>
             <Insets left="10.0" />
          </HBox.margin></Label>
