@@ -58,11 +58,12 @@ public class LoginController{
                     Parent root = loader.load();
                     MainScreenController mainScreen =  loader.getController();
                     mainScreen.setLoggedInUser(loggedInUser);
-                    mainScreen.displayName(logName);
+                    mainScreen.displayName(loggedInUser.getUsername());
 
                     Scene scene = new Scene(root);
                     Stage stage = (Stage)((Node)event.getSource()).getScene().getWindow();
                     stage.setScene(scene);
+                    stage.setFullScreen(true);
                     stage.show();
                 } catch (IOException exc) {
                     exc.printStackTrace();
@@ -71,6 +72,12 @@ public class LoginController{
                 wrongLogin.setText("Wrong username or password");
                 wrongLogin.setStyle("-fx-text-fill: red;");
             }
+        });
+        loginTask.setOnFailed(e -> {
+            // Task rớt vào đây tức là sai tài khoản/mật khẩu hoặc lỗi mạng
+            wrongLogin.setText("Wrong username or password");
+            wrongLogin.setStyle("-fx-text-fill: red;");
+
         });
         Thread thread = new Thread(loginTask);
         thread.start();
