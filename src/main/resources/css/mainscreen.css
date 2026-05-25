@@ -101,6 +101,12 @@
     -fx-background-color: #f3f4f6;
     -fx-text-fill: #4b5563;
 }
+.badge-canceled{
+    -fx-background-color: #6b7280;
+    -fx-text-fill: white; -fx-padding: 3 8;
+    -fx-background-radius: 10;
+    -fx-font-weight: bold;
+}
 
 /* --- Nút Menu bên ngoài --- */
 .profile-menu:focused {
