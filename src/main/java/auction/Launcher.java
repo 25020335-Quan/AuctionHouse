@@ -30,7 +30,7 @@ public class Launcher extends Application {
 //            mainScreenController.displayName(testUser.getUsername());
             primaryStage = stage;
             stage.setResizable(true);
-            stage.setFullScreen(true);
+            stage.setFullScreen(false);
             stage.setTitle("UET Auction House");
             //Đưa root vào scene và đưa scene vào root
             stage.setScene(new Scene(root));
