@@ -101,7 +101,7 @@
             <HBox prefHeight="27.0" prefWidth="560.0">
                <children>
                   <Label alignment="CENTER" prefHeight="26.0" prefWidth="151.0" styleClass="link-text" text="Forgot Password" />
-                  <Label fx:id="wrongLogin" alignment="CENTER" prefHeight="59.0" prefWidth="316.0" styleClass="error-message" />
+                  <Label fx:id="wrongLogin" alignment="CENTER" prefHeight="43.0" prefWidth="295.0" textFill="#e40404" />
                   <Label alignment="CENTER" onMouseClicked="#handleGoToSignUp" prefHeight="27.0" prefWidth="155.0" styleClass="link-text" text="Sign Up" />
                </children>
             </HBox>
