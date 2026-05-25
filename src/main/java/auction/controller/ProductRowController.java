@@ -4,6 +4,8 @@ import auction.model.item.Item;
 import auction.model.state.AuctionState;
 import auction.model.users.Member;
 import auction.model.users.User;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -19,9 +21,11 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDateTime;
 
 import static java.lang.String.format;
 
@@ -48,9 +52,11 @@ public class ProductRowController {
     Label timeLeft;
     @FXML
     Button btnEdit;
+    private Timeline countdownTimeline;
     private MainScreenController parentController;
 
     public void setData(Item item, User user, MainScreenController mainController) {
+        System.out.println("Kiểm tra thời gian món " + item.getName() + ": " + item.getStartTime());
         this.parentController = mainController;
         productName.setText(item.getName());
         productPrice.setText(format("%,.0f VNĐ", item.getCurrentPrice()));
@@ -76,6 +82,9 @@ public class ProductRowController {
             case CLOSED:
             case SOLD:
                 productState.getStyleClass().add("badge-closed");
+                break;
+            case CANCELED:
+                productState.getStyleClass().add("badge-cancelled");
                 break;
         }
         loadProductImage(item.getId());
@@ -131,13 +140,99 @@ public class ProductRowController {
                 }
             }
         }
+        // Gọi hàm để bắt đầu chạy đồng hồ đếm ngược (Gọi sau khi đã setup xong nút Bid/Delete)
+        if (item.getStartTime() != null && item.getEndTime() != null) {
+            startCountdownTimer(item);
+        } else {
+            timeLeft.setText("Not Scheduled");
+        }
     }
+
+    // Hàm đếm ngược thời gian
+    private void startCountdownTimer(Item item) {
+        if (countdownTimeline != null) {
+            countdownTimeline.stop();
+        }
+        // Kiểm tra xem user hiện tại có phải chủ món đồ không
+        boolean isOwner = currentUser != null && item.getOwnerId().equals(currentUser.getId());
+        countdownTimeline = new Timeline(new KeyFrame(Duration.seconds(1), event -> {
+
+            // Lấy thời điểm hiện tại của máy tính
+            LocalDateTime now = LocalDateTime.now();
+
+            // Trường hợp phiên đã kết thúc
+            if (now.isAfter(item.getEndTime()) || now.isEqual(item.getEndTime())) {
+                timeLeft.setText("Ended");
+                timeLeft.setStyle("-fx-text-fill: #ef4444; -fx-font-weight: bold;");
+                if (item.getState() == AuctionState.OPEN || item.getState() == AuctionState.RUNNING) {
+                    item.setState(AuctionState.CLOSED);
+                    productState.setText(AuctionState.CLOSED.name());
+                    productState.getStyleClass().removeAll("badge-pending", "badge-open", "badge-closed");
+                    productState.getStyleClass().add("badge-closed");
+                }
+                // Nếu người dùng thắng chuyển nút Bid -> nút Thanh toán
+                if (btnBid != null) {
+                    boolean isWinner = item.getHighestBidderName() != null &&
+                            item.getHighestBidderName().equals(currentUser.getUsername());
+                    if (isWinner && item.getState() == AuctionState.CLOSED) {
+                        // Hiện nút Pay Now xanh lá
+                        btnBid.setDisable(false);
+                        btnBid.setText("Pay Now");
+                        btnBid.setStyle("-fx-background-color: #10b981; -fx-text-fill: white; -fx-font-weight: bold;");
+
+                        btnBid.setOnAction(e -> parentController.handlePayment(item));
+
+                    } else if (isWinner && item.getState() == AuctionState.SOLD) {
+                        // Thắng đấu giá và và đã thanh toán rồi -> Khóa nút, chuyển màu xám
+                        btnBid.setDisable(true);
+                        btnBid.setText("Paid");
+                        btnBid.setStyle("-fx-background-color: #d1d5db; -fx-text-fill: #4b5563;");
+                    } else if (item.getState() == AuctionState.CANCELED) {
+                        // Nếu bị hủy -> Khóa nút và đổi thành cancelled
+                        btnBid.setDisable(true);
+                        btnBid.setText("Canceled");
+                        btnBid.setStyle("-fx-background-color: #ef4444; -fx-text-fill: white; -fx-opacity: 0.7;");
+                    }
+                    else {
+                        // Người thua cuộc hoặc người ngoài -> Khóa nút
+                        btnBid.setDisable(true);
+                        btnBid.setText("Ended");
+                    }
+                }
+                countdownTimeline.stop();
+            }
+            //Trường hợp đang trong phiên đấu giá
+            else{
+                if (btnBid != null && !isOwner) btnBid.setDisable(false);
+                //duration = Thời gian kết thúc - Thời gian bắt đầu
+                java.time.Duration duration = java.time.Duration.between(now, item.getEndTime());
+                // Chia lấy dư để hiển thị thời gian
+                long days = duration.toDays(); // Lấy tổng số ngày
+
+                long hours = duration.toHours() % 24;
+
+                long minutes = duration.toMinutes() % 60;
+
+                long seconds = duration.getSeconds() % 60;
+                if (days > 0) {
+                    timeLeft.setText(String.format("%d:%02d:%02d:%02d", days, hours, minutes, seconds));
+                } else {
+                    timeLeft.setText(String.format("%02d:%02d:%02d", hours, minutes, seconds));
+                }
+                timeLeft.setStyle("-fx-text-fill: #10b981; -fx-font-weight: bold;"); // Chữ màu xanh lá
+            }
+        }));
+        //Indefinite -> lặp lại hành động vô hạn lần
+        //Chỉ dừng khi gọi stop()
+        countdownTimeline.setCycleCount(Timeline.INDEFINITE);
+        countdownTimeline.play();
+        }
     private void loadProductImage(String itemId) {
-        // 1. Tạo danh sách các đuôi ảnh phổ biến mà người dùng có thể đã up
+        // 1 Tạo danh sách các đuôi ảnh phổ biến mà người dùng có thể đã up
         String[] possibleExtensions = {".jpg", ".png", ".jpeg"};
         boolean isImageFound = false;
 
-        // 2. Đi dò từng đuôi ảnh xem file nào tồn tại trong thư mục
+        // Đi dò từng đuôi ảnh xem file nào tồn tại trong thư mục
         for (String ext : possibleExtensions) {
             // Theo quy tắc đã lưu ở AddItemController (+ "_0" để lấy ảnh đầu tiên)
             String expectedPath = "src/main/resources/images/" + itemId + "_0" + ext;
