@@ -5,5 +5,6 @@ public enum AuctionState {
     OPEN,       // Đang mở, chưa ai đặt giá
     RUNNING,    // Đang có người tranh giá
     CLOSED,     // Đã kết thúc
-    SOLD        // Đã bán thành công
+    SOLD,       // Đã bán thành công
+    CANCELED,   // Đấu giá thành công nhưng hủy giao dịch
 }
