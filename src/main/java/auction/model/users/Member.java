@@ -23,7 +23,7 @@ public class Member extends User implements Bidder, Seller, Serializable {
     public void bid(Item item, double amount) {
         AuctionManager instance = AuctionManager.getInstance();
         try {
-            instance.attemptBid(item, id, amount);
+            instance.attemptBid(item, this.id, amount);
         } catch (InvalidBidException e) {
             System.err.println(e.getMessage());
         }
