@@ -153,80 +153,93 @@ public class ProductRowController {
         if (countdownTimeline != null) {
             countdownTimeline.stop();
         }
-        // Kiểm tra xem user hiện tại có phải chủ món đồ không
-        boolean isOwner = currentUser != null && item.getOwnerId().equals(currentUser.getId());
+        checkAndUpdateState(item);
         countdownTimeline = new Timeline(new KeyFrame(Duration.seconds(1), event -> {
-
-            // Lấy thời điểm hiện tại của máy tính
-            LocalDateTime now = LocalDateTime.now();
-
-            // Trường hợp phiên đã kết thúc
-            if (now.isAfter(item.getEndTime()) || now.isEqual(item.getEndTime())) {
-                timeLeft.setText("Ended");
-                timeLeft.setStyle("-fx-text-fill: #ef4444; -fx-font-weight: bold;");
-                if (item.getState() == AuctionState.OPEN || item.getState() == AuctionState.RUNNING) {
-                    item.setState(AuctionState.CLOSED);
-                    productState.setText(AuctionState.CLOSED.name());
-                    productState.getStyleClass().removeAll("badge-pending", "badge-open", "badge-closed");
-                    productState.getStyleClass().add("badge-closed");
-                }
-                // Nếu người dùng thắng chuyển nút Bid -> nút Thanh toán
-                if (btnBid != null) {
-                    boolean isWinner = item.getHighestBidderName() != null &&
-                            item.getHighestBidderName().equals(currentUser.getUsername());
-                    if (isWinner && item.getState() == AuctionState.CLOSED) {
-                        // Hiện nút Pay Now xanh lá
-                        btnBid.setDisable(false);
-                        btnBid.setText("Pay Now");
-                        btnBid.setStyle("-fx-background-color: #10b981; -fx-text-fill: white; -fx-font-weight: bold;");
-
-                        btnBid.setOnAction(e -> parentController.handlePayment(item));
-
-                    } else if (isWinner && item.getState() == AuctionState.SOLD) {
-                        // Thắng đấu giá và và đã thanh toán rồi -> Khóa nút, chuyển màu xám
-                        btnBid.setDisable(true);
-                        btnBid.setText("Paid");
-                        btnBid.setStyle("-fx-background-color: #d1d5db; -fx-text-fill: #4b5563;");
-                    } else if (item.getState() == AuctionState.CANCELED) {
-                        // Nếu bị hủy -> Khóa nút và đổi thành cancelled
-                        btnBid.setDisable(true);
-                        btnBid.setText("Canceled");
-                        btnBid.setStyle("-fx-background-color: #ef4444; -fx-text-fill: white; -fx-opacity: 0.7;");
-                    }
-                    else {
-                        // Người thua cuộc hoặc người ngoài -> Khóa nút
-                        btnBid.setDisable(true);
-                        btnBid.setText("Ended");
-                    }
-                }
-                countdownTimeline.stop();
-            }
-            //Trường hợp đang trong phiên đấu giá
-            else{
-                if (btnBid != null && !isOwner) btnBid.setDisable(false);
-                //duration = Thời gian kết thúc - Thời gian bắt đầu
-                java.time.Duration duration = java.time.Duration.between(now, item.getEndTime());
-                // Chia lấy dư để hiển thị thời gian
-                long days = duration.toDays(); // Lấy tổng số ngày
-
-                long hours = duration.toHours() % 24;
-
-                long minutes = duration.toMinutes() % 60;
-
-                long seconds = duration.getSeconds() % 60;
-                if (days > 0) {
-                    timeLeft.setText(String.format("%d:%02d:%02d:%02d", days, hours, minutes, seconds));
-                } else {
-                    timeLeft.setText(String.format("%02d:%02d:%02d", hours, minutes, seconds));
-                }
-                timeLeft.setStyle("-fx-text-fill: #10b981; -fx-font-weight: bold;"); // Chữ màu xanh lá
-            }
+            checkAndUpdateState(item);
         }));
         //Indefinite -> lặp lại hành động vô hạn lần
         //Chỉ dừng khi gọi stop()
         countdownTimeline.setCycleCount(Timeline.INDEFINITE);
         countdownTimeline.play();
+    }
+    public void checkAndUpdateState(Item item) {
+        // Lấy thời điểm hiện tại của máy tính
+        LocalDateTime now = LocalDateTime.now();
+
+        // Trường hợp phiên đã kết thúc
+        if (now.isAfter(item.getEndTime()) || now.isEqual(item.getEndTime())) {
+            timeLeft.setText("Ended");
+            timeLeft.setStyle("-fx-text-fill: #ef4444; -fx-font-weight: bold;");
+            if (item.getState() == AuctionState.OPEN || item.getState() == AuctionState.RUNNING) {
+                item.setState(AuctionState.CLOSED);
+            }
+            if (productState != null) {
+                productState.setText(item.getState().name());
+
+                productState.getStyleClass().removeAll("badge-pending", "badge-open", "badge-closed", "badge-cancelled");
+                productState.setStyle("");
+
+                if (item.getState() == AuctionState.CANCELED) {
+                    productState.getStyleClass().add("badge-cancelled");
+                } else {
+                    // Dùng chung màu xám cho CLOSED và SOLD
+                    productState.getStyleClass().add("badge-closed");
+                }
+            }
+            // Nếu người dùng thắng chuyển nút Bid -> nút Thanh toán
+            if (btnBid != null) {
+                boolean isWinner = item.getHighestBidderId() != null &&
+                        item.getHighestBidderId().equals(currentUser.getId());
+                if (isWinner && item.getState() == AuctionState.CLOSED) {
+                    // Hiện nút Pay Now xanh lá
+                    btnBid.setDisable(false);
+                    btnBid.setText("Pay Now");
+                    btnBid.setStyle("-fx-background-color: #10b981; -fx-text-fill: white; -fx-font-weight: bold;");
+
+                    btnBid.setOnAction(e -> parentController.handlePayment(item));
+
+                } else if (isWinner && item.getState() == AuctionState.SOLD) {
+                    // Thắng đấu giá và và đã thanh toán rồi -> Khóa nút, chuyển màu xám
+                    btnBid.setDisable(true);
+                    btnBid.setText("Paid");
+                    btnBid.setStyle("-fx-background-color: #d1d5db; -fx-text-fill: #4b5563;");
+                } else if (item.getState() == AuctionState.CANCELED) {
+                    // Nếu bị hủy -> Khóa nút và đổi thành cancelled
+                    btnBid.setDisable(true);
+                    btnBid.setText("Canceled");
+                    btnBid.setStyle("-fx-background-color: #ef4444; -fx-text-fill: white; -fx-opacity: 0.7;");
+                } else {
+                    // Người thua cuộc hoặc người ngoài -> Khóa nút
+                    btnBid.setDisable(true);
+                    btnBid.setText("Ended");
+                }
+            }
+            if (countdownTimeline != null) {
+                countdownTimeline.stop();
+            }
         }
+        //Trường hợp đang trong phiên đấu giá
+        else{
+            boolean isOwner = currentUser != null && item.getOwnerId().equals(currentUser.getId());
+            if (btnBid != null && !isOwner) btnBid.setDisable(false);
+            //duration = Thời gian kết thúc - Thời gian bắt đầu
+            java.time.Duration duration = java.time.Duration.between(now, item.getEndTime());
+            // Chia lấy dư để hiển thị thời gian
+            long days = duration.toDays(); // Lấy tổng số ngày
+
+            long hours = duration.toHours() % 24;
+
+            long minutes = duration.toMinutes() % 60;
+
+            long seconds = duration.getSeconds() % 60;
+            if (days > 0) {
+                timeLeft.setText(String.format("%d:%02d:%02d:%02d", days, hours, minutes, seconds));
+            } else {
+                timeLeft.setText(String.format("%02d:%02d:%02d", hours, minutes, seconds));
+            }
+            timeLeft.setStyle("-fx-text-fill: #10b981; -fx-font-weight: bold;"); // Chữ màu xanh lá
+        }
+    }
     private void loadProductImage(String itemId) {
         // 1 Tạo danh sách các đuôi ảnh phổ biến mà người dùng có thể đã up
         String[] possibleExtensions = {".jpg", ".png", ".jpeg"};
