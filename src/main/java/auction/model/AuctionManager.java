@@ -111,8 +111,13 @@ public class AuctionManager {
 
             // Nếu mọi thứ hợp lệ -> Cập nhật Model
             item.setPrice(amount);
+            item.setHighestBidderId(bidderId);
             if (item.getState() == AuctionState.OPEN) {
                 item.setState(AuctionState.RUNNING);
+            }
+            java.time.Duration timeRemaining = java.time.Duration.between(java.time.LocalDateTime.now(), item.getEndTime());
+            if (timeRemaining.getSeconds() <= 30 && timeRemaining.getSeconds() > 0) {
+                item.setEndTime(item.getEndTime().plusSeconds(60));
             }
 
             // Ghi nhận giao dịch thông qua AuctionManager
