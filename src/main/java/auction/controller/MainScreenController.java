@@ -57,13 +57,6 @@ public class MainScreenController {
 
     @FXML
     public void initialize() {
-        AuctionManager manager = AuctionManager.getInstance();
-        if (manager.getAllItems().isEmpty()) {
-            Item art1 = new Art("I01", "U01", "A", 50000);
-            Item art2 = new Art("I02", "U02", "B", 60000);
-            manager.addItem(art1);
-            manager.addItem(art2);
-        }
         setupRealTimeSearch();
     }
 
@@ -157,30 +150,8 @@ public class MainScreenController {
 
     public void setLoggedInUser(User user) {
         this.currentUser = user;
-        // Code test
-        boolean hasTestItem = false;
-        for (Item i : AuctionManager.getInstance().getAllItems()) {
-            if (i.getId().equals("TEST-999")) hasTestItem = true;
-        }
-        if (!hasTestItem) {
-            // 1. Tạo món đồ do người khác bán
-            Item mockItem = new Art("TEST-999", "KhachLa", "Đồng hồ Rolex (Test)", 100000);
-
-            // 2. Ép thời gian đếm ngược chỉ còn đúng 10 giây
-            mockItem.setStartTime(LocalDateTime.now());
-            mockItem.setEndTime(LocalDateTime.now().plusSeconds(60));
-
-            // 3. Ép mình đang là người trả giá cao nhất (Winner)
-            mockItem.setHighestBidderName(user.getUsername());
-            mockItem.setState(AuctionState.RUNNING);
-
-            // Bơm vào kho
-            AuctionManager.getInstance().addItem(mockItem);
-        }
-        // =====================================================================
-
-        List<Item> items = AuctionManager.getInstance().getAllItems();
-        loadProducts(items);
+        auction.client.AuctionClient.getInstance().setMainScreen(this);
+        refreshUI();
     }
 
     public User getCurrentUser() {
@@ -228,45 +199,8 @@ public class MainScreenController {
         wonAuctionsPane.toFront();
         setActiveButton(btnWonAuctions);
 
-        if (wonAuctionsContainer != null) {
-            wonAuctionsContainer.getChildren().clear();
-        }
-        List<Item> allItems = AuctionManager.getInstance().getAllItems();
-        for (Item item : allItems) {
-            // Kiểm tra phiên đấu giá đã kết thúc (CLOSED, SOLD, CANCELED)
-            boolean isEnded = (item.getState() == AuctionState.CLOSED ||
-                    item.getState() == AuctionState.SOLD ||
-                    item.getState() == AuctionState.CANCELED);
-
-            // Kiểm tra người dùng hiện tại có phải là người trả giá cao nhất không
-            boolean isWinner = item.getHighestBidderName() != null && currentUser != null &&
-                    item.getHighestBidderName().equals(currentUser.getUsername());
-
-            if (isEnded && isWinner) {
-                try {
-                    FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/productRow.fxml"));
-                    HBox row = loader.load();
-
-                    ProductRowController rowController = loader.getController();
-                    // Truyền currentUser và màn hình chính vào cho controller
-                    rowController.setData(item, currentUser, this);
-
-                    if (wonAuctionsContainer != null) {
-                        wonAuctionsContainer.getChildren().add(row);
-                    }
-                } catch (IOException e) {
-                    System.err.println("Lỗi tải giao diện cho mục Won Auctions");
-                    e.printStackTrace();
-                }
-            }
-        }
-        if (wonAuctionsContainer != null && wonAuctionsContainer.getChildren().isEmpty()) {
-            Label emptyLabel = new Label("You haven't won any auctions yet");
-            emptyLabel.setStyle("-fx-font-size: 16px; -fx-text-fill: #6b7280; -fx-padding: 20px;");
-            wonAuctionsContainer.getChildren().add(emptyLabel);
-        }
+        applySearchFilter(searchField.getText());
     }
-
     private void setActiveButton(Button clickedButton) {
         // Gom tất cả các nút trên Sidebar vào một mảng
         Button[] sidebarButtons = {btnMarketplace, btnMyItems, btnWonAuctions, btnProfile};
@@ -295,6 +229,7 @@ public class MainScreenController {
         // Nếu người dùng xóa trắng thanh search thì hiện lại toàn bộ danh sách gốc
         if (keyWord == null || keyWord.trim().isEmpty()) {
             loadProducts(allItems);
+            loadWonAuctions(allItems);
             return;
         }
         // Chuyển từ khóa về chữ thường để tìm kiếm không phân biệt Hoa/thường
@@ -311,6 +246,8 @@ public class MainScreenController {
 
         // Gọi hàm vẽ lại UI với danh sách đã lọc
         loadProducts(filteredList);
+        loadWonAuctions(filteredList);
+
     }
 
     // Thêm hàm để nhận hàng mới từ AddItemController
@@ -390,5 +327,37 @@ public class MainScreenController {
                 });
             }
         });
+    }
+    public void loadWonAuctions(List<Item> itemList){
+        if (wonAuctionsContainer != null) {
+            wonAuctionsContainer.getChildren().clear(); // Xóa sạch đồ cũ trước khi load đồ đã lọc
+        }
+        for (Item item : itemList) {
+            // Kiểm tra phiên đấu giá đã kết thúc (CLOSED, SOLD, CANCELED)
+            boolean isEnded = (item.getState() == AuctionState.CLOSED ||
+                    item.getState() == AuctionState.SOLD ||
+                    item.getState() == AuctionState.CANCELED);
+
+            // Kiểm tra mình có phải người thắng cuộc không
+            boolean isWinner = item.getHighestBidderId() != null && currentUser != null &&
+                    item.getHighestBidderId().equals(currentUser.getId());
+
+            if (isEnded && isWinner) {
+                try {
+                    FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/productRow.fxml"));
+                    HBox row = loader.load();
+
+                    ProductRowController rowController = loader.getController();
+                    rowController.setData(item, currentUser, this);
+
+                    if (wonAuctionsContainer != null) {
+                        wonAuctionsContainer.getChildren().add(row);
+                    }
+                } catch (IOException e) {
+                    System.err.println("Lỗi tải giao diện cho mục Won Auctions");
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 }
