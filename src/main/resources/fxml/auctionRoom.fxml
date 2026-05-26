@@ -87,17 +87,40 @@
                      </children>
                   </HBox>
                   <Separator prefWidth="200.0" styleClass="separator-horizontal" />
-                  <HBox prefHeight="337.0" prefWidth="871.0" spacing="50.0" styleClass="bidding-section">
+                  <VBox prefHeight="312.0" prefWidth="855.0" spacing="10.0">
                      <children>
-                        <TextField fx:id="bidAmountField" prefHeight="76.0" prefWidth="549.0" promptText="Place Bid..." styleClass="input-field" />
-                        <Label prefHeight="76.0" prefWidth="170.0" styleClass="price-label" text="VND">
-                           <font>
-                              <Font size="24.0" />
-                           </font>
-                        </Label>
-                        <Button fx:id="btnPlaceBid" mnemonicParsing="false" onAction="#handlePlaceBid" prefHeight="70.0" prefWidth="270.0" styleClass="submit-btn" text="Place Bid" />
+                        <HBox prefHeight="75.0" prefWidth="855.0" spacing="50.0" styleClass="bidding-section">
+                           <children>
+                              <TextField fx:id="bidAmountField" prefHeight="87.0" prefWidth="458.0" promptText="Place Bid..." styleClass="input-field" />
+                              <Label prefHeight="76.0" prefWidth="170.0" styleClass="price-label" text="VND">
+                                 <font>
+                                    <Font size="24.0" />
+                                 </font>
+                              </Label>
+                              <Button fx:id="btnPlaceBid" mnemonicParsing="false" onAction="#handlePlaceBid" prefHeight="74.0" prefWidth="277.0" styleClass="submit-btn" text="Place Bid" />
+                           </children>
+                        </HBox>
+                        <HBox prefHeight="106.0" prefWidth="855.0" spacing="20.0">
+                           <children>
+                              <TextField fx:id="maxBidField" prefHeight="71.0" prefWidth="282.0" promptText="Max Bid" styleClass="input-field">
+                                 <HBox.margin>
+                                    <Insets top="19.0" />
+                                 </HBox.margin>
+                              </TextField>
+                              <TextField fx:id="incrementField" prefHeight="67.0" prefWidth="282.0" promptText="Increment">
+                                 <HBox.margin>
+                                    <Insets top="19.0" />
+                                 </HBox.margin>
+                              </TextField>
+                              <Button mnemonicParsing="false" onAction="#handleSetAutoBid" prefHeight="70.0" prefWidth="250.0" styleClass="submit-btn" text="Auto-Bid">
+                                 <HBox.margin>
+                                    <Insets top="19.0" />
+                                 </HBox.margin>
+                              </Button>
+                           </children>
+                        </HBox>
                      </children>
-                  </HBox>
+                  </VBox>
                </children>
             </VBox>
             <Separator orientation="VERTICAL" prefHeight="200.0" styleClass="separator-vertical" />
