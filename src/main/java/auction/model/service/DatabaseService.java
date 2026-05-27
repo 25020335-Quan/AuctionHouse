@@ -9,6 +9,7 @@ import auction.model.users.Member;
 import auction.model.users.User;
 
 import java.sql.*;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class DatabaseService {
@@ -45,17 +46,23 @@ public class DatabaseService {
 
     public Item addItem(Item item) {
         // SQL: id thường tự tăng nên không cần chèn vào, state mặc định thường là 'OPEN'
-        String sql = "INSERT INTO items (id, type, owner_id, name, current_price, state) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO items (id, owner_id, name, current_price, state, type, description, starting_price, start_time, end_time, highest_bidder_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = DBConnection.getConnection();
             PreparedStatement pstmt = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
 
             pstmt.setString(1, item.getId());
-            pstmt.setString(2, item.getItemType());
-            pstmt.setString(3, item.getOwnerId());
-            pstmt.setString(4, item.getName());
-            pstmt.setDouble(5, item.getCurrentPrice());
-            pstmt.setString(6, item.getState().name()); // Ví dụ: "OPEN" hoặc "ACTIVE"
+            pstmt.setString(2, item.getOwnerId());
+            pstmt.setString(3, item.getName());
+            pstmt.setDouble(4, item.getCurrentPrice());
+            pstmt.setString(5, item.getState().name()); // Ví dụ: "OPEN" hoặc "ACTIVE"
+            pstmt.setString(6, item.getItemType());
+            pstmt.setString(7, item.getDescription());
+            pstmt.setString(8, String.valueOf(item.getStartingPrice()));
+            pstmt.setString(9, String.valueOf(item.getStartTime()));
+            pstmt.setString(10, String.valueOf(item.getEndTime()));
+            pstmt.setString(11, item.getHighestBidderId());
+
 
             int affectedRows = pstmt.executeUpdate();
 
@@ -82,7 +89,7 @@ public class DatabaseService {
         List<Item> managerList = AuctionManager.getInstance().getAllItems();
         managerList.clear(); // Xóa dữ liệu cũ để nạp mới hoàn toàn
 
-        String sql = "SELECT id, type, owner_id, name, current_price, state FROM items";
+        String sql = "SELECT id, owner_id, name, current_price, state, type, description, starting_price, start_time, end_time, highest_bidder_id FROM items";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql);
@@ -91,12 +98,14 @@ public class DatabaseService {
             while (rs.next()) {
                 // Đọc các giá trị từ ResultSet
                 String id = rs.getString("id");
-                String type = rs.getString("type");
                 String ownerId = rs.getString("owner_id");
                 String name = rs.getString("name");
                 double price = rs.getDouble("current_price");
                 String state = rs.getString("state");
-
+                String type = rs.getString("type");
+                LocalDateTime startTime = rs.getObject("start_time", LocalDateTime.class);
+                LocalDateTime endTime = rs.getObject("end_time", LocalDateTime.class);
+                String highestBidderId = rs.getString("highest_bidder_id");
                 // Tạo đối tượng Item (Hãy đảm bảo Constructor của Item nhận các tham số này)
                 Item item = FactoryProvider.createItemByType(type, id, ownerId, name, price);
 
