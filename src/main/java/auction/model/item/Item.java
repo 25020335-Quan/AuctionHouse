@@ -23,7 +23,6 @@ public abstract class Item extends Entity implements Serializable {
         this.name = name;
         this.currentPrice = startingPrice; // Ban đầu giá hiện tại bằng giá khởi điểm
         this.startingPrice = startingPrice;
-
         // Mặc định khi tạo ra, món hàng ở trạng thái PENDING
         this.state = AuctionState.PENDING;
     }
@@ -46,7 +45,6 @@ public abstract class Item extends Entity implements Serializable {
     public String getHighestBidderId() { return highestBidderId; }
 
     // Setter
-    public void setStartingPrice(double startingPrice) { this.startingPrice = startingPrice; }
     public void setStartTime(LocalDateTime startTime) { this.startTime = startTime; }
     public void setEndTime(LocalDateTime endTime) { this.endTime = endTime; }
     public void setState(AuctionState state) {

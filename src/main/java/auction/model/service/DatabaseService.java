@@ -106,8 +106,12 @@ public class DatabaseService {
                 LocalDateTime startTime = rs.getObject("start_time", LocalDateTime.class);
                 LocalDateTime endTime = rs.getObject("end_time", LocalDateTime.class);
                 String highestBidderId = rs.getString("highest_bidder_id");
+
                 // Tạo đối tượng Item (Hãy đảm bảo Constructor của Item nhận các tham số này)
                 Item item = FactoryProvider.createItemByType(type, id, ownerId, name, price);
+                item.setStartTime(startTime);
+                item.setEndTime(endTime);
+                item.setHighestBidderId(highestBidderId);
 
                 assert item != null;
                 item.setState(AuctionState.valueOf(state));
