@@ -215,3 +215,36 @@
 .btn-delete:hover {
     -fx-background-color: #dc2626;
 }
+
+.toast-label {
+    -fx-background-color: #3b82f6;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-padding: 15px;
+    -fx-background-radius: 10px;
+}
+
+/* Khoảng đệm cho cái khung chứa để đẩy nó cách mép màn hình */
+.toast-container {
+    -fx-padding: 0 20 20 0;
+}
+
+
+/*Nút hiện thông báo*/
+.btn-bell{
+    -fx-font-size: 32px;
+    -fx-background-color: transparent;
+    -fx-cursor: hand;
+}
+
+/* Label hiện số thông báo chưa đọc*/
+.lbl-badge{
+-fx-background-color: #ef4444;
+-fx-text-fill: white;
+-fx-font-weight: bold;
+-fx-font-size: 10px;
+-fx-padding: 1 5 1 5;
+-fx-background-radius: 10px;
+
+}
