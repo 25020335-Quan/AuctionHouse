@@ -61,6 +61,22 @@ public class AddItemController {
     // Danh sách lưu trữ các file ảnh người dùng đã thả vào
     private List<File> selectedFiles = new ArrayList<>();
 
+    // Chọn thời gian bắt đầu
+    @FXML
+    private DatePicker startDatePicker;
+    @FXML
+    private ComboBox<String> startHourCombo;
+    @FXML
+    private ComboBox<String> startMinuteCombo;
+
+    // Chọn thời gian kết thúc
+    @FXML
+    private DatePicker endDatePicker;
+    @FXML
+    private ComboBox<String> endHourCombo;
+    @FXML
+    private ComboBox<String> endMinuteCombo;
+
     @FXML
     public void initialize() {
         // Khởi tạo dữ liệu cho ComboBox
@@ -68,6 +84,28 @@ public class AddItemController {
 
         // Kích hoạt tính năng Kéo Thả Ảnh
         setupDragAndDrop();
+
+        //  Nạp số giờ và số phu cho cả hai comboBox
+        for (int i = 0; i < 24; i++) {
+            String hourStr = String.format("%02d", i);
+            startHourCombo.getItems().add(hourStr);
+            endHourCombo.getItems().add(hourStr);
+        }
+        for (int i = 0; i < 60; i++) {
+            String minuteStr = String.format("%02d", i);
+            startMinuteCombo.getItems().add(minuteStr);
+            endMinuteCombo.getItems().add(minuteStr);
+        }
+
+        // Đặt giá trị gợi ý mặc định hiển thị sẵn cho người dùng
+        LocalDateTime now = LocalDateTime.now();
+        startDatePicker.setValue(now.toLocalDate());
+        startHourCombo.setValue(String.format("%02d", now.getHour()));
+        startMinuteCombo.setValue(String.format("%02d", now.getMinute()));
+
+        endDatePicker.setValue(now.toLocalDate().plusDays(3)); // Kết thúc mặc định sau 3 ngày
+        endHourCombo.setValue("23");
+        endMinuteCombo.setValue("59");
     }
 
     //Xử lý ảnh sản phẩm
@@ -183,12 +221,40 @@ public class AddItemController {
 
         String userDesc = descriptionField.getText();
         saveImagesToLocalProject(itemId);
-        // Lấy đúng khoảnh khắc người dùng bấm nút "Save" làm giờ bắt đầu
-        LocalDateTime startTime = LocalDateTime.now();
 
-        // Tự động cộng thêm 3 ngày làm giờ kết thúc
-        LocalDateTime endTime = startTime.plusDays(3);
 
+
+        // Đọc dữ liệu từ bộ chọn Start Time
+        java.time.LocalDate sDate = startDatePicker.getValue();
+        String sHour = startHourCombo.getValue();
+        String sMinute = startMinuteCombo.getValue();
+
+        // Đọc dữ liệu từ bộ chọn End Time
+        java.time.LocalDate eDate = endDatePicker.getValue();
+        String eHour = endHourCombo.getValue();
+        String eMinute = endMinuteCombo.getValue();
+
+        // Kiểm tra xem người dùng có bỏ trống ô nào không
+        if (sDate == null || sHour == null || sMinute == null ||
+                eDate == null || eHour == null || eMinute == null) {
+            showAlert("Please select both Start Time and End Time fully!");
+            return;
+        }
+
+        // Ráp LocalDate và LocalTime thành LocalDateTime hoàn chỉnh
+        LocalDateTime startTime = LocalDateTime.of(sDate, java.time.LocalTime.of(Integer.parseInt(sHour), Integer.parseInt(sMinute)));
+        LocalDateTime endTime = LocalDateTime.of(eDate, java.time.LocalTime.of(Integer.parseInt(eHour), Integer.parseInt(eMinute)));
+
+        LocalDateTime currentTime = LocalDateTime.now();
+
+        if (startTime.isBefore(currentTime.minusMinutes(1))) {
+            showAlert("Start time cannot be in the past!");
+            return;
+        }
+        if (endTime.isBefore(startTime) || endTime.isEqual(startTime)) {
+            showAlert("End time must be strictly after the start time!");
+            return;
+        }
         // Đưa vào sản phẩm
         newItem.setStartTime(startTime);
         newItem.setEndTime(endTime);
@@ -220,6 +286,12 @@ public class AddItemController {
                         // Tiện thể xử lý luôn thông báo nếu nhận nhầm
                         Platform.runLater(() -> showAlert(note.getMsg()));
                         // Sau đó tiếp tục vòng lặp để đợi gói tin tiếp theo (Hy vọng là Item)
+                    }
+                    else {
+                        // Nếu Server trả về String báo lỗi hoặc một Object lạ
+                        System.err.println("Lỗi Server trả về: " + response);
+                        throw new Exception("Thêm sản phẩm thất bại: " + response);
+                        // throw Exception sẽ lập tức phá vỡ while(true) và đẩy Task vào trạng thái Failed
                     }
                 }
             }
