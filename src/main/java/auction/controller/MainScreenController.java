@@ -7,18 +7,21 @@ import auction.model.users.User;
 import auction.util.GetItemListRequest;
 import auction.util.SceneSwitcher;
 import javafx.animation.KeyFrame;
+import javafx.animation.PauseTransition;
 import javafx.animation.Timeline;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.FlowPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
@@ -54,10 +57,39 @@ public class MainScreenController {
     private AnchorPane wonAuctionsPane;
     @FXML
     private TextField searchField;
+    @FXML
+    private Button btnBell;
+    @FXML
+    private Label lblBadge;
+    @FXML
+    private ListView<String> notificationListView;
+    // Danh sách động để lưu trữ các chuỗi thông báo trên RAM Client
+    private static ObservableList<String> savedNotifications = FXCollections.observableArrayList();
+
+    // Biến đếm số thông báo chưa đọc
+    private static int unreadCount = 0;
 
     @FXML
     public void initialize() {
         setupRealTimeSearch();
+        if (notificationListView != null) {
+            //Đưa danh sách lưu trữ vào ListView giao diện
+            notificationListView.setItems(savedNotifications);
+            notificationListView.setVisible(false); // Mặc định ẩn hộp thư đi khi mới vào app
+            notificationListView.setManaged(false);
+        }
+        if (lblBadge != null) {
+            if (unreadCount > 0) {
+                lblBadge.setText(String.valueOf(unreadCount));
+                lblBadge.setVisible(true);
+                lblBadge.toFront();
+            } else {
+                lblBadge.setVisible(false);
+            }
+        }
+        javafx.application.Platform.runLater(() -> {
+            auction.client.AuctionClient.getInstance().setMainScreen(this);
+        });
     }
 
     @FXML
@@ -108,6 +140,7 @@ public class MainScreenController {
             }
         }
     }
+
     public void startAutoRefresh() {
         // Tạo một Timeline chạy mỗi 5 giây (Duration.seconds(5))
         Timeline autoRefresh = new Timeline(new KeyFrame(Duration.seconds(5), event -> {
@@ -201,6 +234,7 @@ public class MainScreenController {
 
         applySearchFilter(searchField.getText());
     }
+
     private void setActiveButton(Button clickedButton) {
         // Gom tất cả các nút trên Sidebar vào một mảng
         Button[] sidebarButtons = {btnMarketplace, btnMyItems, btnWonAuctions, btnProfile};
@@ -328,7 +362,8 @@ public class MainScreenController {
             }
         });
     }
-    public void loadWonAuctions(List<Item> itemList){
+
+    public void loadWonAuctions(List<Item> itemList) {
         if (wonAuctionsContainer != null) {
             wonAuctionsContainer.getChildren().clear(); // Xóa sạch đồ cũ trước khi load đồ đã lọc
         }
@@ -357,6 +392,69 @@ public class MainScreenController {
                     System.err.println("Lỗi tải giao diện cho mục Won Auctions");
                     e.printStackTrace();
                 }
+            }
+        }
+    }
+
+    public void showToast(String message) {
+        try {
+            // 1. Tạo một Label chứa nội dung thông báo
+            Label toastLabel = new Label(message);
+            toastLabel.getStyleClass().add("toast-label");
+
+            StackPane toastPane = new StackPane(toastLabel);
+            toastPane.getStyleClass().add("toast-container");
+            toastPane.setMouseTransparent(true);
+            toastPane.setAlignment(Pos.BOTTOM_RIGHT);
+
+            // 2. Tìm thẻ gốc an toàn nhất để dán lên
+            javafx.scene.layout.Pane rootPane = (javafx.scene.layout.Pane) marketplacePane.getScene().getRoot();
+            rootPane.getChildren().add(toastPane);
+
+            // 3. Đặt thời gian hiện trong 3 giây rồi biến mất
+            PauseTransition delay = new PauseTransition(Duration.seconds(3));
+            delay.setOnFinished(e -> {
+                rootPane.getChildren().remove(toastPane);
+            });
+            delay.play();
+
+        } catch (Exception e) {
+            System.out.println("LỖI HIỂN THỊ TOAST: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    public void addNotification(String message) {
+        // Nhét thông báo mới lên đầu danh sách
+        savedNotifications.add(0, message);
+        // Tăng số lượng tin nhắn chưa đọc và cập nhật nhãn nút
+        unreadCount++;
+        if (lblBadge != null) {
+            lblBadge.setText(String.valueOf(unreadCount)); // Hiện số
+            lblBadge.setVisible(true); // Gỡ tàng hình cho cái chấm đỏ
+        }
+
+    }
+
+    @FXML
+    public void handleToggleNotificationBox(ActionEvent event) {
+        if (notificationListView == null) return;
+
+        // Kiểm tra xem đang đóng hay mở
+        boolean isCurrentlyVisible = notificationListView.isVisible();
+
+        // Đảo ngược trạng thái
+        notificationListView.setVisible(!isCurrentlyVisible);
+
+        notificationListView.setManaged(!isCurrentlyVisible);
+
+        if (!isCurrentlyVisible) { // Nếu vừa ra lệnh MỞ hộp thư
+            notificationListView.toFront(); // Ép nó nổi lên trên tất cả các khung khác
+
+            // Xóa chấm đỏ
+            unreadCount = 0;
+            if (lblBadge != null) {
+                lblBadge.setVisible(false);
             }
         }
     }
