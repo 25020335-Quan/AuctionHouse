@@ -41,7 +41,7 @@ public class ClientHandler extends Thread {
                     this.sendMessage(user);
 
                 } else if (request instanceof AddItemRequest itemData) {
-                    AuctionServer.broadcast(new NotificationRequest("Có sản phẩm mới: " + itemData.getItem().getName()));
+                    AuctionServer.broadcast(new NotificationRequest("New items up for bids!: " + itemData.getItem().getName()));
                     dbService.addItem(itemData.getItem());
                     System.out.println("Server: Đang xử lý thêm đồ: " + itemData.getItem().getName());
                     this.sendMessage(itemData.getItem());
