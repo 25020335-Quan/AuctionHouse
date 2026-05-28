@@ -1,6 +1,7 @@
 package auction.controller;
 
 import auction.util.SceneSwitcher;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -45,6 +46,32 @@ public class SignUpController {
             showAlert("Lỗi", "Passwords do not match!");
             return;
         }
+        auction.model.users.Member newUser = new auction.model.users.Member(username, password,fullName, email);
+        Task<Boolean> registerTask = new Task<Boolean>() {
+            @Override
+            protected Boolean call() throws Exception {
+                // Giả định bác có class RegisterRequest để gói dữ liệu (nếu chưa có bác tự tạo nhé)
+                Object response = auction.client.AuctionClient.getInstance().sendRequest(new auction.util.RegisterRequest(newUser));
+
+                // Nếu Server trả về chuỗi "SUCCESS"
+                if ("SUCCESS".equals(response)) {
+                    return true;
+                } else {
+                    throw new Exception(response.toString());
+                }
+            }
+        };
+
+        registerTask.setOnSucceeded(e -> {
+            showAlert("Success", "Account registered successfully! Please log in.");
+            SceneSwitcher.switchScene(event, "/fxml/login.fxml", "Login");
+        });
+
+        registerTask.setOnFailed(e -> {
+            showAlert("Error", "Registration failed: " + registerTask.getException().getMessage());
+        });
+
+        new Thread(registerTask).start();
         showAlert("Success", "Account registered successfully! Please log in.");
     }
     @FXML
