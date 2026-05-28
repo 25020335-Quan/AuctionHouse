@@ -7,7 +7,7 @@ import java.io.Serializable;
  */
 public class Admin extends User implements Serializable {
 
-    public Admin(String id, String username, String password) {
-        super(id, username, password);
+    public Admin(String id, String username, String password, String fullName, String email) {
+        super(id, username, password, fullName, email);
     }
 }

@@ -15,8 +15,8 @@ import java.util.ArrayList;
 public class Member extends User implements Bidder, Seller, Serializable {
     private List<Item> ownedItems = new ArrayList<>();
 
-    public Member(String id, String username, String password) {
-        super(id, username, password);
+    public Member(String id, String username, String password, String fullName, String email) {
+        super(id, username, password, fullName, email);
     }
 
     @Override

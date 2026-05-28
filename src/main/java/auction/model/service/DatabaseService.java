@@ -30,12 +30,13 @@ public class DatabaseService {
                 String id = rs.getString("id");
                 String name = rs.getString("full_name");
                 String role = rs.getString("role");
+                String email = rs.getString("email_address");
 
                 // Khởi tạo đối tượng theo đúng vai trò (Polymorphism)
                 if ("ADMIN".equals(role)) {
-                    return new Admin(id, name, password);
+                    return new Admin(id, username, password, name, email);
                 } else {
-                    return new Member(id, name, password);
+                    return new Member(id, username, password, name, email);
                 }
             }
         } catch (SQLException e) {
@@ -44,9 +45,101 @@ public class DatabaseService {
         return null; // Trả về null nếu không tìm thấy người dùng
     }
 
+    public User addUser(User user) {
+        String sql = "INSERT INTO users (id, username, password, full_name, role, email_address) VALUES (?, ?, ?, ?, ?, ?)";
+
+        try (Connection conn = DBConnection.getConnection();
+            PreparedStatement pstmt = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
+
+            pstmt.setString(1, user.getId());
+            pstmt.setString(2, user.getUsername());
+            pstmt.setString(3, user.getPassword());
+            pstmt.setString(4, user.getFullName());
+            pstmt.setString(5, "MEMBER");
+            pstmt.setString(6, user.getEmail());
+
+            int affectedRows = pstmt.executeUpdate();
+
+            if (affectedRows > 0) {
+                // Lấy ID vừa được tạo tự động từ Database gán lại cho đối tượng Item
+                try (ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
+                    if (generatedKeys.next()) {
+                        // Nếu id trong DB là kiểu INT, dùng getInt, nếu là String dùng getString
+                        user.setId(generatedKeys.getString(1));
+                    }
+                }
+                System.out.println("Đã thêm user vào DB: " + user.getFullName());
+                return user;
+            }
+
+
+        } catch (SQLException e) {
+            System.err.println("Lỗi SQL khi thêm User: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public boolean updateHighestBid(String itemId, double newPrice, String bidderId) {
+        // SQL statement targeting specific columns for a single row
+        String sql = "UPDATE items SET current_price = ?, highest_bidder_id = ? WHERE id = ?";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            // Bind parameters in order of the question marks
+            pstmt.setDouble(1, newPrice);
+            pstmt.setString(2, bidderId);
+            pstmt.setString(3, itemId);
+
+            // executeUpdate() returns the number of rows modified
+            int rowsAffected = pstmt.executeUpdate();
+
+            if (rowsAffected > 0) {
+                System.out.println("[Database] Successfully updated bid for item: " + itemId);
+                return true;
+            } else {
+                System.out.println("[Database] Failed to update. Item ID not found: " + itemId);
+                return false;
+            }
+
+        } catch (SQLException e) {
+            System.err.println("[Database] Error executing update: " + e.getMessage());
+            return false;
+        }
+    }
+
+    public boolean updateItemState(String itemId, String currentState) {
+        // SQL statement targeting specific columns for a single row
+        String sql = "UPDATE items SET state = ? WHERE id = ?";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            // Bind parameters in order of the question marks
+            pstmt.setString(1, currentState);
+            pstmt.setString(2, itemId);
+
+            // executeUpdate() returns the number of rows modified
+            int rowsAffected = pstmt.executeUpdate();
+
+            if (rowsAffected > 0) {
+                System.out.println("[Database] Successfully updated state for item: " + itemId);
+                return true;
+            } else {
+                System.out.println("[Database] Failed to update. Item ID not found: " + itemId);
+                return false;
+            }
+
+        } catch (SQLException e) {
+            System.err.println("[Database] Error executing update: " + e.getMessage());
+            return false;
+        }
+    }
+
     public Item addItem(Item item) {
         // SQL: id thường tự tăng nên không cần chèn vào, state mặc định thường là 'OPEN'
-        String sql = "INSERT INTO items (id, owner_id, name, current_price, state, type, description, starting_price, start_time, end_time, highest_bidder_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO items (id, owner_id, name, current_price, state, type, description, starting_price, start_time, end_time, highest_bidder_id, image_urls) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = DBConnection.getConnection();
             PreparedStatement pstmt = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
@@ -63,6 +156,13 @@ public class DatabaseService {
             pstmt.setString(10, String.valueOf(item.getEndTime()));
             pstmt.setString(11, item.getHighestBidderId());
 
+            // Join list link ảnh thành chuỗi để lưu
+            java.util.List<String> links = item.getImageUrls();
+            if (links != null && !links.isEmpty()) {
+                pstmt.setString(12, String.join(",", links));
+            } else {
+                pstmt.setString(12, "");
+            }
 
             int affectedRows = pstmt.executeUpdate();
 
@@ -84,12 +184,37 @@ public class DatabaseService {
         return null;
     }
 
+    public void deleteItemById(String itemId) {
+        // SQL query using a placeholder (?) for security
+        String sql = "DELETE FROM items WHERE id = ?";
+
+        // Using try-with-resources to automatically close connections and prevent memory leaks
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            // Bind the itemId parameter to the first question mark
+            pstmt.setString(1, itemId);
+
+            // executeUpdate() returns the number of rows affected
+            int rowsAffected = pstmt.executeUpdate();
+
+            if (rowsAffected > 0) {
+                System.out.println("[Database] Successfully deleted item with ID: " + itemId);
+            } else {
+                System.out.println("[Database] No item found with ID: " + itemId);
+            }
+
+        } catch (SQLException e) {
+            System.err.println("[Database] Error while deleting item: " + e.getMessage());
+        }
+    }
+
     public void loadAllItemsToManager() {
         // 1. Truy cập danh sách trong Singleton AuctionManager
         List<Item> managerList = AuctionManager.getInstance().getAllItems();
         managerList.clear(); // Xóa dữ liệu cũ để nạp mới hoàn toàn
 
-        String sql = "SELECT id, owner_id, name, current_price, state, type, description, starting_price, start_time, end_time, highest_bidder_id FROM items";
+        String sql = "SELECT id, owner_id, name, current_price, state, type, description, starting_price, start_time, end_time, highest_bidder_id, image_urls FROM items";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql);
@@ -103,6 +228,7 @@ public class DatabaseService {
                 double price = rs.getDouble("current_price");
                 String state = rs.getString("state");
                 String type = rs.getString("type");
+                String desc = rs.getString("description");
                 LocalDateTime startTime = rs.getObject("start_time", LocalDateTime.class);
                 LocalDateTime endTime = rs.getObject("end_time", LocalDateTime.class);
                 String highestBidderId = rs.getString("highest_bidder_id");
@@ -112,9 +238,18 @@ public class DatabaseService {
                 item.setStartTime(startTime);
                 item.setEndTime(endTime);
                 item.setHighestBidderId(highestBidderId);
+                item.setDescription(desc);
 
                 assert item != null;
                 item.setState(AuctionState.valueOf(state));
+
+                String urlsFromDB = rs.getString("image_urls");
+                if (urlsFromDB != null && !urlsFromDB.trim().isEmpty()) {
+                    String[] urlArray = urlsFromDB.split(",");
+                    for (String url : urlArray) {
+                        item.addImageUrl(url.trim());
+                    }
+                }
 
                 // Thêm vào danh sách quản lý
                 managerList.add(item);
@@ -157,5 +292,26 @@ public class DatabaseService {
             System.err.println("Lỗi khi truy vấn database: " + e.getMessage());
             e.printStackTrace();
         }
+    }
+    public Member getUserById(String userId) {
+        String sql = "SELECT * FROM users WHERE id = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, userId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    String username = rs.getString("username"); // Hoặc full_name tùy bác
+                    String password = rs.getString("password");
+                    String fullName = rs.getString("full_name");
+                    String email = rs.getString("email_address");
+
+                    return new Member(userId, username, password, fullName, email);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Lỗi lấy UserById: " + e.getMessage());
+        }
+        return null;
     }
 }

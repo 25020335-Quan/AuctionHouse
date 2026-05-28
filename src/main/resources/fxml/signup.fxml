@@ -54,7 +54,12 @@
                         </Label>
                         <HBox prefHeight="56.0" prefWidth="307.0">
                            <children>
-                              <TextField fx:id="fullNameField" prefHeight="38.0" prefWidth="254.0" styleClass="input-field" />
+                              <ImageView fitHeight="36.0" fitWidth="31.0" pickOnBounds="true" preserveRatio="true">
+                                 <image>
+                                    <Image url="@../images/icon_web.png" />
+                                 </image>
+                              </ImageView>
+                              <TextField fx:id="fullNameField" prefHeight="38.0" prefWidth="298.0" styleClass="input-field" />
                            </children>
                         </HBox>
                      </children>
@@ -68,7 +73,10 @@
                         </Label>
                         <HBox prefHeight="100.0" prefWidth="200.0">
                            <children>
-                              <ImageView fitHeight="35.0" fitWidth="45.0" pickOnBounds="true" preserveRatio="true" />
+                              <ImageView fitHeight="41.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true">
+                                 <image>
+                                    <Image url="@../images/username.png" />
+                                 </image></ImageView>
                               <TextField fx:id="usernameField" prefHeight="35.0" prefWidth="255.0" styleClass="input-field" />
                            </children>
                         </HBox>
@@ -85,7 +93,10 @@
                   </Label>
                   <HBox prefHeight="100.0" prefWidth="200.0">
                      <children>
-                        <ImageView fitHeight="34.0" fitWidth="37.0" pickOnBounds="true" preserveRatio="true" />
+                        <ImageView fitHeight="34.0" fitWidth="37.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@../images/icon_at.png" />
+                           </image></ImageView>
                         <TextField fx:id="emailField" prefHeight="71.0" prefWidth="570.0" styleClass="input-field" />
                      </children>
                   </HBox>
@@ -102,7 +113,10 @@
                         </Label>
                         <HBox prefHeight="100.0" prefWidth="200.0">
                            <children>
-                              <ImageView fitHeight="32.0" fitWidth="38.0" pickOnBounds="true" preserveRatio="true" />
+                              <ImageView fitHeight="32.0" fitWidth="38.0" pickOnBounds="true" preserveRatio="true">
+                                 <image>
+                                    <Image url="@../images/password.png" />
+                                 </image></ImageView>
                               <PasswordField fx:id="passwordField" prefHeight="32.0" prefWidth="271.0" styleClass="input-field" />
                            </children>
                         </HBox>
@@ -117,7 +131,10 @@
                         </Label>
                         <HBox prefHeight="100.0" prefWidth="200.0">
                            <children>
-                              <ImageView fitHeight="32.0" fitWidth="33.0" pickOnBounds="true" preserveRatio="true" />
+                              <ImageView fitHeight="32.0" fitWidth="33.0" pickOnBounds="true" preserveRatio="true">
+                                 <image>
+                                    <Image url="@../images/password.png" />
+                                 </image></ImageView>
                               <PasswordField fx:id="confirmPasswordField" prefHeight="31.0" prefWidth="268.0" styleClass="input-field" />
                            </children>
                         </HBox>

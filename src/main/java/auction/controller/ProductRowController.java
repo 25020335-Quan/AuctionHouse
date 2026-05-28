@@ -57,15 +57,12 @@ public class ProductRowController {
 
     public void setData(Item item, User user, MainScreenController mainController) {
         System.out.println("Kiểm tra thời gian món " + item.getName() + ": " + item.getStartTime());
+        this.currentItem = item;
         this.parentController = mainController;
         productName.setText(item.getName());
         productPrice.setText(format("%,.0f VNĐ", item.getCurrentPrice()));
         productOwnerId.setText(item.getOwnerId());
         productId.setText(item.getId());
-        AuctionState state = item.getState();
-        if (state.equals(AuctionState.PENDING)) {
-            item.setState(AuctionState.OPEN);
-        }
         productState.setText(item.getState().name());
         if (!productState.getStyleClass().contains("badge")) {
             productState.getStyleClass().add("badge");
@@ -88,7 +85,6 @@ public class ProductRowController {
                 break;
         }
         loadProductImage(item.getId());
-        this.currentItem = item;
         if (user instanceof Member) {
             this.currentUser = (Member) user;
         }
@@ -163,116 +159,139 @@ public class ProductRowController {
         countdownTimeline.play();
     }
     public void checkAndUpdateState(Item item) {
-        // Lấy thời điểm hiện tại của máy tính
         LocalDateTime now = LocalDateTime.now();
+        boolean isOwner = currentUser != null && item.getOwnerId().equals(currentUser.getId());
 
-        // Trường hợp phiên đã kết thúc
-        if (now.isAfter(item.getEndTime()) || now.isEqual(item.getEndTime())) {
+        // 1. TRẠNG THÁI: CHƯA BẮT ĐẦU (PENDING)
+        if (item.getStartTime() != null && now.isBefore(item.getStartTime())) {
+            // Tính thời gian đếm ngược đến lúc mở cửa
+            java.time.Duration duration = java.time.Duration.between(now, item.getStartTime());
+            long days = duration.toDays();
+            long hours = duration.toHours() % 24;
+            long minutes = duration.toMinutes() % 60;
+            long seconds = duration.getSeconds() % 60;
+
+            timeLeft.setStyle("-fx-text-fill: #f59e0b; -fx-font-weight: bold; -fx-font-size: 11px;"); // Chữ vàng
+            if (days > 0) {
+                timeLeft.setText(String.format("Starts in: %d d %02d:%02d:%02d", days, hours, minutes, seconds));
+            } else {
+                timeLeft.setText(String.format("Starts in: %02d:%02d:%02d", hours, minutes, seconds));
+            }
+
+            // Ép UI hiển thị huy hiệu PENDING
+            updateBadge(AuctionState.PENDING);
+
+            // Người ngoài nhìn thấy thì khóa nút Bid lại
+            if (btnBid != null && !isOwner) {
+                btnBid.setDisable(true);
+                btnBid.setText("Wait");
+            }
+        }
+        // 2. TRẠNG THÁI: ĐÃ KẾT THÚC
+        else if (item.getEndTime() != null && (now.isAfter(item.getEndTime()) || now.isEqual(item.getEndTime()))) {
             timeLeft.setText("Ended");
-            timeLeft.setStyle("-fx-text-fill: #ef4444; -fx-font-weight: bold;");
+            timeLeft.setStyle("-fx-text-fill: #ef4444; -fx-font-weight: bold;"); // Chữ đỏ
+
             if (item.getState() == AuctionState.OPEN || item.getState() == AuctionState.RUNNING) {
                 item.setState(AuctionState.CLOSED);
             }
-            if (productState != null) {
-                productState.setText(item.getState().name());
+            updateBadge(item.getState());
 
-                productState.getStyleClass().removeAll("badge-pending", "badge-open", "badge-closed", "badge-cancelled");
-                productState.setStyle("");
-
-                if (item.getState() == AuctionState.CANCELED) {
-                    productState.getStyleClass().add("badge-cancelled");
-                } else {
-                    // Dùng chung màu xám cho CLOSED và SOLD
-                    productState.getStyleClass().add("badge-closed");
-                }
-            }
-            // Nếu người dùng thắng chuyển nút Bid -> nút Thanh toán
-            if (btnBid != null) {
-                boolean isWinner = item.getHighestBidderId() != null &&
-                        item.getHighestBidderId().equals(currentUser.getId());
+            // Xử lý nút thanh toán cho người thắng
+            if (btnBid != null && !isOwner) {
+                boolean isWinner = item.getHighestBidderId() != null && item.getHighestBidderId().equals(currentUser.getId());
                 if (isWinner && item.getState() == AuctionState.CLOSED) {
-                    // Hiện nút Pay Now xanh lá
                     btnBid.setDisable(false);
                     btnBid.setText("Pay Now");
                     btnBid.setStyle("-fx-background-color: #10b981; -fx-text-fill: white; -fx-font-weight: bold;");
-
                     btnBid.setOnAction(e -> parentController.handlePayment(item));
-
                 } else if (isWinner && item.getState() == AuctionState.SOLD) {
-                    // Thắng đấu giá và và đã thanh toán rồi -> Khóa nút, chuyển màu xám
                     btnBid.setDisable(true);
                     btnBid.setText("Paid");
                     btnBid.setStyle("-fx-background-color: #d1d5db; -fx-text-fill: #4b5563;");
                 } else if (item.getState() == AuctionState.CANCELED) {
-                    // Nếu bị hủy -> Khóa nút và đổi thành cancelled
                     btnBid.setDisable(true);
                     btnBid.setText("Canceled");
                     btnBid.setStyle("-fx-background-color: #ef4444; -fx-text-fill: white; -fx-opacity: 0.7;");
                 } else {
-                    // Người thua cuộc hoặc người ngoài -> Khóa nút
                     btnBid.setDisable(true);
                     btnBid.setText("Ended");
                 }
             }
             if (countdownTimeline != null) {
-                countdownTimeline.stop();
+                countdownTimeline.stop(); // Dừng đồng hồ
             }
         }
-        //Trường hợp đang trong phiên đấu giá
-        else{
-            boolean isOwner = currentUser != null && item.getOwnerId().equals(currentUser.getId());
-            if (btnBid != null && !isOwner) btnBid.setDisable(false);
-            //duration = Thời gian kết thúc - Thời gian bắt đầu
+        // 3. TRẠNG THÁI: ĐANG DIỄN RA (OPEN/RUNNING)
+        else if (item.getEndTime() != null) {
+            // Tính thời gian đếm ngược đến lúc ĐÓNG CỬA
             java.time.Duration duration = java.time.Duration.between(now, item.getEndTime());
-            // Chia lấy dư để hiển thị thời gian
-            long days = duration.toDays(); // Lấy tổng số ngày
-
+            long days = duration.toDays();
             long hours = duration.toHours() % 24;
-
             long minutes = duration.toMinutes() % 60;
-
             long seconds = duration.getSeconds() % 60;
+
+            timeLeft.setStyle("-fx-text-fill: #10b981; -fx-font-weight: bold;"); // Chữ xanh lá
             if (days > 0) {
                 timeLeft.setText(String.format("%d:%02d:%02d:%02d", days, hours, minutes, seconds));
             } else {
                 timeLeft.setText(String.format("%02d:%02d:%02d", hours, minutes, seconds));
             }
-            timeLeft.setStyle("-fx-text-fill: #10b981; -fx-font-weight: bold;"); // Chữ màu xanh lá
+
+            // Ép UI hiển thị huy hiệu OPEN
+            if (item.getState() == AuctionState.PENDING) {
+                item.setState(AuctionState.OPEN);
+            }
+            updateBadge(item.getState());
+
+            // Mở nút Bid cho người ngoài vào chiến
+            if (btnBid != null && !isOwner) {
+                btnBid.setDisable(false);
+                btnBid.setText("Bid");
+                btnBid.setStyle(""); // Reset về style CSS mặc định
+                btnBid.getStyleClass().add("btn-bid"); // Đảm bảo có class CSS
+                btnBid.setOnAction(this::openAuctionRoom); // Trỏ lại sự kiện vào phòng
+            }
+        }
+    }
+
+    // Hàm phụ trợ để đổi màu huy hiệu trạng thái gọn gàng hơn
+    private void updateBadge(AuctionState state) {
+        if (productState != null) {
+            productState.setText(state.name());
+            productState.getStyleClass().removeAll("badge-pending", "badge-open", "badge-closed", "badge-cancelled");
+            productState.setStyle("");
+
+            switch (state) {
+                case PENDING:
+                    productState.getStyleClass().add("badge-pending");
+                    break;
+                case OPEN:
+                case RUNNING:
+                    productState.getStyleClass().add("badge-open");
+                    break;
+                case CLOSED:
+                case SOLD:
+                    productState.getStyleClass().add("badge-closed");
+                    break;
+                case CANCELED:
+                    productState.getStyleClass().add("badge-cancelled");
+                    break;
+            }
         }
     }
     private void loadProductImage(String itemId) {
-        // 1 Tạo danh sách các đuôi ảnh phổ biến mà người dùng có thể đã up
-        String[] possibleExtensions = {".jpg", ".png", ".jpeg"};
-        boolean isImageFound = false;
-
-        // Đi dò từng đuôi ảnh xem file nào tồn tại trong thư mục
-        for (String ext : possibleExtensions) {
-            // Theo quy tắc đã lưu ở AddItemController (+ "_0" để lấy ảnh đầu tiên)
-            String expectedPath = "src/main/resources/images/" + itemId + "_0" + ext;
-            File imgFile = new File(expectedPath);
-
-            if (imgFile.exists()) {
-                // Nếu tìm thấy -> Biến thành Image và đưa lên giao diện
-                Image img = new Image(imgFile.toURI().toString());
-                productImage.setImage(img);
-                isImageFound = true;
-                break; // Tìm thấy rồi thì thoát vòng lặp, không tìm đuôi khác nữa
-            }
-        }
-
-        // 3. Nếu dò hết các đuôi mà không thấy ảnh (Sản phẩm không up ảnh)
-        if (!isImageFound) {
+        if (currentItem != null && currentItem.getImageUrls() != null && !currentItem.getImageUrls().isEmpty()) {
             try {
-                // Load một cái ảnh mặc định
+                Image img = new Image(currentItem.getImageUrls().get(0), true);
+                productImage.setImage(img);
+            } catch (Exception e) {}
+        } else {
+            try {
                 File defaultFile = new File("src/main/resources/images/no-image.jpg");
-                if (defaultFile.exists()) {
-                    productImage.setImage(new Image(defaultFile.toURI().toString()));
-                }
-            } catch (Exception e) {
-                System.out.println("Không tìm thấy ảnh mặc định.");
-            }
+                if (defaultFile.exists()) productImage.setImage(new Image(defaultFile.toURI().toString()));
+            } catch (Exception e) {}
         }
-
         //Bo tròn góc ảnh
         Rectangle clip = new Rectangle(77, 81);
         clip.setArcWidth(10);

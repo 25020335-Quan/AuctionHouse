@@ -67,7 +67,7 @@
                                     </HBox>
                                  </children>
                               </HBox>
-                              <Label prefHeight="54.0" prefWidth="230.0" text="Highest Bid">
+                              <Label prefHeight="54.0" prefWidth="310.0" text="Highest Bid">
                                  <font>
                                     <Font name="System Bold" size="90.0" />
                                  </font>
@@ -78,7 +78,7 @@
                               </Label>
                               <Label fx:id="currentPriceLabel" prefHeight="77.0" prefWidth="210.0" styleClass="price-text" text="90000 VND" />
                               <Label styleClass="price-label" text="Highest Bidder Currently" />
-                              <Label fx:id="leadingBidderLabel" prefHeight="26.0" prefWidth="80.0" styleClass="price-text" text="Label" />
+                              <Label fx:id="leadingBidderLabel" prefHeight="39.0" prefWidth="310.0" styleClass="price-text" text="Label" />
                            </children>
                            <padding>
                               <Insets left="10.0" />
