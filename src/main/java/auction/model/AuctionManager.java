@@ -181,7 +181,7 @@ public class AuctionManager {
 
         // Nếu Database mất kết nối,
         // Server sẽ trả về một User ẩn danh tạm thời để không bị crash
-        return new Member(userId, "Người ẩn danh (" + userId + ")", "");
+        return new Member(userId, "Người ẩn danh (" + userId + ")", "", "", "");
     }
 
     // Kiểm tra state của các item
