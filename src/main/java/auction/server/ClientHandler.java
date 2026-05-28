@@ -79,7 +79,7 @@ public class ClientHandler extends Thread {
                                     item.getEndTime()
                             );
                             auction.server.AuctionServer.broadcast(notify);
-
+                            dbService.updateHighestBid(item.getId(), bidReq.getAmount(), bidReq.getBidderId());
                             // Trả về báo cáo thành công cho người đặt
                             this.sendMessage("SUCCESS");
                         } else {
@@ -115,6 +115,8 @@ public class ClientHandler extends Thread {
                                     item.getEndTime()
                             );
                             auction.server.AuctionServer.broadcast(notify);
+
+                            dbService.updateHighestBid(item.getId(), item.getCurrentPrice(), item.getHighestBidderId());
                         }
 
                         sendMessage("AUTOBID_SUCCESS"); // Báo về cho Client
