@@ -277,7 +277,6 @@ public class AddItemController {
 
         addItemTask.setOnSucceeded(e -> {
             showAlert("Added item successfully!");
-            parentController.addNewItemLocally(newItem);
             ((Stage)nameField.getScene().getWindow()).close();
             System.out.println("Đã thêm sản phẩm thành công!");
         });
