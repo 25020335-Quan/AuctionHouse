@@ -30,18 +30,111 @@ public class DatabaseService {
                 String id = rs.getString("id");
                 String name = rs.getString("full_name");
                 String role = rs.getString("role");
+                String email = rs.getString("email_address");
 
                 // Khởi tạo đối tượng theo đúng vai trò (Polymorphism)
                 if ("ADMIN".equals(role)) {
-                    return new Admin(id, name, password);
+                    return new Admin(id, username, password, name, email);
                 } else {
-                    return new Member(id, name, password);
+                    return new Member(id, username, password, name, email);
                 }
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return null; // Trả về null nếu không tìm thấy người dùng
+    }
+
+    public User addUser(User user) {
+        String sql = "INSERT INTO users (id, username, password, full_name, role, email_address) VALUES (?, ?, ?, ?, ?, ?)";
+
+        try (Connection conn = DBConnection.getConnection();
+            PreparedStatement pstmt = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
+
+            pstmt.setString(1, user.getId());
+            pstmt.setString(2, user.getUsername());
+            pstmt.setString(3, user.getPassword());
+            pstmt.setString(4, user.getFullName());
+            pstmt.setString(5, "MEMBER");
+            pstmt.setString(6, user.getEmail());
+
+            int affectedRows = pstmt.executeUpdate();
+
+            if (affectedRows > 0) {
+                // Lấy ID vừa được tạo tự động từ Database gán lại cho đối tượng Item
+                try (ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
+                    if (generatedKeys.next()) {
+                        // Nếu id trong DB là kiểu INT, dùng getInt, nếu là String dùng getString
+                        user.setId(generatedKeys.getString(1));
+                    }
+                }
+                System.out.println("Đã thêm user vào DB: " + user.getFullName());
+                return user;
+            }
+
+
+        } catch (SQLException e) {
+            System.err.println("Lỗi SQL khi thêm User: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public boolean updateHighestBid(String itemId, double newPrice, String bidderId) {
+        // SQL statement targeting specific columns for a single row
+        String sql = "UPDATE items SET current_price = ?, highest_bidder_id = ? WHERE id = ?";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            // Bind parameters in order of the question marks
+            pstmt.setDouble(1, newPrice);
+            pstmt.setString(2, bidderId);
+            pstmt.setString(3, itemId);
+
+            // executeUpdate() returns the number of rows modified
+            int rowsAffected = pstmt.executeUpdate();
+
+            if (rowsAffected > 0) {
+                System.out.println("[Database] Successfully updated bid for item: " + itemId);
+                return true;
+            } else {
+                System.out.println("[Database] Failed to update. Item ID not found: " + itemId);
+                return false;
+            }
+
+        } catch (SQLException e) {
+            System.err.println("[Database] Error executing update: " + e.getMessage());
+            return false;
+        }
+    }
+
+    public boolean updateItemState(String itemId, String currentState) {
+        // SQL statement targeting specific columns for a single row
+        String sql = "UPDATE items SET state = ? WHERE id = ?";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            // Bind parameters in order of the question marks
+            pstmt.setString(1, currentState);
+            pstmt.setString(2, itemId);
+
+            // executeUpdate() returns the number of rows modified
+            int rowsAffected = pstmt.executeUpdate();
+
+            if (rowsAffected > 0) {
+                System.out.println("[Database] Successfully updated state for item: " + itemId);
+                return true;
+            } else {
+                System.out.println("[Database] Failed to update. Item ID not found: " + itemId);
+                return false;
+            }
+
+        } catch (SQLException e) {
+            System.err.println("[Database] Error executing update: " + e.getMessage());
+            return false;
+        }
     }
 
     public Item addItem(Item item) {
@@ -210,7 +303,10 @@ public class DatabaseService {
                 if (rs.next()) {
                     String username = rs.getString("username"); // Hoặc full_name tùy bác
                     String password = rs.getString("password");
-                    return new Member(userId, username, password);
+                    String fullName = rs.getString("full_name");
+                    String email = rs.getString("email_address");
+
+                    return new Member(userId, username, password, fullName, email);
                 }
             }
         } catch (SQLException e) {
