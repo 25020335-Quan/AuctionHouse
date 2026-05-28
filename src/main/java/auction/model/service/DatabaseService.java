@@ -84,6 +84,31 @@ public class DatabaseService {
         return null;
     }
 
+    public void deleteItemById(String itemId) {
+        // SQL query using a placeholder (?) for security
+        String sql = "DELETE FROM items WHERE id = ?";
+
+        // Using try-with-resources to automatically close connections and prevent memory leaks
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            // Bind the itemId parameter to the first question mark
+            pstmt.setString(1, itemId);
+
+            // executeUpdate() returns the number of rows affected
+            int rowsAffected = pstmt.executeUpdate();
+
+            if (rowsAffected > 0) {
+                System.out.println("[Database] Successfully deleted item with ID: " + itemId);
+            } else {
+                System.out.println("[Database] No item found with ID: " + itemId);
+            }
+
+        } catch (SQLException e) {
+            System.err.println("[Database] Error while deleting item: " + e.getMessage());
+        }
+    }
+
     public void loadAllItemsToManager() {
         // 1. Truy cập danh sách trong Singleton AuctionManager
         List<Item> managerList = AuctionManager.getInstance().getAllItems();
