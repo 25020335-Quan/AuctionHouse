@@ -41,10 +41,11 @@ public class ClientHandler extends Thread {
                     this.sendMessage(user);
 
                 } else if (request instanceof AddItemRequest itemData) {
-                    AuctionServer.broadcast(new NotificationRequest("New items up for bids!: " + itemData.getItem().getName()));
                     dbService.addItem(itemData.getItem());
-                    System.out.println("Server: Đang xử lý thêm đồ: " + itemData.getItem().getName());
+                    AuctionManager.getInstance().addItem(itemData.getItem());
                     this.sendMessage(itemData.getItem());
+                    System.out.println("Server: Đang xử lý thêm đồ: " + itemData.getItem().getName());
+                    AuctionServer.broadcast(new NotificationRequest("New items up for bids!: " + itemData.getItem().getName()));
 
                 } else if (request instanceof GetItemListRequest) {
                     // Lấy kho mới nhất gửi về Client
@@ -54,7 +55,6 @@ public class ClientHandler extends Thread {
                 } else if (request instanceof GetItemHistoryRequest) {
                     GetItemHistoryRequest req = (GetItemHistoryRequest) request;
                     List<BidTransaction> history = AuctionManager.getInstance().getHistoryByItem(req.getItemId());
-                    // Đã fix đổi sang sendMessage
                     this.sendMessage(new java.util.ArrayList<>(history));
 
                 } else if (request instanceof auction.util.BidRequest bidReq) {
@@ -68,19 +68,19 @@ public class ClientHandler extends Thread {
                         }
 
                         if (item != null) {
-                            // Chạy đấu giá
+                            // Chạy đấu giá (Bao gồm cả đặt tay và kích hoạt Bot bên trong)
                             AuctionManager.getInstance().attemptBid(item, bidReq.getBidderId(), bidReq.getAmount());
 
-                            // Thông báo cho các client khác
+                            // Lấy thông tin TỪ ITEM
                             BidNotification notify = new BidNotification(
                                     item.getId(),
-                                    bidReq.getBidderId(),
-                                    bidReq.getAmount(),
+                                    item.getHighestBidderId(),
+                                    item.getCurrentPrice(),
                                     item.getEndTime()
                             );
                             auction.server.AuctionServer.broadcast(notify);
 
-                            // Trả về báo cáo thành công
+                            // Trả về báo cáo thành công cho người đặt
                             this.sendMessage("SUCCESS");
                         } else {
                             this.sendMessage("ERROR: Product not found!");
@@ -89,7 +89,41 @@ public class ClientHandler extends Thread {
                         this.sendMessage("ERROR:" + e.getMessage());
                     }
                 }
+                else if (request instanceof auction.util.AutoBidRequest autoReq) {
+                    auction.model.item.Item item = auction.model.AuctionManager.getInstance().getItemById(autoReq.getItemId());
+                    auction.model.users.Member member = auction.model.AuctionManager.getInstance().getUserById(autoReq.getUserId());
+
+                    if (item != null && member != null) {
+                        auction.model.AutoBid newAutoBid = new auction.model.AutoBid(member, autoReq.getMaxBid(), autoReq.getIncrement());
+
+                        // Lưu lại giá cũ để so sánh
+                        double oldPrice = item.getCurrentPrice();
+
+                        // Thêm vào hàng đợi của món đồ
+                        item.addAutoBid(newAutoBid);
+
+                        // Nếu bot làm giá tăng lên, lưu lịch sử và thông báo!
+                        if (item.getCurrentPrice() > oldPrice) {
+                            String autoTxId = "TX-AUTO-NEW-" + System.currentTimeMillis();
+                            BidTransaction autoTx = new BidTransaction(autoTxId, item.getHighestBidderId(), item.getId(), item.getCurrentPrice());
+                            AuctionManager.getInstance().addTransaction(autoTx);
+
+                            BidNotification notify = new BidNotification(
+                                    item.getId(),
+                                    item.getHighestBidderId(),
+                                    item.getCurrentPrice(),
+                                    item.getEndTime()
+                            );
+                            auction.server.AuctionServer.broadcast(notify);
+                        }
+
+                        sendMessage("AUTOBID_SUCCESS"); // Báo về cho Client
+                    } else {
+                        sendMessage("LỖI: Không tìm thấy sản phẩm/người dùng!");
+                    }
+                }
             }
+
         } catch (Exception e) {
             System.out.println("Client đã ngắt kết nối.");
         }
