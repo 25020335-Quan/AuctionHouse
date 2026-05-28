@@ -187,11 +187,10 @@ public class AddItemController {
         double price = Double.parseDouble(priceField.getText());
 
         // Tạo sản phẩm mới gắn với ID của người đang đăng nhập
-        String itemId = "I" + System.currentTimeMillis();
         String ownerId = parentController.getCurrentUser().getId();
         String typeInput = typeField.getValue().trim().toLowerCase();
 
-        newItem = FactoryProvider.createItemByType(typeInput, itemId, ownerId, name, price);
+        newItem = FactoryProvider.createNewItemByType(typeInput, ownerId, name, price);
 
         String userDesc = descriptionField.getText();
 
