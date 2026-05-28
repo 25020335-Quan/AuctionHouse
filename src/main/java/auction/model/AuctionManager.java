@@ -178,9 +178,10 @@ public class AuctionManager {
         } catch (Exception e) {
             System.err.println("Lỗi khi kết nối SQL lấy User thật: " + e.getMessage());
         }
+
         // Nếu Database mất kết nối,
         // Server sẽ trả về một User ẩn danh tạm thời để không bị crash
-        return new Member(userId, "Người ẩn danh (" + userId + ")", "", "", "");
+        return new Member(userId, "Người ẩn danh (" + userId + ")", "" , "abc@gmail.com");
     }
 
     // Kiểm tra state của các item
