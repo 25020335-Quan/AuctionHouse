@@ -175,32 +175,6 @@ public class AddItemController {
         }
     }
 
-    // Copy ảnh người dùng đã chọn vào thư mục dự án
-    private void saveImagesToLocalProject(String itemId) {
-        if (selectedFiles.isEmpty()) {
-            return;
-        }
-        ;
-        File dir = new File("src/main/resources/images");
-        if (!dir.exists()) dir.mkdirs();
-        for (int i = 0; i < selectedFiles.size(); i++) {
-            File sourceFile = selectedFiles.get(i);
-            // Đổi tên ảnh theo ID sản phẩm (VD: I-ABC123_0.jpg, I-ABC123_1.jpg)
-            String extension = sourceFile.getName().substring(sourceFile.getName().lastIndexOf("."));
-            String newFileName = itemId + "_" + i + extension;
-
-            Path sourcePath = Paths.get(sourceFile.getAbsolutePath());
-            Path targetPath = Paths.get(dir.getAbsolutePath() + "/" + newFileName);
-
-            try {
-                // Copy file từ máy tính vào project
-                Files.copy(sourcePath, targetPath, StandardCopyOption.REPLACE_EXISTING);
-                System.out.println("Đã lưu ảnh: " + newFileName);
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
-        }
-    }
 
     public void setParentController(MainScreenController parent) {
         this.parentController = parent;
@@ -220,8 +194,6 @@ public class AddItemController {
         newItem = FactoryProvider.createItemByType(typeInput, itemId, ownerId, name, price);
 
         String userDesc = descriptionField.getText();
-        saveImagesToLocalProject(itemId);
-
 
 
         // Đọc dữ liệu từ bộ chọn Start Time
@@ -258,7 +230,6 @@ public class AddItemController {
         // Đưa vào sản phẩm
         newItem.setStartTime(startTime);
         newItem.setEndTime(endTime);
-
         //Định dạng lại ngày giờ để hiển thị lên màn hình
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
         StringBuilder desc = new StringBuilder();
@@ -270,13 +241,20 @@ public class AddItemController {
         desc.append("▪ Start Time: ").append(startTime.format(formatter)).append("\n");
         desc.append("▪ End Time: ").append(endTime.format(formatter)).append("\n");
         desc.append("▪ Description:\n ");
-        desc.append(userDesc);
+        desc.append(userDesc != null && !userDesc.trim().isEmpty() ? userDesc : "No description").append("\n");
         desc.append("---------------------------------------- \n");
         newItem.setDescription(desc.toString());
-
         Task<Item> addItemTask = new Task<Item>() {
             @Override
             protected Item call() throws Exception {
+                // Up toàn bộ ảnh lên Cloud trước khi gửi gói tin
+                for (File imgFile : selectedFiles) {
+                    String cloudLink = auction.util.ImageUploadUtil.uploadImage(imgFile);
+                    if (cloudLink != null) {
+                        newItem.addImageUrl(cloudLink);
+                    }
+                }
+
                 while (true) {
                     Object response = AuctionClient.getInstance().sendRequest(new AddItemRequest(newItem));
 
@@ -298,6 +276,7 @@ public class AddItemController {
         };
 
         addItemTask.setOnSucceeded(e -> {
+            showAlert("Added item successfully!");
             parentController.addNewItemLocally(newItem);
             ((Stage)nameField.getScene().getWindow()).close();
             System.out.println("Đã thêm sản phẩm thành công!");
