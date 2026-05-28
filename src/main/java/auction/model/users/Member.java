@@ -19,6 +19,10 @@ public class Member extends User implements Bidder, Seller, Serializable {
         super(id, username, password, fullName, email);
     }
 
+    public Member(String username, String password,String fullName , String email) {
+        super(username, password, fullName, email);
+    }
+
     @Override
     public void bid(Item item, double amount) {
         AuctionManager instance = AuctionManager.getInstance();
