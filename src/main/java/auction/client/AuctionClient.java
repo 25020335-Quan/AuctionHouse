@@ -17,6 +17,7 @@ public class AuctionClient {
 
     // Biến lưu kết quả của các Request bình thường
     private Object currentResponse = null;
+    private boolean responseReceived = false;
 
     // Lưu màn hình để luồng ngầm tự động vào cập nhật UI
     private AuctionRoomController currentRoom = null;
@@ -85,7 +86,7 @@ public class AuctionClient {
                                     }
                                     //Load lại mainscreen
                                     if (mainScreen != null) {
-                                        mainScreen.refreshLocalUI();
+                                        mainScreen.refreshUI();
                                     }
                                 }
                             });
@@ -97,7 +98,7 @@ public class AuctionClient {
                                     String msg = "🆕 " + notifyReq.getMsg();
                                     mainScreen.showToast(msg);        // hiện thông báo lướt
                                     mainScreen.addNotification(msg); // lưu vào hộp thư
-                                    mainScreen.refreshLocalUI();      // load lại danh sách sản phẩm
+                                    mainScreen.refreshUI();      // load lại danh sách sản phẩm
                                 }
                             });
                         }
@@ -106,7 +107,13 @@ public class AuctionClient {
                         else {
                             synchronized (this) {
                                 currentResponse = response;
+                                responseReceived = true;
                                 this.notify(); // đánh thức thread khỏi wait() sau sendRequest()
+                            }
+                            try {
+                                Thread.sleep(10);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
                             }
                         }
                     }
@@ -130,6 +137,7 @@ public class AuctionClient {
     public synchronized Object sendRequest(Object request) throws IOException, ClassNotFoundException {
         // Dọn dẹp sạch sẽ kết quả từ lần gửi trước (nếu có)
         currentResponse = null;
+        responseReceived = false;
 
         // Ném gói tin yêu cầu lên Server
         out.writeObject(request);
@@ -137,7 +145,7 @@ public class AuctionClient {
 
         // Khi nào luồng ngầm ở trên lấy được kết quả, nó sẽ tự động gọi this.notify() để đánh thức hàm này dậy.
         try {
-            while (currentResponse == null) {
+            while (!responseReceived) {
                 this.wait();
             }
         } catch (InterruptedException e) {
