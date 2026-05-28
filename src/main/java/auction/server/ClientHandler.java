@@ -36,11 +36,28 @@ public class ClientHandler extends Thread {
                 Object request = in.readObject();
 
                 // Logic xử lý
+                if (request instanceof RegisterRequest) {
+                    RegisterRequest regReq = (RegisterRequest) request;
+                    User newUser = regReq.getUser();
+
+                    newUser.setId(auction.model.users.User.generateNewId());
+
+                    // Gọi DB lưu lại
+                    auction.model.service.DatabaseService dbService = new auction.model.service.DatabaseService();
+                    User savedUser = dbService.addUser(newUser);
+
+                    if (savedUser != null) {
+                        sendMessage("SUCCESS");
+                    } else {
+                        sendMessage("FAILED");
+                    }
+                }
                 if (request instanceof LoginRequest loginData) {
                     User user = dbService.checkLogin(loginData.getUsername(), loginData.getPassword());
                     this.sendMessage(user);
 
                 } else if (request instanceof AddItemRequest itemData) {
+                    itemData.getItem().setId(auction.model.item.Item.generateNewId());
                     dbService.addItem(itemData.getItem());
                     AuctionManager.getInstance().addItem(itemData.getItem());
                     this.sendMessage(itemData.getItem());
