@@ -19,10 +19,22 @@ public abstract class Item extends Entity implements Serializable {
     private LocalDateTime endTime;
     private String highestBidderId;
 
+    private static int itemCounter = 1;
+
     // Khai báo biến lưu url của ảnh
     private java.util.List<String> imageUrls = new java.util.ArrayList<>();
 
     private transient PriorityQueue<AutoBid> autoBids = new java.util.PriorityQueue<>();
+
+    public Item(String ownerId, String name, double startingPrice) {
+        super("I-" + (itemCounter++));
+        this.ownerId = ownerId;
+        this.name = name;
+        this.currentPrice = startingPrice;
+        this.startingPrice = startingPrice;
+        this.state = AuctionState.PENDING; // Mặc định là PENDING
+    }
+
 
     public Item(String id, String ownerId, String name, double startingPrice) {
         super(id);
@@ -33,6 +45,10 @@ public abstract class Item extends Entity implements Serializable {
 
         // Mặc định khi tạo ra, món hàng ở trạng thái PENDING
         this.state = AuctionState.PENDING;
+    }
+
+    public static void setItemCounter(int id) {
+        itemCounter = id + 1;
     }
 
     // Getters
@@ -185,5 +201,9 @@ public abstract class Item extends Entity implements Serializable {
         autoBids.add(first);
 
         return true; // Trả về true báo hiệu vòng lặp while ở ngoài hãy chạy thêm 1 lần nữa để check chéo
+    }
+
+    public static String generateNewId() {
+        return "I-" + (itemCounter++);
     }
 }
