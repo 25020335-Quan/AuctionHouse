@@ -3,6 +3,7 @@ import auction.client.AuctionClient;
 import auction.model.item.*;
 import auction.model.*;
 import auction.model.state.AuctionState;
+import auction.model.users.Member;
 import auction.model.users.User;
 import auction.util.GetItemListRequest;
 import auction.util.SceneSwitcher;
@@ -331,6 +332,8 @@ public class MainScreenController {
 
                     if (isSuccess) {
                         // Cập nhật trạng thái món đồ thành SOLD
+                        auction.model.service.DatabaseService dbService = new auction.model.service.DatabaseService();
+                        dbService.updateItemState(wonItem.getId(), "SOLD");
                         wonItem.setState(AuctionState.SOLD);
                         Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
                         successAlert.setTitle("Payment successful");
