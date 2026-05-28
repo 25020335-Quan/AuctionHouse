@@ -35,6 +35,9 @@ public class AuctionServer {
             dbService.loadAllItemsToManager();
             System.out.println("[Server] Đã tải toàn bộ dữ liệu từ Database vào kho tổng!");
             AuctionManager.getInstance().startStateMonitor();
+
+            dbService.syncUserCounter();
+            dbService.syncItemCounter();
         } catch (Exception e) {
             System.out.println("Lỗi load Database: " + e.getMessage());
         }
