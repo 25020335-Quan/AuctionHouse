@@ -2,6 +2,7 @@ package auction.controller;
 
 import auction.model.item.Item;
 import auction.util.ImageHelper;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
@@ -17,6 +18,7 @@ import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 public class EditItemController {
@@ -44,7 +46,7 @@ public class EditItemController {
         this.mainController = mainController;
         // Điền sẵn dữ liệu cũ lên form
         nameField.setText(item.getName());
-        priceField.setText(String.valueOf(item.getCurrentPrice()));
+        priceField.setText(String.format("%.0f", item.getStartingPrice()));
         descriptionField.setText(item.getDescription());
         typeField.setValue(item.getItemType());
 
@@ -73,19 +75,28 @@ public class EditItemController {
     // Hàm vẽ ảnh vào khung và xử lý xóa ảnh
     private void loadExistingImages() {
         imageContainer.getChildren().clear();
-        List<File> imageFiles = ImageHelper.getImagesOfItem(itemToEdit.getId());
-        // Ẩn/Hiện dòng chữ
+
+        // Lấy list Link ảnh của item
+        List<String> cloudLinks = itemToEdit.getImageUrls();
+
+        // Ẩn/Hiện dòng chữ hướng dẫn
         if (dropHintLabel != null) {
-            dropHintLabel.setVisible(imageFiles.isEmpty());
-            dropHintLabel.setManaged(imageFiles.isEmpty());
+            boolean isEmpty = (cloudLinks == null || cloudLinks.isEmpty());
+            dropHintLabel.setVisible(isEmpty);
+            dropHintLabel.setManaged(isEmpty);
         }
-        for (File file : imageFiles) {
+
+        if (cloudLinks != null) {
+        for (int i = 0; i < cloudLinks.size(); i++) {
+            String link = cloudLinks.get(i);
+            final int indexToDelete = i; // Lưu vị trí để xóa
+
             StackPane imageWrapper = new StackPane();
 
             // --- TẠO ẢNH NHỎ ---
-            Image img = ImageHelper.loadImageSafe(file);
+            Image img = new Image(link, true); // Tải ngầm từ mạng
             ImageView thumbView = new ImageView(img);
-            thumbView.setFitWidth(80);  // Kích thước chuẩn
+            thumbView.setFitWidth(80);
             thumbView.setFitHeight(80);
 
             // Bo tròn góc ảnh cho mượt (Tùy chọn)
@@ -100,23 +111,17 @@ public class EditItemController {
 
             // Ép nút xóa lên góc trên bên phải của tấm ảnh
             StackPane.setAlignment(btnDelete, Pos.TOP_RIGHT);
-            //Hàm xử lý xóa ảnh và dồn ảnh lại
+            //Hàm xử lý xóa
             btnDelete.setOnAction(e -> {
-                // Xóa file vật lý trong ổ cứng
-                if (file.delete()) {
-                    System.out.println("Đã xóa ảnh: " + file.getName());
-
-                    // Gọi ImageHelper để re-index các file ảnh
-                    ImageHelper.reindexImages(itemToEdit.getId());
-
-                    // Vẽ lại toàn bộ dải ảnh nhỏ để thấy ảnh bị dồn lại
-                    loadExistingImages();
-                } else {
-                    System.out.println("Lỗi: Không thể xóa file.");
-                }
+                // Cắt Link khỏi RAM
+                itemToEdit.getImageUrls().remove(indexToDelete);
+                // Vẽ lại toàn bộ dải ảnh để cập nhật UI
+                loadExistingImages();
             });
+
             imageWrapper.getChildren().addAll(thumbView, btnDelete);
             imageContainer.getChildren().add(imageWrapper);
+        }
         }
     }
 
@@ -139,38 +144,70 @@ public class EditItemController {
             event.consume();
         });
         dropZoneBox.setOnDragDropped(event -> {
-            //Khi người dùng thả ảnh vào vùng nét đứt
             Dragboard db = event.getDragboard();
             boolean isSuccess = false;
-            if (db.hasFiles()) {
-                // Quét từng file được ném vào
-                for (File file : db.getFiles()) {
-                    String fileName = file.getName().toLowerCase();
-                    // Chỉ chấp nhận file ảnh
-                    if (fileName.endsWith(".png") || fileName.endsWith(".jpg") || fileName.endsWith(".jpeg")) {
-                        boolean isAddSuccess = ImageHelper.addImage(itemToEdit.getId(), file);
+        if (db.hasFiles()) {
+            List<File> filesToUpload = new ArrayList<>();
+            int currentImageCount;
+            if (itemToEdit.getImageUrls() != null) {
+                // Nếu danh sách tồn tại, lấy kích thước thật
+                currentImageCount = itemToEdit.getImageUrls().size();
+            } else {
+                // Nếu danh sách bị null, mặc định là 0 ảnh
+                currentImageCount = 0;
+            }
 
-                        if (isAddSuccess) {
-                            isSuccess = true;
-                        } else {
-                            // Nếu báo fail (do quá 5 ảnh) -> Hiện cảnh báo và ngắt luôn
-                            Alert alert = new Alert(Alert.AlertType.WARNING, "You are only allowed to upload 5 pictures");
-                            alert.showAndWait();
-                            break;
-                        }
+            // Quét từng file được ném vào
+            for (File file : db.getFiles()) {
+                String fileName = file.getName().toLowerCase();
+                if (fileName.endsWith(".png") || fileName.endsWith(".jpg") || fileName.endsWith(".jpeg")) {
+                    // Kiểm tra giới hạn 5 ảnh
+                    if (currentImageCount + filesToUpload.size() < 5) {
+                        filesToUpload.add(file);
+                    } else {
+                        Alert alert = new Alert(Alert.AlertType.WARNING, "You are only allowed to upload 5 pictures in total.");
+                        alert.showAndWait();
+                        break;
                     }
                 }
             }
-            dropZoneBox.getStyleClass().remove("drag-over");
 
-            // Nếu có ít nhất 1 ảnh nạp thành công -> Vẽ lại dải ảnh
-            if (isSuccess) {
-                loadExistingImages();
+            // Nếu có ảnh hợp lệ -> Đưa vào luồng Task up Cloud
+            if (!filesToUpload.isEmpty()) {
+                if (dropHintLabel != null) {
+                    dropHintLabel.setText("Đang tải ảnh lên Cloud, vui lòng chờ...");
+                    dropHintLabel.setVisible(true);
+                    dropHintLabel.setManaged(true);
+                }
+
+                Task<Void> uploadTask = new Task<Void>() {
+                    @Override
+                    protected Void call() throws Exception {
+                        for (File file : filesToUpload) {
+                            // đẩy lên API
+                            String cloudLink = auction.util.ImageUploadUtil.uploadImage(file);
+                            if (cloudLink != null) {
+                                itemToEdit.addImageUrl(cloudLink); // Đút Link mới vào đối tượng Item
+                            }
+                        }
+                        return null;
+                    }
+                };
+
+                // Khi Task chạy xong, vẽ lại khung ảnh
+                uploadTask.setOnSucceeded(e -> {
+                    if (dropHintLabel != null) dropHintLabel.setText("Drop images here");
+                    loadExistingImages();
+                });
+
+                new Thread(uploadTask).start();
+                isSuccess = true;
             }
+        }
 
-            event.setDropCompleted(isSuccess);
-            event.consume();
-        });
-    }
-
+        dropZoneBox.getStyleClass().remove("drag-over");
+        event.setDropCompleted(isSuccess);
+        event.consume();
+    });
+}
 }

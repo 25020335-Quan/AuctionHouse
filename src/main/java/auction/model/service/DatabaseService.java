@@ -46,7 +46,7 @@ public class DatabaseService {
 
     public Item addItem(Item item) {
         // SQL: id thường tự tăng nên không cần chèn vào, state mặc định thường là 'OPEN'
-        String sql = "INSERT INTO items (id, owner_id, name, current_price, state, type, description, starting_price, start_time, end_time, highest_bidder_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO items (id, owner_id, name, current_price, state, type, description, starting_price, start_time, end_time, highest_bidder_id, image_urls) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = DBConnection.getConnection();
             PreparedStatement pstmt = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
@@ -63,6 +63,13 @@ public class DatabaseService {
             pstmt.setString(10, String.valueOf(item.getEndTime()));
             pstmt.setString(11, item.getHighestBidderId());
 
+            // Join list link ảnh thành chuỗi để lưu
+            java.util.List<String> links = item.getImageUrls();
+            if (links != null && !links.isEmpty()) {
+                pstmt.setString(12, String.join(",", links));
+            } else {
+                pstmt.setString(12, "");
+            }
 
             int affectedRows = pstmt.executeUpdate();
 
@@ -114,7 +121,7 @@ public class DatabaseService {
         List<Item> managerList = AuctionManager.getInstance().getAllItems();
         managerList.clear(); // Xóa dữ liệu cũ để nạp mới hoàn toàn
 
-        String sql = "SELECT id, owner_id, name, current_price, state, type, description, starting_price, start_time, end_time, highest_bidder_id FROM items";
+        String sql = "SELECT id, owner_id, name, current_price, state, type, description, starting_price, start_time, end_time, highest_bidder_id, image_urls FROM items";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql);
@@ -128,6 +135,7 @@ public class DatabaseService {
                 double price = rs.getDouble("current_price");
                 String state = rs.getString("state");
                 String type = rs.getString("type");
+                String desc = rs.getString("description");
                 LocalDateTime startTime = rs.getObject("start_time", LocalDateTime.class);
                 LocalDateTime endTime = rs.getObject("end_time", LocalDateTime.class);
                 String highestBidderId = rs.getString("highest_bidder_id");
@@ -137,9 +145,18 @@ public class DatabaseService {
                 item.setStartTime(startTime);
                 item.setEndTime(endTime);
                 item.setHighestBidderId(highestBidderId);
+                item.setDescription(desc);
 
                 assert item != null;
                 item.setState(AuctionState.valueOf(state));
+
+                String urlsFromDB = rs.getString("image_urls");
+                if (urlsFromDB != null && !urlsFromDB.trim().isEmpty()) {
+                    String[] urlArray = urlsFromDB.split(",");
+                    for (String url : urlArray) {
+                        item.addImageUrl(url.trim());
+                    }
+                }
 
                 // Thêm vào danh sách quản lý
                 managerList.add(item);
@@ -182,5 +199,23 @@ public class DatabaseService {
             System.err.println("Lỗi khi truy vấn database: " + e.getMessage());
             e.printStackTrace();
         }
+    }
+    public Member getUserById(String userId) {
+        String sql = "SELECT * FROM users WHERE id = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, userId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    String username = rs.getString("username"); // Hoặc full_name tùy bác
+                    String password = rs.getString("password");
+                    return new Member(userId, username, password);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Lỗi lấy UserById: " + e.getMessage());
+        }
+        return null;
     }
 }

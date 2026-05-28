@@ -71,6 +71,9 @@ public class MainScreenController {
 
     @FXML
     public void initialize() {
+        if (marketplacePane != null) {
+            marketplacePane.toFront();
+        }
         setupRealTimeSearch();
         if (notificationListView != null) {
             //Đưa danh sách lưu trữ vào ListView giao diện

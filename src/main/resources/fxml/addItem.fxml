@@ -3,6 +3,7 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
@@ -14,7 +15,7 @@
 
 <StackPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="1000.0" stylesheets="@../css/addItem.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="auction.controller.AddItemController">
    <children>
-      <VBox alignment="TOP_CENTER" prefHeight="500.0" prefWidth="800.0" spacing="10.0" styleClass="form-card">
+      <VBox alignment="TOP_CENTER" prefHeight="625.0" prefWidth="1000.0" spacing="10.0" styleClass="form-card">
          <opaqueInsets>
             <Insets />
          </opaqueInsets>
@@ -24,26 +25,42 @@
          <children>
             <Label styleClass="title" text="POST NEW ITEM" />
             <Label prefHeight="40.0" prefWidth="173.0" styleClass="subtitle" text="Complete the details below" />
-            <HBox prefHeight="464.0" prefWidth="920.0" spacing="40.0">
+            <HBox prefHeight="474.0" prefWidth="920.0" spacing="40.0">
                <children>
                   <VBox prefHeight="484.0" prefWidth="920.0" spacing="2.0" styleClass="input-field" HBox.hgrow="ALWAYS">
                      <children>
-                        <Label prefHeight="31.0" prefWidth="158.0" text="Item Type" />
+                        <Label prefHeight="19.0" prefWidth="158.0" text="Item Type" />
                         <ComboBox fx:id="typeField" prefHeight="30.0" prefWidth="422.0" />
-                        <Label prefHeight="32.0" prefWidth="102.0" text="Item Name" />
+                        <Label prefHeight="17.0" prefWidth="102.0" text="Item Name" />
                         <TextField fx:id="nameField" maxWidth="-Infinity" prefHeight="26.0" prefWidth="421.0">
                            <VBox.margin>
                               <Insets />
                            </VBox.margin>
                         </TextField>
-                        <Label prefHeight="28.0" prefWidth="144.0" text="Starting Price" />
+                        <Label prefHeight="13.0" prefWidth="144.0" text="Starting Price" />
                         <TextField fx:id="priceField" maxWidth="-Infinity" prefHeight="29.0" prefWidth="420.0">
                            <VBox.margin>
                               <Insets />
                            </VBox.margin>
                         </TextField>
+                        <Label text="Start Time" />
+                        <HBox prefHeight="28.0" prefWidth="397.0" spacing="20.0">
+                           <children>
+                              <DatePicker fx:id="startDatePicker" prefHeight="30.0" prefWidth="199.0" />
+                              <ComboBox fx:id="startHourCombo" prefHeight="30.0" prefWidth="75.0" />
+                              <ComboBox fx:id="startMinuteCombo" prefHeight="30.0" prefWidth="84.0" />
+                           </children>
+                        </HBox>
+                        <Label prefHeight="20.0" prefWidth="69.0" text="End Time" />
+                        <HBox prefHeight="36.0" prefWidth="397.0" spacing="20.0">
+                           <children>
+                              <DatePicker fx:id="endDatePicker" prefHeight="30.0" prefWidth="199.0" />
+                              <ComboBox fx:id="endHourCombo" prefHeight="30.0" prefWidth="76.0" />
+                              <ComboBox fx:id="endMinuteCombo" prefHeight="30.0" prefWidth="81.0" />
+                           </children>
+                        </HBox>
                         <Label prefHeight="28.0" prefWidth="141.0" text="Item Description" />
-                        <TextArea fx:id="descriptionField" maxWidth="-Infinity" prefHeight="243.0" prefRowCount="5" prefWidth="421.0">
+                        <TextArea fx:id="descriptionField" maxWidth="-Infinity" prefHeight="129.0" prefRowCount="5" prefWidth="397.0">
                            <VBox.margin>
                               <Insets />
                            </VBox.margin>

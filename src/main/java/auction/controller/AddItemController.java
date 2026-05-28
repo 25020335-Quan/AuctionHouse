@@ -61,6 +61,22 @@ public class AddItemController {
     // Danh sách lưu trữ các file ảnh người dùng đã thả vào
     private List<File> selectedFiles = new ArrayList<>();
 
+    // Chọn thời gian bắt đầu
+    @FXML
+    private DatePicker startDatePicker;
+    @FXML
+    private ComboBox<String> startHourCombo;
+    @FXML
+    private ComboBox<String> startMinuteCombo;
+
+    // Chọn thời gian kết thúc
+    @FXML
+    private DatePicker endDatePicker;
+    @FXML
+    private ComboBox<String> endHourCombo;
+    @FXML
+    private ComboBox<String> endMinuteCombo;
+
     @FXML
     public void initialize() {
         // Khởi tạo dữ liệu cho ComboBox
@@ -68,6 +84,28 @@ public class AddItemController {
 
         // Kích hoạt tính năng Kéo Thả Ảnh
         setupDragAndDrop();
+
+        //  Nạp số giờ và số phu cho cả hai comboBox
+        for (int i = 0; i < 24; i++) {
+            String hourStr = String.format("%02d", i);
+            startHourCombo.getItems().add(hourStr);
+            endHourCombo.getItems().add(hourStr);
+        }
+        for (int i = 0; i < 60; i++) {
+            String minuteStr = String.format("%02d", i);
+            startMinuteCombo.getItems().add(minuteStr);
+            endMinuteCombo.getItems().add(minuteStr);
+        }
+
+        // Đặt giá trị gợi ý mặc định hiển thị sẵn cho người dùng
+        LocalDateTime now = LocalDateTime.now();
+        startDatePicker.setValue(now.toLocalDate());
+        startHourCombo.setValue(String.format("%02d", now.getHour()));
+        startMinuteCombo.setValue(String.format("%02d", now.getMinute()));
+
+        endDatePicker.setValue(now.toLocalDate().plusDays(3)); // Kết thúc mặc định sau 3 ngày
+        endHourCombo.setValue("23");
+        endMinuteCombo.setValue("59");
     }
 
     //Xử lý ảnh sản phẩm
@@ -137,32 +175,6 @@ public class AddItemController {
         }
     }
 
-    // Copy ảnh người dùng đã chọn vào thư mục dự án
-    private void saveImagesToLocalProject(String itemId) {
-        if (selectedFiles.isEmpty()) {
-            return;
-        }
-        ;
-        File dir = new File("src/main/resources/images");
-        if (!dir.exists()) dir.mkdirs();
-        for (int i = 0; i < selectedFiles.size(); i++) {
-            File sourceFile = selectedFiles.get(i);
-            // Đổi tên ảnh theo ID sản phẩm (VD: I-ABC123_0.jpg, I-ABC123_1.jpg)
-            String extension = sourceFile.getName().substring(sourceFile.getName().lastIndexOf("."));
-            String newFileName = itemId + "_" + i + extension;
-
-            Path sourcePath = Paths.get(sourceFile.getAbsolutePath());
-            Path targetPath = Paths.get(dir.getAbsolutePath() + "/" + newFileName);
-
-            try {
-                // Copy file từ máy tính vào project
-                Files.copy(sourcePath, targetPath, StandardCopyOption.REPLACE_EXISTING);
-                System.out.println("Đã lưu ảnh: " + newFileName);
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
-        }
-    }
 
     public void setParentController(MainScreenController parent) {
         this.parentController = parent;
@@ -182,17 +194,42 @@ public class AddItemController {
         newItem = FactoryProvider.createItemByType(typeInput, itemId, ownerId, name, price);
 
         String userDesc = descriptionField.getText();
-        saveImagesToLocalProject(itemId);
-        // Lấy đúng khoảnh khắc người dùng bấm nút "Save" làm giờ bắt đầu
-        LocalDateTime startTime = LocalDateTime.now();
 
-        // Tự động cộng thêm 3 ngày làm giờ kết thúc
-        LocalDateTime endTime = startTime.plusDays(3);
 
+        // Đọc dữ liệu từ bộ chọn Start Time
+        java.time.LocalDate sDate = startDatePicker.getValue();
+        String sHour = startHourCombo.getValue();
+        String sMinute = startMinuteCombo.getValue();
+
+        // Đọc dữ liệu từ bộ chọn End Time
+        java.time.LocalDate eDate = endDatePicker.getValue();
+        String eHour = endHourCombo.getValue();
+        String eMinute = endMinuteCombo.getValue();
+
+        // Kiểm tra xem người dùng có bỏ trống ô nào không
+        if (sDate == null || sHour == null || sMinute == null ||
+                eDate == null || eHour == null || eMinute == null) {
+            showAlert("Please select both Start Time and End Time fully!");
+            return;
+        }
+
+        // Ráp LocalDate và LocalTime thành LocalDateTime hoàn chỉnh
+        LocalDateTime startTime = LocalDateTime.of(sDate, java.time.LocalTime.of(Integer.parseInt(sHour), Integer.parseInt(sMinute)));
+        LocalDateTime endTime = LocalDateTime.of(eDate, java.time.LocalTime.of(Integer.parseInt(eHour), Integer.parseInt(eMinute)));
+
+        LocalDateTime currentTime = LocalDateTime.now();
+
+        if (startTime.isBefore(currentTime.minusMinutes(1))) {
+            showAlert("Start time cannot be in the past!");
+            return;
+        }
+        if (endTime.isBefore(startTime) || endTime.isEqual(startTime)) {
+            showAlert("End time must be strictly after the start time!");
+            return;
+        }
         // Đưa vào sản phẩm
         newItem.setStartTime(startTime);
         newItem.setEndTime(endTime);
-
         //Định dạng lại ngày giờ để hiển thị lên màn hình
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
         StringBuilder desc = new StringBuilder();
@@ -204,13 +241,20 @@ public class AddItemController {
         desc.append("▪ Start Time: ").append(startTime.format(formatter)).append("\n");
         desc.append("▪ End Time: ").append(endTime.format(formatter)).append("\n");
         desc.append("▪ Description:\n ");
-        desc.append(userDesc);
+        desc.append(userDesc != null && !userDesc.trim().isEmpty() ? userDesc : "No description").append("\n");
         desc.append("---------------------------------------- \n");
         newItem.setDescription(desc.toString());
-
         Task<Item> addItemTask = new Task<Item>() {
             @Override
             protected Item call() throws Exception {
+                // Up toàn bộ ảnh lên Cloud trước khi gửi gói tin
+                for (File imgFile : selectedFiles) {
+                    String cloudLink = auction.util.ImageUploadUtil.uploadImage(imgFile);
+                    if (cloudLink != null) {
+                        newItem.addImageUrl(cloudLink);
+                    }
+                }
+
                 while (true) {
                     Object response = AuctionClient.getInstance().sendRequest(new AddItemRequest(newItem));
 
@@ -221,11 +265,18 @@ public class AddItemController {
                         Platform.runLater(() -> showAlert(note.getMsg()));
                         // Sau đó tiếp tục vòng lặp để đợi gói tin tiếp theo (Hy vọng là Item)
                     }
+                    else {
+                        // Nếu Server trả về String báo lỗi hoặc một Object lạ
+                        System.err.println("Lỗi Server trả về: " + response);
+                        throw new Exception("Thêm sản phẩm thất bại: " + response);
+                        // throw Exception sẽ lập tức phá vỡ while(true) và đẩy Task vào trạng thái Failed
+                    }
                 }
             }
         };
 
         addItemTask.setOnSucceeded(e -> {
+            showAlert("Added item successfully!");
             parentController.addNewItemLocally(newItem);
             ((Stage)nameField.getScene().getWindow()).close();
             System.out.println("Đã thêm sản phẩm thành công!");

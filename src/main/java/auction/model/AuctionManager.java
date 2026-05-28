@@ -4,6 +4,7 @@ import auction.exception.InvalidBidException;
 import auction.model.item.Item;
 import auction.model.state.AuctionState;
 import auction.model.transaction.BidTransaction;
+import auction.model.users.Member;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,8 +53,14 @@ public class AuctionManager {
             lock.unlock();
         }
     }
+
     public List<Item> getAllItems() {
-        return new ArrayList<>(items); // Trả về bản sao để bảo vệ dữ liệu gốc
+        lock.lock(); // Khóa lại trước khi copy
+        try {
+            return new ArrayList<>(items);
+        } finally {
+            lock.unlock(); // An toàn rồi thì mới mở khóa
+        }
     }
 
     // --- QUẢN LÝ GIAO DỊCH ĐẶT GIÁ ---
@@ -125,9 +132,95 @@ public class AuctionManager {
             BidTransaction tx = new BidTransaction(txId, bidderId, item.getId(), amount);
             AuctionManager.getInstance().addTransaction(tx);
 
+            boolean autoBidTriggered = false;
+            while (item.processAutoBids()) {
+                autoBidTriggered = true;
+            }
+
+            // Nếu bot đẩy giá lên thành công, lưu lại giao dịch của bot
+            if (autoBidTriggered) {
+                String autoTxId = "TX-" + System.currentTimeMillis();
+                BidTransaction autoTx = new BidTransaction(
+                        autoTxId,
+                        item.getHighestBidderId(),
+                        item.getId(),
+                        item.getCurrentPrice()
+                );
+                AuctionManager.getInstance().addTransaction(autoTx);
+            }
+
 
         } finally {
             lock.unlock();
         }
+    }
+
+    public Item getItemById(String itemId) {
+        lock.lock();
+        try {
+            return items.stream().filter(item -> item.getId().equals(itemId)).findFirst().orElse(null);
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    public Member getUserById(String userId) {
+        try {
+            // Khởi tạo đối tượng dịch vụ cơ sở dữ liệu
+            auction.model.service.DatabaseService dbService = new auction.model.service.DatabaseService();
+
+            // Gọi hàm getUserById viết dưới DatabaseService
+            Member realUser = dbService.getUserById(userId);
+
+            if (realUser != null) {
+                return realUser; // Tìm thấy người dùng thật trong SQL -> Trả về
+            }
+        } catch (Exception e) {
+            System.err.println("Lỗi khi kết nối SQL lấy User thật: " + e.getMessage());
+        }
+
+        // Nếu Database mất kết nối,
+        // Server sẽ trả về một User ẩn danh tạm thời để không bị crash
+        return new Member(userId, "Người ẩn danh (" + userId + ")", "");
+    }
+
+    // Kiểm tra state của các item
+    public void startStateMonitor() {
+        Thread monitorThread = new Thread(() -> {
+            while (true) {
+                try {
+                    Thread.sleep(1000); // Kiểm tra mỗi giây 1 lần
+                    lock.lock(); // Khóa an toàn để không đụng chạm luồng khác
+                    try {
+                        java.time.LocalDateTime now = java.time.LocalDateTime.now();
+
+                        for (Item item : items) {
+                            // Kiểm tra mở cửa
+                            if (item.getState() == AuctionState.PENDING && item.getStartTime() != null) {
+                                if (now.isEqual(item.getStartTime()) || now.isAfter(item.getStartTime())) {
+                                    item.setState(AuctionState.OPEN);
+                                    System.out.println("Đã tự động mở cửa phiên: " + item.getName());
+                                }
+                            }
+
+                            // Kiểm tra đóng cửa
+                            if ((item.getState() == AuctionState.OPEN || item.getState() == AuctionState.RUNNING) && item.getEndTime() != null) {
+                                if (now.isEqual(item.getEndTime()) || now.isAfter(item.getEndTime())) {
+                                    item.setState(AuctionState.CLOSED);
+                                    System.out.println("Đã tự động đóng cửa phiên: " + item.getName());
+                                }
+                            }
+                        }
+                    } finally {
+                        lock.unlock(); // Đi kiểm tra xong thì mở khóa
+                    }
+                } catch (InterruptedException e) {
+                    System.out.println("Luồng giám sát trạng thái bị ngắt.");
+                    break;
+                }
+            }
+        });
+        monitorThread.setDaemon(true); // Đặt thành Daemon để nó tự chết khi tắt Server
+        monitorThread.start(); // Kích hoạt
     }
 }

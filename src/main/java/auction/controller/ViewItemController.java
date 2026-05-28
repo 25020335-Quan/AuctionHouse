@@ -33,27 +33,21 @@ public class ViewItemController {
     }
 
     public void loadImages(String itemID) {
-        String[] extensions = {".jpg", ".png", ".jpeg"};
         mainImagePane.getChildren().clear();
         thumbnailBox.getChildren().clear();
-        thumbnailBox.setSpacing(10); // Khoảng cách giữa các ảnh nhỏ
+        thumbnailBox.setSpacing(10);
         boolean hasAnyImage = false;
-        // Vòng lặp quét tối đa 5 ảnh
-        for (int i = 0; i < 5; i++) {
-            boolean imageFound = false;
-            for (String ext : extensions) {
-                File imgFile = new File("src/main/resources/images/" + itemID + "_" + i + ext);
-                if (imgFile.exists()) {
-                    Image img = new Image(imgFile.toURI().toString());
-                    // Nếu là ảnh đầu tiên (i=0) -> Đặt làm ảnh chính
+
+        if (currentItem != null && currentItem.getImageUrls() != null) {
+            for (String cloudLink : currentItem.getImageUrls()) {
+                try {
+                    Image img = new Image(cloudLink, true);
                     if (!hasAnyImage) {
                         setMainImage(img);
                         hasAnyImage = true;
                     }
                     createThumbnail(img);
-                    imageFound = true;
-                    break; // Thấy đuôi hợp lệ rồi thì thoát vòng lặp extension
-                }
+                } catch (Exception e) {}
             }
         }
         if (!hasAnyImage) {
