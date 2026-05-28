@@ -49,7 +49,7 @@ public class DatabaseService {
         String sql = "INSERT INTO users (id, username, password, full_name, role, email_address) VALUES (?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = DBConnection.getConnection();
-            PreparedStatement pstmt = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
+             PreparedStatement pstmt = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
 
             pstmt.setString(1, user.getId());
             pstmt.setString(2, user.getUsername());
@@ -142,7 +142,7 @@ public class DatabaseService {
         String sql = "INSERT INTO items (id, owner_id, name, current_price, state, type, description, starting_price, start_time, end_time, highest_bidder_id, image_urls) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = DBConnection.getConnection();
-            PreparedStatement pstmt = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
+             PreparedStatement pstmt = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
 
             pstmt.setString(1, item.getId());
             pstmt.setString(2, item.getOwnerId());
@@ -313,5 +313,44 @@ public class DatabaseService {
             System.err.println("Lỗi lấy UserById: " + e.getMessage());
         }
         return null;
+    }
+    public void syncItemCounter() {
+        String sql = "SELECT id FROM items";
+        int max = 0;
+        try (Connection conn = DBConnection.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            while (rs.next()) {
+                String dbId = rs.getString("id");
+                if (dbId != null && dbId.startsWith("I-")) {
+                    try {
+                        int num = Integer.parseInt(dbId.substring(2));
+                        if (num > max) max = num;
+                    } catch (Exception e) {}
+                }
+            }
+            auction.model.item.Item.setItemCounter(max);
+            System.out.println("Đã đồng bộ ID Item tiếp theo: I-" + (max + 1));
+        } catch (SQLException e) {}
+    }
+
+    public void syncUserCounter() {
+        String sql = "SELECT id FROM users";
+        int max = 0;
+        try (Connection conn = DBConnection.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            while (rs.next()) {
+                String dbId = rs.getString("id");
+                if (dbId != null && dbId.startsWith("U-")) {
+                    try {
+                        int num = Integer.parseInt(dbId.substring(2));
+                        if (num > max) max = num;
+                    } catch (Exception e) {}
+                }
+            }
+            auction.model.users.User.setUserCounter(max);
+            System.out.println("Đã đồng bộ ID User tiếp theo: U-" + (max + 1));
+        } catch (SQLException e) {}
     }
 }
