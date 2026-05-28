@@ -130,6 +130,7 @@ public class DatabaseService {
                 System.out.println("[Database] Failed to update. Item ID not found: " + itemId);
                 return false;
             }
+
         } catch (SQLException e) {
             System.err.println("[Database] Error executing update: " + e.getMessage());
             return false;
