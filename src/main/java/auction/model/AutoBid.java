@@ -1,19 +1,20 @@
 package auction.model;
 
 import auction.model.users.Member;
+import auction.model.users.User;
 
 public class AutoBid implements Comparable<AutoBid>{
-    private Member bidder;
+    private User bidder;
     private double maxBid;
     private double increment;
 
-    public AutoBid(Member bidder, double maxBid, double increment) {
+    public AutoBid(User bidder, double maxBid, double increment) {
         this.bidder = bidder;
         this.maxBid = maxBid;
         this.increment = increment;
     }
 
-    public Member getBidder() { return bidder; }
+    public User getBidder() { return bidder; }
     public double getMaxBid() { return maxBid; }
     public double getIncrement() { return increment; }
 

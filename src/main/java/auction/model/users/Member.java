@@ -15,6 +15,10 @@ import java.util.ArrayList;
 public class Member extends User implements Bidder, Seller, Serializable {
     private List<Item> ownedItems = new ArrayList<>();
 
+    public Member(String id, String username, String password, String fullName, String email, double balance) {
+        super(id, username, password, fullName, email, balance);
+    }
+
     public Member(String id, String username, String password, String fullName, String email) {
         super(id, username, password, fullName, email);
     }
@@ -38,6 +42,8 @@ public class Member extends User implements Bidder, Seller, Serializable {
         ownedItems.add(FactoryProvider.createItemByType(type, id, this.id, name, startingPrice));
         // this.id là ownerId
     }
+
+    public String getRole() { return "MEMBER";}
 
     @Override
     public void postItem(Item item) {

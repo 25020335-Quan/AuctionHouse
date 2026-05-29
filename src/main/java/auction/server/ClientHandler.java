@@ -108,7 +108,7 @@ public class ClientHandler extends Thread {
                 }
                 else if (request instanceof auction.util.AutoBidRequest autoReq) {
                     auction.model.item.Item item = auction.model.AuctionManager.getInstance().getItemById(autoReq.getItemId());
-                    auction.model.users.Member member = auction.model.AuctionManager.getInstance().getUserById(autoReq.getUserId());
+                    auction.model.users.User member = auction.model.AuctionManager.getInstance().getUserById(autoReq.getUserId());
 
                     if (item != null && member != null) {
                         auction.model.AutoBid newAutoBid = new auction.model.AutoBid(member, autoReq.getMaxBid(), autoReq.getIncrement());

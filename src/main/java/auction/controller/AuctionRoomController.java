@@ -44,7 +44,7 @@ public class AuctionRoomController {
     @FXML
     private Label currentPriceLabel;
     private Item currentItem;
-    private Member currentBidder;
+    private User currentBidder;
     @FXML
     private ImageView productAuctionImage;
     @FXML
@@ -71,7 +71,7 @@ public class AuctionRoomController {
      * Hàm này KHÔNG gắn vào nút bấm nào cả.
      * Nó được gọi ở bên ngoài để lưu dữ liệu
      */
-    public void initRoom(Item item, Member user) {
+    public void initRoom(Item item, User user) {
         // Cất dữ liệu vào túi riêng để lát dùng
         this.currentItem = item;
         this.currentBidder = user;

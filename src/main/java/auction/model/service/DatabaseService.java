@@ -31,12 +31,13 @@ public class DatabaseService {
                 String name = rs.getString("full_name");
                 String role = rs.getString("role");
                 String email = rs.getString("email_address");
+                double balance = rs.getDouble("balance");
 
                 // Khởi tạo đối tượng theo đúng vai trò (Polymorphism)
                 if ("ADMIN".equals(role)) {
-                    return new Admin(id, username, password, name, email);
+                    return new Admin(id, username, password, name, email, balance);
                 } else {
-                    return new Member(id, username, password, name, email);
+                    return new Member(id, username, password, name, email, balance);
                 }
             }
         } catch (SQLException e) {
@@ -46,7 +47,7 @@ public class DatabaseService {
     }
 
     public User addUser(User user) {
-        String sql = "INSERT INTO users (id, username, password, full_name, role, email_address) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO users (id, username, password, full_name, role, email_address, balance) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
@@ -57,6 +58,7 @@ public class DatabaseService {
             pstmt.setString(4, user.getFullName());
             pstmt.setString(5, "MEMBER");
             pstmt.setString(6, user.getEmail());
+            pstmt.setString(7, String.valueOf(user.getBalance()));
 
             int affectedRows = pstmt.executeUpdate();
 
@@ -305,8 +307,9 @@ public class DatabaseService {
                     String password = rs.getString("password");
                     String fullName = rs.getString("full_name");
                     String email = rs.getString("email_address");
+                    double balance = rs.getDouble("balance");
 
-                    return new Member(userId, username, password, fullName, email);
+                    return new Member(userId, username, password, fullName, email, balance);
                 }
             }
         } catch (SQLException e) {

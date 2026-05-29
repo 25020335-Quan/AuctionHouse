@@ -113,7 +113,7 @@ public class MainScreenController {
                         item.getState() == AuctionState.RUNNING);
 
                 // lọc My Items : Kiểm tra xem món đồ này có phải của mình không
-                boolean isMyItem = (currentUser != null && item.getOwnerId().equals(currentUser.getId()));
+                boolean isMyItem = (currentUser != null && (item.getOwnerId().equals(currentUser.getId()) || currentUser.getRole().equals("ADMIN")));
 
                 // Nếu đồ đã CANCELED/SOLD và không phải đồ của mình
                 if (!isActiveForMarket && !isMyItem) {

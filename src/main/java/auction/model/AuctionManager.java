@@ -5,6 +5,7 @@ import auction.model.item.Item;
 import auction.model.state.AuctionState;
 import auction.model.transaction.BidTransaction;
 import auction.model.users.Member;
+import auction.model.users.User;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -105,6 +106,10 @@ public class AuctionManager {
                 throw new InvalidBidException("Lỗi: Phiên đấu giá chưa bắt đầu.");
             }
 
+            if (getUserById(bidderId).getBalance() < amount) {
+                throw new InvalidBidException("Lỗi: Không có đủ tiền.");
+            }
+
             // 2. Kiểm tra bước giá (Ví dụ: giá mới phải cao hơn giá cũ)
             if (amount <= item.getCurrentPrice()) {
                 throw new InvalidBidException("Giá đặt phải lớn hơn giá hiện tại!");
@@ -164,13 +169,13 @@ public class AuctionManager {
         }
     }
 
-    public Member getUserById(String userId) {
+    public User getUserById(String userId) {
         try {
             // Khởi tạo đối tượng dịch vụ cơ sở dữ liệu
             auction.model.service.DatabaseService dbService = new auction.model.service.DatabaseService();
 
             // Gọi hàm getUserById viết dưới DatabaseService
-            Member realUser = dbService.getUserById(userId);
+            User realUser = dbService.getUserById(userId);
 
             if (realUser != null) {
                 return realUser; // Tìm thấy người dùng thật trong SQL -> Trả về
@@ -181,7 +186,8 @@ public class AuctionManager {
 
         // Nếu Database mất kết nối,
         // Server sẽ trả về một User ẩn danh tạm thời để không bị crash
-        return new Member(userId, "Người ẩn danh (" + userId + ")", "" , "abc@gmail.com");
+        return null;
+       // return new Member(userId, "Người ẩn danh (" + userId + ")", "" , "abc@gmail.com");
     }
 
     // Kiểm tra state của các item

@@ -7,8 +7,18 @@ public abstract class User extends Entity {
     private String password; // Encapsulation: sử dụng private
     private String email;
     private String fullName;
+    private double balance;
 
     private static int userCounter = 1;
+
+    public User(String id, String username, String password, String fullName, String email, double balance) {
+        super(id);
+        this.username = username;
+        this.password = password;
+        this.fullName = fullName;
+        this.email = email;
+        this.balance = balance;
+    }
 
     public User(String id, String username, String password, String fullName, String email) {
         super(id);
@@ -16,6 +26,7 @@ public abstract class User extends Entity {
         this.password = password;
         this.fullName = fullName;
         this.email = email;
+        this.balance = 0;
     }
 
     public User(String username, String password, String fullName, String email) {
@@ -24,6 +35,7 @@ public abstract class User extends Entity {
         this.password = password;
         this.fullName = fullName;
         this.email = email;
+        this.balance = 0;
     }
 
     // Getter và Setter để truy cập thuộc tính private
@@ -47,4 +59,7 @@ public abstract class User extends Entity {
         return "U-" + (userCounter++);
     }
 
+    public double getBalance() { return balance; }
+
+    public abstract String getRole();
 }

@@ -3,6 +3,7 @@ import auction.model.AuctionManager;
 import auction.model.item.Item;
 import auction.model.service.DatabaseService;
 import auction.model.state.AuctionState;
+import auction.model.users.Admin;
 import auction.model.users.Member;
 import auction.model.users.User;
 import javafx.animation.KeyFrame;
@@ -32,7 +33,7 @@ import static java.lang.String.format;
 
 public class ProductRowController {
     private Item currentItem;
-    private Member currentUser;
+    private User currentUser;
     @FXML
     Label productName;
     @FXML
@@ -89,10 +90,13 @@ public class ProductRowController {
         if (user instanceof Member) {
             this.currentUser = (Member) user;
         }
+        if (user instanceof Admin) {
+            this.currentUser = (Admin) user;
+        }
         if (btnBid != null && currentUser != null) {
             // Xóa style
             btnBid.setStyle("");
-            if (item.getOwnerId().equals(currentUser.getId())) {
+            if (item.getOwnerId().equals(currentUser.getId()) || currentUser.getRole().equals("ADMIN")) {
                 // Nếu là đồ của mình -> Biến thành nút xóa
                 btnBid.setDisable(false);
                 btnBid.setText("Delete");
@@ -163,7 +167,7 @@ public class ProductRowController {
     }
     public void checkAndUpdateState(Item item) {
         LocalDateTime now = LocalDateTime.now();
-        boolean isOwner = currentUser != null && item.getOwnerId().equals(currentUser.getId());
+        boolean isOwner = (currentUser != null && (item.getOwnerId().equals(currentUser.getId()) || currentUser.getRole().equals("ADMIN")));
 
         // 1. TRẠNG THÁI: CHƯA BẮT ĐẦU (PENDING)
         if (item.getStartTime() != null && now.isBefore(item.getStartTime())) {
