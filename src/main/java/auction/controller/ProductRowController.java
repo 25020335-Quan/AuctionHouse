@@ -1,6 +1,7 @@
 package auction.controller;
 import auction.model.AuctionManager;
 import auction.model.item.Item;
+import auction.model.service.DatabaseService;
 import auction.model.state.AuctionState;
 import auction.model.users.Member;
 import auction.model.users.User;
@@ -106,6 +107,8 @@ public class ProductRowController {
                     alert.showAndWait().ifPresent(response -> {
                         if (response == ButtonType.OK) {
                             AuctionManager.getInstance().removeItemByID(item.getId());
+                            auction.model.service.DatabaseService dbService = new DatabaseService();
+                            dbService.deleteItemById(item.getId());
                             // Gọi màn hình cha vẽ lại danh sách ngay lập tức để mất hình món đồ vừa xóa
                             if (mainController != null) {
                                 mainController.refreshLocalUI();
