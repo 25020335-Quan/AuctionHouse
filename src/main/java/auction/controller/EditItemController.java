@@ -1,7 +1,6 @@
 package auction.controller;
 
 import auction.model.item.Item;
-import auction.util.ImageHelper;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
