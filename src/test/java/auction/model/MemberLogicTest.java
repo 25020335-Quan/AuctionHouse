@@ -7,15 +7,17 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class MemberLogicTest {
 
     private Member user;
-
     @BeforeEach
     void setUp() {
-        user = new Member("U01", "testUser", "pass123");
+        user = new Member("U01","testUser", "pass123", "user", "test@mail.com");
     }
 
     @Test

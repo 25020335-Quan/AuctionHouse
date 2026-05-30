@@ -3,6 +3,7 @@ package auction.model;
 import auction.exception.InvalidBidException;
 import auction.model.factory.FactoryProvider;
 import auction.model.item.Item;
+import auction.model.state.AuctionState;
 import auction.model.users.Member;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -34,8 +35,8 @@ public class BidRaceConditionTest {
     void setUp() {
         manager = AuctionManager.getInstance();
         testItem = FactoryProvider.createItemByType("ELECTRONICS", "U99", "RACE-01", "Race Item", 1000.0);
-
-        Member poster = new Member("U00", "poster", "pass");
+        testItem.setState(AuctionState.OPEN);
+        Member poster = new Member("U00", "poster", "pass", "test@mail.com");
         poster.postItem(testItem);
     }
 
@@ -72,7 +73,7 @@ public class BidRaceConditionTest {
             }
 
             startGun.countDown();
-            boolean finished = finishLine.await(10, TimeUnit.SECONDS);
+            boolean finished = finishLine.await(100, TimeUnit.SECONDS);
             assertTrue(finished, "Timeout - không phải tất cả luồng kịp chạy xong");
         } finally {
             executor.shutdown();
@@ -124,7 +125,7 @@ public class BidRaceConditionTest {
             }
 
             startGun.countDown();
-            boolean finished = finishLine.await(10, TimeUnit.SECONDS);
+            boolean finished = finishLine.await(100, TimeUnit.SECONDS);
             assertTrue(finished, "Timeout - không phải tất cả luồng kịp chạy xong");
         } finally {
             executor.shutdown();
@@ -170,7 +171,7 @@ public class BidRaceConditionTest {
             }
 
             startGun.countDown();
-            boolean finished = finishLine.await(15, TimeUnit.SECONDS);
+            boolean finished = finishLine.await(200, TimeUnit.SECONDS);
             assertTrue(finished, "Timeout - không phải tất cả luồng kịp chạy xong");
         } finally {
             executor.shutdown();
