@@ -211,7 +211,7 @@ public class ProductRowController {
                     btnBid.setDisable(false);
                     btnBid.setText("Pay Now");
                     btnBid.setStyle("-fx-background-color: #10b981; -fx-text-fill: white; -fx-font-weight: bold;");
-                    btnBid.setOnAction(e -> parentController.handlePayment(item));
+                    btnBid.setOnAction(e -> parentController.handlePayment(item, currentUser));
                 } else if (isWinner && item.getState() == AuctionState.SOLD) {
                     btnBid.setDisable(true);
                     btnBid.setText("Paid");

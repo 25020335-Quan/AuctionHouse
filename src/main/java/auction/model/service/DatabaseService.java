@@ -46,6 +46,31 @@ public class DatabaseService {
         return null; // Trả về null nếu không tìm thấy người dùng
     }
 
+    public void deductBalance(String id, double amount) {
+        String sql = "UPDATE users SET balance = balance - ? WHERE id = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            // Set the query parameters in order
+            pstmt.setDouble(1, amount);     // The amount to subtract
+            pstmt.setString(2, id);     // The target user ID
+
+            // executeUpdate() returns the number of rows modified
+            int rowsAffected = pstmt.executeUpdate();
+
+            if (rowsAffected > 0) {
+                System.out.println("[Database] Successfully deducted " + amount + " from user ID: " + id);
+            } else {
+                // If 0 rows were affected, either the user ID doesn't exist, OR balance < amount
+                System.out.println("⚠[Database] Deduction failed for user ID: " + id + ". (User not found or insufficient funds).");
+            }
+
+        } catch (SQLException e) {
+            System.err.println("[Database] Error while updating balance: " + e.getMessage());
+        }
+
+    }
+
     public User addUser(User user) {
         String sql = "INSERT INTO users (id, username, password, full_name, role, email_address, balance) VALUES (?, ?, ?, ?, ?, ?, ?)";
 

@@ -304,7 +304,7 @@ public class MainScreenController {
         }
     }
 
-    public void handlePayment(Item wonItem) {
+    public void handlePayment(Item wonItem, User bidder) {
         // Confirm thanh toán
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("Payment Confirmation");
@@ -334,6 +334,7 @@ public class MainScreenController {
                         // Cập nhật trạng thái món đồ thành SOLD
                         auction.model.service.DatabaseService dbService = new auction.model.service.DatabaseService();
                         dbService.updateItemState(wonItem.getId(), "SOLD");
+                        dbService.deductBalance(bidder.getId(), wonItem.getCurrentPrice());
                         wonItem.setState(AuctionState.SOLD);
                         Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
                         successAlert.setTitle("Payment successful");
