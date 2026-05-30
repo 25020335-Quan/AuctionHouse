@@ -6,7 +6,6 @@ package auction.exception;
  */
 public class AuthenticationException extends Exception {
 
-    // ID duy nhất phục vụ việc Serialization qua mạng
     private static final long serialVersionUID = 102L;
 
     public AuthenticationException(String message) {
