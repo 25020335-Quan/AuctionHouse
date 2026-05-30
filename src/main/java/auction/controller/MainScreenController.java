@@ -57,6 +57,8 @@ public class MainScreenController {
     @FXML
     private AnchorPane wonAuctionsPane;
     @FXML
+    private StackPane mainStackPane;
+    @FXML
     private TextField searchField;
     @FXML
     private Button btnBell;
@@ -229,6 +231,32 @@ public class MainScreenController {
 
     public void switchProfile(ActionEvent event) {
         setActiveButton(btnProfile);
+        try {
+            // Xóa cái giao diện Profile cũ đang nằm trong StackPane (nếu có)
+            mainStackPane.getChildren().removeIf(node -> "profileNode".equals(node.getId()));
+
+            // Tải file giao diện profile.fxml độc lập từ bên ngoài vào
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/profile.fxml"));
+            javafx.scene.Parent profileRoot = loader.load();
+
+            // Gắn thẻ tên cho nó là "profileNode" để lần sau gọi removeIf nó biết đường xóa
+            profileRoot.setId("profileNode");
+
+            // Lấy cái Controller của Profile ra và bơm dữ liệu User hiện tại vào
+            auction.controller.ProfileController profileController = loader.getController();
+            profileController.setUserData(this.currentUser);
+
+            //Đưa giao diện vừa tải vào StackPane và ép nó nổi lên trên cùng
+            mainStackPane.getChildren().add(profileRoot);
+            profileRoot.toFront();
+
+        } catch (java.io.IOException e) {
+            System.err.println("Lỗi load file FXML của Profile!");
+            e.printStackTrace();
+        } catch (Exception e) {
+            System.err.println("Lỗi khi mở màn hình Profile!");
+            e.printStackTrace();
+        }
     }
 
     @FXML
@@ -333,18 +361,28 @@ public class MainScreenController {
                     if (isSuccess) {
                         // Cập nhật trạng thái món đồ thành SOLD
                         auction.model.service.DatabaseService dbService = new auction.model.service.DatabaseService();
-                        dbService.updateItemState(wonItem.getId(), "SOLD");
-                        dbService.deductBalance(bidder.getId(), wonItem.getCurrentPrice());
-                        wonItem.setState(AuctionState.SOLD);
-                        Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
-                        successAlert.setTitle("Payment successful");
-                        successAlert.setHeaderText(null);
-                        successAlert.setContentText("Payment successful! Your order ID is #" + wonItem.getId());
-                        successAlert.showAndWait();
-                        // Load lại màn hình cập nhật lại nút
-                        handleShowWonAuctions(null);
-                        List<Item> currentItems = AuctionManager.getInstance().getAllItems();
-                        loadProducts(currentItems);
+                        boolean isDeducted = dbService.deductBalance(bidder.getId(), wonItem.getCurrentPrice());
+                        if (isDeducted) {
+                            dbService.deductBalance(bidder.getId(), wonItem.getCurrentPrice());
+                            bidder.setBalance(bidder.getBalance() - wonItem.getCurrentPrice());
+                            dbService.updateItemState(wonItem.getId(), "SOLD");
+                            wonItem.setState(AuctionState.SOLD);
+                            Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
+                            successAlert.setTitle("Payment successful");
+                            successAlert.setHeaderText(null);
+                            successAlert.setContentText("Payment successful! Your order ID is #" + wonItem.getId());
+                            successAlert.showAndWait();
+                            // Load lại màn hình cập nhật lại nút
+                            handleShowWonAuctions(null);
+                            List<Item> currentItems = AuctionManager.getInstance().getAllItems();
+                            loadProducts(currentItems);
+                        } else {
+                            Alert errorAlert = new Alert(Alert.AlertType.ERROR);
+                            errorAlert.setTitle("Payment Failed");
+                            errorAlert.setHeaderText("Insufficient Balance!");
+                            errorAlert.setContentText("Your wallet has insufficient funds to pay for this order. Please top up your account.");
+                            errorAlert.showAndWait();
+                        }
                     }
                 });
                 paymentTask.setOnFailed(e -> {
@@ -462,6 +500,42 @@ public class MainScreenController {
             unreadCount = 0;
             if (lblBadge != null) {
                 lblBadge.setVisible(false);
+            }
+        }
+    }
+
+    @FXML
+    private void handleLogout(ActionEvent event) {
+        // Hiện hộp xác nhận
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Confirmation");
+        alert.setHeaderText(null);
+        alert.setContentText("Are you sure you want to log out?");
+
+        // Nếu người dùng bấm OK
+        if (alert.showAndWait().orElse(ButtonType.CANCEL) == ButtonType.OK) {
+            // Xóa thông tin người dùng hiện tại ở màn hình này
+            this.currentUser = null;
+            // Xóa các con trỏ màn hình đang gắn
+            // Tránh việc luồng ngầm vẫn cố cập nhật UI của màn hình cũ gây lỗi
+            auction.client.AuctionClient.getInstance().setMainScreen(null);
+            auction.client.AuctionClient.getInstance().setCurrentRoom(null);
+
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/login.fxml")); // Nhớ check chữ hoa/thường ở đây
+                Parent root = loader.load();
+
+                // Lấy cửa sổ (Stage) hiện tại dựa vào cái menuButton (vì chắc chắn nó không bị null)
+                Stage stage = (Stage) menuButton.getScene().getWindow();
+                stage.setScene(new Scene(root));
+                stage.setTitle("Login");
+                stage.sizeToScene();     // Tự động co cửa sổ vừa khít với kích thước của file login.fxml
+                stage.centerOnScreen();
+                stage.show();
+
+            } catch (Exception e) {
+                System.err.println("Lỗi khi mở màn hình Login: " + e.getMessage());
+                e.printStackTrace(); // In ra log đỏ để dễ soi lỗi nếu sai tên file
             }
         }
     }
