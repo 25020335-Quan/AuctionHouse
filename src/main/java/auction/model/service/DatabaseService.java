@@ -47,29 +47,31 @@ public class DatabaseService {
         return null; // Trả về null nếu không tìm thấy người dùng
     }
 
-    public void deductBalance(String id, double amount) {
-        String sql = "UPDATE users SET balance = balance - ? WHERE id = ?";
+    public boolean deductBalance(String id, double amount) {
+        // Thêm chốt chặn "balance >= ?" để chống âm tiền
+        String sql = "UPDATE users SET balance = balance - ? WHERE id = ? AND balance >= ?";
+
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            // Set the query parameters in order
-            pstmt.setDouble(1, amount);     // The amount to subtract
-            pstmt.setString(2, id);     // The target user ID
+            pstmt.setDouble(1, amount);
+            pstmt.setString(2, id);
+            pstmt.setDouble(3, amount); //  Đưa amount vào dấu ? thứ 3
 
-            // executeUpdate() returns the number of rows modified
             int rowsAffected = pstmt.executeUpdate();
 
             if (rowsAffected > 0) {
-                System.out.println("[Database] Successfully deducted " + amount + " from user ID: " + id);
+                System.out.println("[Database] Trừ thành công " + amount + " từ user ID: " + id);
+                return true; // Thành công
             } else {
-                // If 0 rows were affected, either the user ID doesn't exist, OR balance < amount
-                System.out.println("⚠[Database] Deduction failed for user ID: " + id + ". (User not found or insufficient funds).");
+                System.out.println("[Database] Trừ tiền thất bại: User không tồn tại hoặc không đủ tiền!");
+                return false; // Thất bại
             }
 
         } catch (SQLException e) {
-            System.err.println("[Database] Error while updating balance: " + e.getMessage());
+            System.err.println("[Database] Lỗi trừ tiền: " + e.getMessage());
+            return false;
         }
-
     }
 
     public User addUser(User user) {
@@ -458,5 +460,35 @@ public class DatabaseService {
             auction.model.users.User.setUserCounter(max);
             System.out.println("Đã đồng bộ ID User tiếp theo: U-" + (max + 1));
         } catch (SQLException e) {}
+    }
+
+    public boolean addBalance(String userId, double amount) {
+        // Câu lệnh SQL: Lấy số tiền cũ (balance) cộng thêm một khoản mới (?) của đúng người đó
+        String sql = "UPDATE users SET balance = balance + ? WHERE id = ?";
+
+        // Dùng try-with-resources để tự động đóng kết nối (Connection) sau khi xong việc, tránh tràn RAM
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            // Nhét dữ liệu vào 2 dấu chấm hỏi (?) ở câu lệnh SQL trên
+            pstmt.setDouble(1, amount); // Dấu hỏi 1: Số tiền nạp
+            pstmt.setString(2, userId); // Dấu hỏi 2: ID của người dùng
+
+            // Thực thi lệnh và đếm xem có bao nhiêu dòng trong Database bị thay đổi
+            int rowsAffected = pstmt.executeUpdate();
+
+            // Nếu > 0 nghĩa là đã tìm thấy user và cộng tiền thành công
+            if (rowsAffected > 0) {
+                System.out.println("[Database] Nạp thành công " + amount + " VNĐ vào tài khoản ID: " + userId);
+                return true;
+            } else {
+                System.out.println("[Database] Lỗi nạp tiền: Không tìm thấy User có ID là " + userId);
+                return false;
+            }
+
+        } catch (SQLException e) {
+            System.err.println("[Database] Lỗi SQL khi nạp tiền: " + e.getMessage());
+            return false;
+        }
     }
 }
