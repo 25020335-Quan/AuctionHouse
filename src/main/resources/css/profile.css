@@ -1,0 +1,124 @@
+.main-container {
+    -fx-background-color: #f0f2f5;
+    -fx-padding: 40;
+}
+
+/* THẺ AVATAR (Cột bên trái) */
+.avatar-card {
+    -fx-background-color: white;
+    -fx-background-radius: 12;
+    -fx-padding: 25;
+    /* Hiệu ứng đổ bóng nhẹ, sang trọng */
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.08), 15, 0, 0, 5);
+}
+
+/* Tên người dùng dưới Avatar */
+.avatar-name-label {
+    -fx-font-family: "System";
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1c1e21;
+}
+
+/* THẺ THÔNG TIN (Core Profile Details) */
+.profile-card {
+    -fx-background-color: white;
+    -fx-background-radius: 12;
+    -fx-border-color: #e4e6eb;
+    -fx-border-radius: 12;
+    -fx-border-width: 1px;
+    -fx-padding: 25;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.04), 10, 0, 0, 2);
+}
+
+/* Tiêu đề của các thẻ (Ví dụ: "Core Profile Details") */
+.section-title {
+    -fx-font-family: "System";
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #333333;
+}
+
+/* Nhãn chú thích (ID, Tên, Username...) */
+.field-label {
+    -fx-font-family: "System";
+    -fx-font-size: 14px;
+    -fx-text-fill: #606770;
+}
+
+/* Khung Text Field màu xám, bo góc nhẹ */
+.custom-text-field {
+    -fx-background-color: #f0f2f5;
+    -fx-background-radius: 6;
+    -fx-padding: 8 12;
+    -fx-font-size: 14px;
+    -fx-text-fill: #1c1e21;
+    -fx-border-color: transparent;
+}
+/* Hiệu ứng khi click chuột vào Text Field (nếu muốn) */
+.custom-text-field:focused {
+    -fx-border-color: #1877f2;
+    -fx-border-radius: 6;
+    -fx-background-color: white;
+}
+
+/*THẺ TÀI CHÍNH (Financial Summary) */
+.finance-card {
+    /* Màu nền xanh lam nhạt cực dịu mắt */
+    -fx-background-color: #eef4fc;
+    -fx-background-radius: 12;
+    -fx-border-color: #d2e3fc;
+    -fx-border-radius: 12;
+    -fx-border-width: 1px;
+    -fx-padding: 25;
+}
+
+/* Tiêu đề */
+.finance-title {
+    -fx-font-family: "System";
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1c4b82;
+}
+
+/* Chữ "Account Balance" */
+.finance-subtitle {
+    -fx-font-family: "System";
+    -fx-font-size: 13px;
+    -fx-text-fill: #555555;
+}
+
+/* Số tiền */
+.finance-balance-amount {
+    -fx-font-family: "System";
+    -fx-font-size: 28px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #3170a7;
+}
+
+/* Cột giao dịch cuối */
+.finance-transaction-amount {
+    -fx-font-family: "System";
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2e7d32;
+}
+
+/* Nút nạp tiền */
+.topup-button {
+    -fx-background-color: #1877f2;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 6;
+    -fx-padding: 8 20;
+    -fx-cursor: hand;
+}
+
+.topup-button:hover {
+    -fx-background-color: #166fe5;
+}
+
+.topup-button:pressed {
+    -fx-background-color: #0c56b7;
+}
