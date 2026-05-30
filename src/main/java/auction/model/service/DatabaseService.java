@@ -4,6 +4,7 @@ import auction.model.AuctionManager;
 import auction.model.factory.FactoryProvider;
 import auction.model.item.Item;
 import auction.model.state.AuctionState;
+import auction.model.transaction.BidTransaction;
 import auction.model.users.Admin;
 import auction.model.users.Member;
 import auction.model.users.User;
@@ -236,6 +237,81 @@ public class DatabaseService {
         }
     }
 
+    public void addTransaction(BidTransaction transaction) {
+        // SQL statement targeting the bid_transactions table structure
+        String sql = "INSERT INTO bid_transactions (id, bidder_id, item_id, bid_amount, bid_time) VALUES (?, ?, ?, ?, ?)";
+
+        // Try-with-resources closes connection & statement automatically to avoid memory leaks
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            // 1. Get the transaction ID inherited from the Entity parent class
+            pstmt.setString(1, transaction.getId());
+
+            // 2. Get bidderId and itemId from your object fields
+            pstmt.setString(2, transaction.getBidderId()); //
+            pstmt.setString(3, transaction.getItemId());   //
+
+            // 3. Get the raw numeric bid amount
+            pstmt.setDouble(4, transaction.getBidAmount()); //
+
+            // 4. Pass LocalDateTime directly into the MySQL DATETIME column safely
+            pstmt.setObject(5, transaction.getBidTime());   //
+
+            // Execute the insertion query
+            int rowsInserted = pstmt.executeUpdate();
+
+            if (rowsInserted > 0) {
+                System.out.println("[Database] Successfully uploaded transaction record: " + transaction.getId());
+            }
+
+        } catch (SQLException e) {
+            System.err.println("[Database] Failed to upload transaction details: " + e.getMessage());
+        }
+    }
+
+    public void loadAllTransactionsToManager() {
+        String sql = "SELECT id, bidder_id, item_id, bid_amount, bid_time FROM bid_transactions";
+        List<BidTransaction> bidTransactionList = AuctionManager.getInstance().getAllTransaction();
+        // Using try-with-resources to clean up database connections automatically
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql);
+             ResultSet rs = pstmt.executeQuery()) {
+
+            // Clear the existing transactions list first if you want to avoid duplicates on reload
+            AuctionManager.getInstance().getAllTransaction().clear();
+
+            int count = 0;
+            while (rs.next()) {
+                String id = rs.getString("id");
+                String bidderId = rs.getString("bidder_id");
+                String itemId = rs.getString("item_id");
+                double bidAmount = rs.getDouble("bid_amount");
+
+                // Read the historical DATETIME from MySQL into LocalDateTime
+                LocalDateTime bidTime = rs.getObject("bid_time", LocalDateTime.class);
+
+                // 1. Instantiate the object using your constructor
+                BidTransaction transaction = new BidTransaction(id, bidderId, itemId, bidAmount); //
+
+                // 2. IMPORTANT: Override the auto-generated "now()" time with the real historical database time
+                // (Ensure you have a setter 'setBidTime(LocalDateTime bidTime)' in your BidTransaction class)
+                if (bidTime != null) {
+                    transaction.setBidTime(bidTime);
+                }
+
+                // 3. Push the populated object into the AuctionManager collection
+                bidTransactionList.add(transaction);
+                count++;
+            }
+            AuctionManager.getInstance().updateAllTransaction(bidTransactionList);
+            System.out.println("[Database] Successfully loaded " + count + " transactions into AuctionManager.");
+
+        } catch (SQLException e) {
+            System.err.println("[Database] Failed to load transaction logs: " + e.getMessage());
+        }
+    }
+
     public void loadAllItemsToManager() {
         // 1. Truy cập danh sách trong Singleton AuctionManager
         List<Item> managerList = AuctionManager.getInstance().getAllItems();
@@ -256,12 +332,14 @@ public class DatabaseService {
                 String state = rs.getString("state");
                 String type = rs.getString("type");
                 String desc = rs.getString("description");
+                double startingPrice = rs.getDouble("starting_price");
                 LocalDateTime startTime = rs.getObject("start_time", LocalDateTime.class);
                 LocalDateTime endTime = rs.getObject("end_time", LocalDateTime.class);
                 String highestBidderId = rs.getString("highest_bidder_id");
 
                 // Tạo đối tượng Item (Hãy đảm bảo Constructor của Item nhận các tham số này)
                 Item item = FactoryProvider.createItemByType(type, id, ownerId, name, price);
+                item.setStartingPrice(startingPrice);
                 item.setStartTime(startTime);
                 item.setEndTime(endTime);
                 item.setHighestBidderId(highestBidderId);

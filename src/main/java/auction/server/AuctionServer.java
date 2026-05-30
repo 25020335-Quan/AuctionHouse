@@ -33,6 +33,7 @@ public class AuctionServer {
         try {
             auction.model.service.DatabaseService dbService = new auction.model.service.DatabaseService();
             dbService.loadAllItemsToManager();
+            dbService.loadAllTransactionsToManager();
             System.out.println("[Server] Đã tải toàn bộ dữ liệu từ Database vào kho tổng!");
             AuctionManager.getInstance().startStateMonitor();
 

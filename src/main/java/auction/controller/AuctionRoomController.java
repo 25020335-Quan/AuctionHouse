@@ -30,6 +30,7 @@ import javafx.util.Duration;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 
 
@@ -133,7 +134,7 @@ public class AuctionRoomController {
             System.out.println(startPrice);
             priceSeries.getData().add(new javafx.scene.chart.XYChart.Data<>(startTimeStr, startPrice));
 
-
+            history.sort(Comparator.comparing(BidTransaction::getBidTime));
 
             for (BidTransaction tx : history) {
                 String txTime = tx.getBidTime().format(formatter);
@@ -141,15 +142,15 @@ public class AuctionRoomController {
                 priceSeries.getData().add(new javafx.scene.chart.XYChart.Data<>(txTime, tx.getBidAmount()));
             }
 
-                String currentTime = LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("HH:mm:ss"));
-                if (priceSeries.getData().isEmpty()) {
-                    java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("HH:mm:ss"));
-                    priceSeries.getData().add(new javafx.scene.chart.XYChart.Data<>(currentTime, item.getCurrentPrice()));
-                }
-                //Tạo điểm đầu tiên
-                priceSeries.getData().add(new javafx.scene.chart.XYChart.Data<>(currentTime, item.getCurrentPrice()));
-                // Gắn đường vẽ vào biểu đồ
-                priceChart.getData().add(priceSeries);
+//                String currentTime = LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("HH:mm:ss"));
+//                if (priceSeries.getData().isEmpty()) {
+//                    java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("HH:mm:ss"));
+//                    priceSeries.getData().add(new javafx.scene.chart.XYChart.Data<>(currentTime, item.getCurrentPrice()));
+//                }
+//                //Tạo điểm đầu tiên
+//                priceSeries.getData().add(new javafx.scene.chart.XYChart.Data<>(currentTime, item.getCurrentPrice()));
+//                // Gắn đường vẽ vào biểu đồ
+            priceChart.getData().add(priceSeries);
 
         }
     }

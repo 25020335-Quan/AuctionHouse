@@ -24,6 +24,10 @@ public class BidTransaction extends Entity {
     public double getBidAmount() { return bidAmount; }
     public LocalDateTime getBidTime() { return bidTime; }
 
+    public void setBidTime(LocalDateTime bidTime) {
+        this.bidTime = bidTime;
+    }
+
     @Override
     public String toString() {
         return String.format("Bid: %.2f by %s at %s", bidAmount, bidderId, bidTime);

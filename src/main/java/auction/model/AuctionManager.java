@@ -42,6 +42,8 @@ public class AuctionManager {
         items = item;
     }
 
+    public void updateAllTransaction(List<BidTransaction> transaction) { transactions = transaction; }
+
     public void addItem(Item item) {
         items.add(item);
     }
@@ -59,6 +61,15 @@ public class AuctionManager {
         lock.lock(); // Khóa lại trước khi copy
         try {
             return new ArrayList<>(items);
+        } finally {
+            lock.unlock(); // An toàn rồi thì mới mở khóa
+        }
+    }
+
+    public List<BidTransaction> getAllTransaction() {
+        lock.lock(); // Khóa lại trước khi copy
+        try {
+            return new ArrayList<>(transactions);
         } finally {
             lock.unlock(); // An toàn rồi thì mới mở khóa
         }
@@ -136,6 +147,8 @@ public class AuctionManager {
             String txId = "TX-" + System.currentTimeMillis();
             BidTransaction tx = new BidTransaction(txId, bidderId, item.getId(), amount);
             AuctionManager.getInstance().addTransaction(tx);
+            auction.model.service.DatabaseService dbService = new auction.model.service.DatabaseService();
+            dbService.addTransaction(tx);
 
             boolean autoBidTriggered = false;
             while (item.processAutoBids()) {
@@ -152,6 +165,7 @@ public class AuctionManager {
                         item.getCurrentPrice()
                 );
                 AuctionManager.getInstance().addTransaction(autoTx);
+                dbService.addTransaction(autoTx);
             }
 
 
