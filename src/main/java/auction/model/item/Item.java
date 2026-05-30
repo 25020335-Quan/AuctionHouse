@@ -189,7 +189,17 @@ public abstract class Item extends Entity implements Serializable {
             return false;
         }
 
-        // Cập nhật thông tin Model
+        auction.model.users.User realUser = auction.model.AuctionManager.getInstance().getUserById(first.getBidder().getId());
+
+        // Nếu user bị xóa, hoặc số dư trong ví không đủ để trả cái giá nextPrice này
+        if (realUser == null || realUser.getBalance() < nextPrice) {
+            System.out.println(" [AutoBid Cảnh báo] Đã hủy AutoBid của User " + first.getBidder().getId() + " do không đủ số dư (" + (realUser != null ? realUser.getBalance() : "null") + " VNĐ).");
+
+            // Ngay lập tức gọi đệ quy để nhường quyền đấu giá cho Bot đứng thứ 2 (nếu có).
+            return processAutoBids();
+        }
+
+        // Cập nhật thông tin Model nếu qua hết các chốt kiểm duyệt
         this.currentPrice = nextPrice;
         this.highestBidderId = first.getBidder().getId();
 
@@ -197,12 +207,11 @@ public abstract class Item extends Entity implements Serializable {
             this.state = AuctionState.RUNNING;
         }
 
-        // Trả Bot dẫn đầu lại vào Priority Queue để nó thủ thế chờ người khác vào tranh
+        // Trả Bot dẫn đầu lại vào Priority Queue để chờ người khác vào đẩy giá
         autoBids.add(first);
 
         return true; // Trả về true báo hiệu vòng lặp while ở ngoài hãy chạy thêm 1 lần nữa để check chéo
     }
-
     public static String generateNewId() {
         return "I-" + (itemCounter++);
     }
