@@ -21,7 +21,7 @@
 
 <AnchorPane xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="auction.controller.MainScreenController">
    <children>
-      <BorderPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" stylesheets="@../css/mainscreen.css" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <BorderPane layoutX="10.0" layoutY="11.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" stylesheets="@../css/mainscreen.css" AnchorPane.bottomAnchor="-11.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="-10.0" AnchorPane.topAnchor="11.0">
          <left>
             <VBox prefHeight="850.0" prefWidth="271.0" styleClass="sidebar" BorderPane.alignment="CENTER">
                <children>
@@ -49,7 +49,7 @@
          <center>
             <BorderPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
                <center>
-                  <StackPane BorderPane.alignment="CENTER">
+                  <StackPane fx:id="mainStackPane" BorderPane.alignment="CENTER">
                      <children>
                         <AnchorPane fx:id="mymarketplacePane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="664.0" prefWidth="1286.0" style="-fx-background-color: #f4f4f4;">
                            <children>
@@ -259,7 +259,7 @@
                         <MenuButton fx:id="menuButton" alignment="CENTER" mnemonicParsing="false" prefHeight="54.0" prefWidth="247.0" styleClass="profile-menu">
                           <items>
                             <MenuItem mnemonicParsing="false" text="Account Information" />
-                            <MenuItem mnemonicParsing="false" text="Logout" />
+                            <MenuItem mnemonicParsing="false" onAction="#handleLogout" text="Logout" />
                           </items>
                            <HBox.margin>
                               <Insets right="30.0" />
