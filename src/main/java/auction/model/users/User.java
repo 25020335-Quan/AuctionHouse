@@ -7,7 +7,7 @@ public abstract class User extends Entity {
     private String password; // Encapsulation: sử dụng private
     private String email;
     private String fullName;
-    private double balance;
+    private double balance = 0;
 
     private static int userCounter = 1;
 

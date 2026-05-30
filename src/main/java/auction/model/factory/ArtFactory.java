@@ -6,7 +6,7 @@ import auction.model.item.Item;
 public class ArtFactory extends ItemFactory {
     @Override
     public Item createItem(String id , String ownerId, String name, double startingPrice) {
-        return new Art( ownerId, name, startingPrice);
+        return new Art(id, ownerId, name, startingPrice);
     }
     @Override
     public Item createNewItem(String ownerId, String name, double startingPrice) {
