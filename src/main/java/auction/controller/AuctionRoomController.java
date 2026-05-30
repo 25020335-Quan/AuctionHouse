@@ -377,6 +377,10 @@ public class AuctionRoomController {
                 showErrorAlert("Invalid Max Bid", "Max Auto-Bid must be strictly higher than the current price!");
                 return;
             }
+            if (currentBidder.getBalance() < maxBid) {
+                showErrorAlert("Insufficent Amount", "Insufficient balance to set this AutoBid level!");
+                return;
+            }
 
             // Tạo gói tin gửi lên cho Server
             AutoBidRequest request = new AutoBidRequest(currentItem.getId(), currentBidder.getId(), maxBid, increment);
