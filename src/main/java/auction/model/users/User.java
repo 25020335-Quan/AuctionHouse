@@ -62,4 +62,8 @@ public abstract class User extends Entity {
     public double getBalance() { return balance; }
 
     public abstract String getRole();
+
+    public void setBalance(double balance) {
+        this.balance = balance;
+    }
 }
