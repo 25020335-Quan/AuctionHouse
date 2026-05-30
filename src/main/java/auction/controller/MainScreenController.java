@@ -98,7 +98,7 @@ public class MainScreenController {
 
     @FXML
     public void displayName(String name) {
-        menuButton.setText("Hello," + name);
+        menuButton.setText("Hello, " + name);
     }
 
     public void loadProducts(List<Item> itemList) {
