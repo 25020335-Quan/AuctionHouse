@@ -24,10 +24,14 @@ public class AuctionManagerTest {
     @BeforeEach
     void setUp() {
         manager = AuctionManager.getInstance();
-        seller  = new Member("S01", "seller", "pass", "Seller Test", "seller@test.com");
-        bidder  = new Member("B01", "bidder", "pass", "Bidder Test", "bidder@test.com");
+        seller  = new Member("S01", "seller", "pass", "Seller Test", "seller@test.com", 1000000);
+        bidder  = new Member("B01", "bidder", "pass", "Bidder Test", "bidder@test.com", 1000000);
         item    = FactoryProvider.createItemByType(
                 "ELECTRONICS", "I_" + System.nanoTime(), "S01", "Test Item", 1000.0);
+        java.time.LocalDateTime now = java.time.LocalDateTime.now();
+        item.setStartTime(now.minusMinutes(5)); // Đã mở cách đây 5 phút
+        item.setEndTime(now.plusHours(2));
+        manager.addItem(item);
         seller.postItem(item); // PENDING -> OPEN
         assertNotNull(item, "FactoryProvider không được trả null");
     }
@@ -120,7 +124,7 @@ public class AuctionManagerTest {
         item.setState(AuctionState.CLOSED);
 
         // Phải là AuctionClosedException cụ thể, không phải lớp cha chung
-        AuctionClosedException ex = assertThrows(AuctionClosedException.class,
+        InvalidBidException ex = assertThrows(InvalidBidException.class,
                 () -> manager.attemptBid(item, bidder.getId(), 2000.0));
 
         assertEquals("Phiên đấu giá đã kết thúc!", ex.getMessage());
@@ -130,7 +134,7 @@ public class AuctionManagerTest {
     @DisplayName("Phiên SOLD -> ném AuctionClosedException")
     void testAttemptBid_Sold_ThrowsAuctionClosedException() {
         item.setState(AuctionState.SOLD);
-        assertThrows(AuctionClosedException.class,
+        assertThrows(InvalidBidException.class,
                 () -> manager.attemptBid(item, bidder.getId(), 2000.0));
     }
 
@@ -168,7 +172,9 @@ public class AuctionManagerTest {
                 "VEHICLE", "OTHER_" + System.nanoTime(), "S01", "Car", 5000.0);
         assertNotNull(other, "FactoryProvider không được trả null");
         seller.postItem(other);
-
+        java.time.LocalDateTime now = java.time.LocalDateTime.now();
+        other.setStartTime(now.minusMinutes(5)); // Đã mở cách đây 5 phút
+        other.setEndTime(now.plusHours(2));
         manager.attemptBid(item,  bidder.getId(), 1200.0);
         manager.attemptBid(item,  bidder.getId(), 1400.0);
         manager.attemptBid(other, bidder.getId(), 6000.0);

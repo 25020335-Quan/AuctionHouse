@@ -32,14 +32,18 @@ public class ItemTest {
 
     @BeforeEach
     void setUp() {
-        testMember = new Member("U01", "Quan25020335", "password");
-        seller   = new Member("U02", "Viet_seller", "password");
+        testMember = new Member("U01", "Quan25020335", "password", "quan", "test@mail.com", 100000);
+        seller   = new Member("U02","Viet_seller", "password", "viet", "test@mail.com", 100000);
         testItem = FactoryProvider.createItemByType("ELECTRONICS", "I01", "U02", "Laptop", 1000.0);
 
         // postItem() → setState(OPEN): item sẵn sàng để đấu giá
+        java.time.LocalDateTime now = java.time.LocalDateTime.now();
+        testItem.setStartTime(now.minusMinutes(5)); // Đã mở cách đây 5 phút
+        testItem.setEndTime(now.plusHours(2));
+        manager = AuctionManager.getInstance();
+        manager.addItem(testItem);
         testMember.postItem(testItem);
 
-        manager = AuctionManager.getInstance();
     }
 
     // ============================================================
@@ -170,7 +174,7 @@ public class ItemTest {
     @Test
     @DisplayName("Bid nhiều vòng tăng dần → giá cập nhật từng bước")
     void testBid_MultipleBids_PriceIncreasesStepByStep() throws InvalidBidException {
-        Member bidder2 = new Member("U03", "Thai_bidder", "pass");
+        Member bidder2 = new Member("U01","Thai_bidder", "pass", "thai", "test@mail.com", 10000);
 
         manager.attemptBid(testItem, testMember.getId(), 1500.0);
         assertEquals(1500.0, testItem.getCurrentPrice(), "Vòng 1: phải là 1500");

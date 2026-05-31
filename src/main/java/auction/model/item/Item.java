@@ -146,9 +146,40 @@ public abstract class Item extends Entity implements Serializable {
         if (autoBids == null) autoBids = new java.util.PriorityQueue<>();
         autoBids.add(autoBid);
 
+        double priceBeforeBot = this.currentPrice;
+
+        // Kích hoạt hệ thống chạy tự động
+        boolean autoBidTriggered = false;
         // Kích hoạt auto-bid
         while (processAutoBids()) {
             // Chạy cho đến khi tìm ra người dẫn đầu cuối cùng thì tự dừng
+            autoBidTriggered = true;
+        }
+        if (autoBidTriggered && this.currentPrice > priceBeforeBot) {
+            double finalPrice = this.currentPrice;
+            String finalHighestBidder = this.highestBidderId;
+
+            // 1. Tạo và lưu transaction vào AuctionManager bộ nhớ tạm
+            String autoTxId = "TX-" + System.currentTimeMillis();
+            auction.model.transaction.BidTransaction autoTx =
+                    new auction.model.transaction.BidTransaction(autoTxId, finalHighestBidder, this.getId(), finalPrice);
+            auction.model.AuctionManager.getInstance().addTransaction(autoTx);
+
+            // 2. Ghi nhận xuống Database và cập nhật người giữ giá cao nhất
+            auction.model.service.DatabaseService dbService = new auction.model.service.DatabaseService();
+            dbService.addTransaction(autoTx);
+            dbService.updateHighestBid(this.getId(), finalPrice, finalHighestBidder);
+
+            System.out.println("[AutoBid Mới] Bot đã đẩy giá thành công lên: " + finalPrice + " VNĐ");
+
+            // 3. Phát thông báo cập nhật giá mới cho toàn bộ Client đang kết nối
+            auction.model.notification.BidNotification notify = new auction.model.notification.BidNotification(
+                    this.getId(),
+                    finalHighestBidder,
+                    finalPrice,
+                    this.getEndTime()
+            );
+            auction.server.AuctionServer.broadcast(notify);
         }
     }
 
