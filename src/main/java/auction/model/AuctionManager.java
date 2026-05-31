@@ -140,11 +140,17 @@ public class AuctionManager {
                 item.setState(AuctionState.RUNNING);
             }
 
-            // THÊM KIỂM TRA NULL cho EndTime
+            // Xử lý Anti-Sniping
+            boolean isTimeExtended = false;
             if (item.getEndTime() != null) {
-                java.time.Duration timeRemaining = java.time.Duration.between(java.time.LocalDateTime.now(), item.getEndTime());
-                if (timeRemaining.getSeconds() <= 30 && timeRemaining.getSeconds() > 0) {
-                    item.setEndTime(item.getEndTime().plusSeconds(60));
+                java.time.LocalDateTime now = java.time.LocalDateTime.now();
+                long secondsLeft = java.time.temporal.ChronoUnit.SECONDS.between(now, item.getEndTime());
+
+                // Nếu còn dưới 30 giây
+                if (secondsLeft > 0 && secondsLeft <= 30) {
+                    item.setEndTime(now.plusSeconds(60)); // Cộng 60s từ lúc hiện tại
+                    isTimeExtended = true;
+                    System.out.println("[Anti-Sniping] Đã kích hoạt! Cộng thêm 60s cho item " + item.getId());
                 }
             }
 
@@ -153,12 +159,21 @@ public class AuctionManager {
             BidTransaction tx = new BidTransaction(txId, bidderId, item.getId(), amount);
             AuctionManager.getInstance().addTransaction(tx);
 
-            // BỌC TRY-CATCH CHO EXTERNAL SERVICES
+            // Gọi Database
             try {
                 auction.model.service.DatabaseService dbService = new auction.model.service.DatabaseService();
                 dbService.addTransaction(tx);
-                dbService.updateHighestBid(item.getId(), amount, bidderId);
 
+                // Quyết định gọi hàm lưu vào Database
+                if (isTimeExtended) {
+                    // Nếu bị bắn tỉa -> Gọi hàm mới để lưu cả Giá và Giờ mới
+                    dbService.updateBidAndExtendTimer(item.getId(), amount, bidderId, item.getEndTime());
+                } else {
+                    // Nếu thời gian còn xông xênh -> Chỉ lưu Giá như bình thường
+                    dbService.updateHighestBid(item.getId(), amount, bidderId);
+                }
+
+                // Phát loa cho tất cả Client (Bác đã có sẵn constructor 4 tham số, quá xịn!)
                 BidNotification manualNotify = new BidNotification(
                         item.getId(),
                         bidderId,
