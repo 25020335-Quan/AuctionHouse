@@ -173,6 +173,7 @@ public class AuctionRoomController {
             Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
             stage.setScene(new Scene(root));
             stage.setTitle("Marketplace");
+            stage.setFullScreen(true);
             stage.show();
 
         } catch (IOException e) {
