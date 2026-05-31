@@ -491,4 +491,36 @@ public class DatabaseService {
             return false;
         }
     }
+    public boolean updateItemDetails(Item item) {
+        // Cập nhật lại Tên, Giá, Mô tả và toàn bộ chuỗi Link Ảnh
+        String sql = "UPDATE items SET name = ?, current_price = ?, description = ?, image_urls = ? WHERE id = ?";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, item.getName());
+            pstmt.setDouble(2, item.getCurrentPrice());
+            pstmt.setString(3, item.getDescription());
+
+            // Biến danh sách (List) link ảnh thành 1 chuỗi dài ngăn cách bởi dấu phẩy để lưu vào Database
+            java.util.List<String> links = item.getImageUrls();
+            if (links != null && !links.isEmpty()) {
+                pstmt.setString(4, String.join(",", links));
+            } else {
+                pstmt.setString(4, ""); // Nếu xóa hết ảnh thì lưu chuỗi rỗng
+            }
+
+            pstmt.setString(5, item.getId());
+
+            int rowsAffected = pstmt.executeUpdate();
+            if (rowsAffected > 0) {
+                System.out.println("[Database] Đã lưu cập nhật cho sản phẩm: " + item.getId());
+                return true;
+            }
+
+        } catch (SQLException e) {
+            System.err.println("[Database] Lỗi khi cập nhật sản phẩm: " + e.getMessage());
+        }
+        return false;
+    }
 }
