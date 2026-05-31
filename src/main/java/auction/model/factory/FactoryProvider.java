@@ -1,33 +1,36 @@
 package auction.model.factory;
 
 import auction.model.item.Item;
+import java.util.HashMap;
+import java.util.Map;
 
 public class FactoryProvider {
-    public static Item createItemByType(String type, String id, String ownerId, String name, double startingPrice) {
-        ItemFactory factory = null;
+    private static final Map<String, ItemFactory> factoryRegistry = new HashMap<>();
 
-        if (type.equalsIgnoreCase("electronics")) {
-            factory = new ElectronicsFactory();
-        } else if (type.equalsIgnoreCase("art")) {
-            factory = new ArtFactory();
-        } else if (type.equalsIgnoreCase("vehicle")) {
-            factory = new VehicleFactory();
-        } else {
-            System.out.println("Loại sản phẩm không hợp lệ");
-        }
+    static {
+        factoryRegistry.put("ELECTRONICS", new ElectronicsFactory());
+        factoryRegistry.put("ART", new ArtFactory());
+        factoryRegistry.put("VEHICLE", new VehicleFactory());
+    }
+
+    private static ItemFactory getFactory(String type) {
+        String normalizedType = type.trim().toUpperCase();
+        ItemFactory factory = factoryRegistry.get(normalizedType);
+
         if (factory != null) {
-            return factory.createItem(id , ownerId, name, startingPrice);
+            return factory;
         }
-        return null;
+        throw new IllegalArgumentException("Lỗi: Không tìm thấy Factory cho loại '" + type + "'");
+    }
+    public static Item createItemByType(String type, String id, String ownerId, String name, double startingPrice) {
+        ItemFactory factory = getFactory(type);
+
+        return factory.createItem(id, ownerId, name, startingPrice);
     }
 
     public static Item createNewItemByType(String type, String ownerId, String name, double startingPrice) {
-        ItemFactory factory = null;
-        if (type.equalsIgnoreCase("electronics")) factory = new ElectronicsFactory();
-        else if (type.equalsIgnoreCase("art")) factory = new ArtFactory();
-        else if (type.equalsIgnoreCase("vehicle")) factory = new VehicleFactory();
+        ItemFactory factory = getFactory(type);
 
-        if (factory != null) return factory.createNewItem(ownerId, name, startingPrice);
-        return null;
+        return factory.createNewItem(ownerId, name, startingPrice);
     }
 }
