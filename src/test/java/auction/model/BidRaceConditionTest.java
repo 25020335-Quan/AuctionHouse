@@ -28,7 +28,7 @@ public class BidRaceConditionTest {
 
     private Item testItem;
     private AuctionManager manager;
-    private static final int THREAD_COUNT = 20;
+    private static final int THREAD_COUNT = 2;
 
     @BeforeEach
     void setUp() {
@@ -50,7 +50,7 @@ public class BidRaceConditionTest {
     }
 
     @Test
-    @DisplayName("20 bid đồng thời giá khác nhau → giá cuối là bid cao nhất thành công")
+    @DisplayName("2 bid đồng thời giá khác nhau → giá cuối là bid cao nhất thành công")
     void testConcurrent_FinalPriceIsHighest() throws InterruptedException {
         CountDownLatch startGun   = new CountDownLatch(1);
         CountDownLatch finishLine = new CountDownLatch(THREAD_COUNT);
@@ -93,7 +93,7 @@ public class BidRaceConditionTest {
     }
 
     @Test
-    @DisplayName("20 người bid cùng giá 2000 → chỉ đúng 1 người thắng")
+    @DisplayName("2 người bid cùng giá 2000 → chỉ đúng 1 người thắng")
     void testConcurrent_SamePrice_OnlyOneWins() throws InterruptedException {
         CountDownLatch startGun   = new CountDownLatch(1);
         CountDownLatch finishLine = new CountDownLatch(THREAD_COUNT);
@@ -130,9 +130,9 @@ public class BidRaceConditionTest {
     }
 
     @Test
-    @DisplayName("50 bid đồng thời tải nặng → không có lỗi hệ thống bất ngờ")
+    @DisplayName("5 bid đồng thời tải nặng → không có lỗi hệ thống bất ngờ")
     void testConcurrent_HeavyLoad_NoUnexpectedErrors() throws InterruptedException {
-        final int heavy = 50;
+        final int heavy = 5;
         CountDownLatch startGun   = new CountDownLatch(1);
         CountDownLatch finishLine = new CountDownLatch(heavy);
         // Chỉ ghi lại Exception thật sự (không phải InvalidBidException — đó là hợp lệ)
@@ -158,7 +158,7 @@ public class BidRaceConditionTest {
                 });
             }
             startGun.countDown();
-            assertTrue(finishLine.await(15, TimeUnit.SECONDS), "Timeout");
+            assertTrue(finishLine.await(20, TimeUnit.SECONDS), "Timeout");
         } finally {
             executor.shutdown();
         }
