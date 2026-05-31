@@ -2,9 +2,12 @@ package auction.model.transaction;
 
 import auction.model.Entity;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
-public class BidTransaction extends Entity {
+public class BidTransaction extends Entity implements Serializable {
+
+    private static final long serialVersionUID = 201L;
     private String bidderId;      // ID người đặt giá
     private String itemId;        // ID sản phẩm được đấu giá
     private double bidAmount;     // Số tiền đặt
