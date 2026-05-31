@@ -80,8 +80,13 @@ public class AuctionManager {
     // --- QUẢN LÝ GIAO DỊCH ĐẶT GIÁ ---
 
     public void addTransaction(BidTransaction tx) {
-        transactions.add(tx);
-        System.out.println("Giao dịch mới: " + tx.toString());
+        lock.lock();
+        try {
+            transactions.add(tx);
+            System.out.println("Giao dịch mới: " + tx.toString());
+        } finally {
+            lock.unlock();
+        }
     }
 
     public List<BidTransaction> printTransaction() {

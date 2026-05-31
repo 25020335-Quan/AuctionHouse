@@ -115,7 +115,7 @@ public class ItemTest {
     @DisplayName("Bid khi phiên PENDING (chưa mở) → InvalidBidException")
     void testBid_WhenPending_ShouldThrow() {
         // Tạo item mới, KHÔNG gọi postItem() → trạng thái PENDING
-        Item pendingItem = FactoryProvider.createItemByType("ART", "U02", "I02", "Painting", 500.0);
+        Item pendingItem = FactoryProvider.createItemByType("ART", "I02", "U02", "Painting", 500.0);
 
         InvalidBidException ex = assertThrows(
                 InvalidBidException.class,
@@ -174,7 +174,7 @@ public class ItemTest {
     @Test
     @DisplayName("Bid nhiều vòng tăng dần → giá cập nhật từng bước")
     void testBid_MultipleBids_PriceIncreasesStepByStep() throws InvalidBidException {
-        Member bidder2 = new Member("U01","Thai_bidder", "pass", "thai", "test@mail.com", 10000);
+        Member bidder2 = new Member("U03","Thai_bidder", "pass", "thai", "test@mail.com", 10000);
 
         manager.attemptBid(testItem, testMember.getId(), 1500.0);
         assertEquals(1500.0, testItem.getCurrentPrice(), "Vòng 1: phải là 1500");
@@ -192,7 +192,6 @@ public class ItemTest {
 
     /**
      * Người bán (ownerId = "U02") tự đặt giá đồ của mình → bị từ chối.
-     *
      * Đây là trường hợp gian lận: tự đẩy giá lên.
      */
     @Test
@@ -203,7 +202,7 @@ public class ItemTest {
                 () -> manager.attemptBid(testItem, seller.getId(), 2000.0)
         );
 
-        assertEquals("Lỗi: Người bán không được tự đấu giá đồ của mình).", ex.getMessage());
+        assertEquals("Lỗi: Người bán không được tự đấu giá đồ của mình.", ex.getMessage());
     }
 
     /**

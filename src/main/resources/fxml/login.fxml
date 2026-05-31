@@ -100,8 +100,7 @@
             <Button fx:id="loginButton" mnemonicParsing="false" onAction="#userLogin" prefHeight="41.0" prefWidth="163.0" styleClass="login-btn" text="Login" />
             <HBox prefHeight="27.0" prefWidth="560.0">
                <children>
-                  <Label alignment="CENTER" prefHeight="26.0" prefWidth="151.0" styleClass="link-text" text="Forgot Password" />
-                  <Label fx:id="wrongLogin" alignment="CENTER" prefHeight="43.0" prefWidth="295.0" textFill="#e40404" />
+                  <Label fx:id="wrongLogin" alignment="CENTER" prefHeight="27.0" prefWidth="202.0" textFill="#e40404" />
                   <Label alignment="CENTER" onMouseClicked="#handleGoToSignUp" prefHeight="27.0" prefWidth="155.0" styleClass="link-text" text="Sign Up" />
                </children>
             </HBox>

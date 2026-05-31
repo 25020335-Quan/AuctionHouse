@@ -92,10 +92,10 @@ public class ClientHandler extends Thread {
                             // Lấy thông tin TỪ ITEM
 
                         } else {
-                            this.sendMessage("ERROR: Product not found!");
+                            this.sendMessage("LỖI: Không tìm thấy sản phẩm!");
                         }
                     } catch (auction.exception.InvalidBidException e) {
-                        this.sendMessage("ERROR:" + e.getMessage());
+                        this.sendMessage("LỖI:" + e.getMessage());
                     }
                 }
                 else if (request instanceof auction.util.AutoBidRequest autoReq) {
