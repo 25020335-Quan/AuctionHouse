@@ -8,5 +8,12 @@
       <jdbc-url>jdbc:mysql://bjsa1yg2p28c1jctzcft-mysql.services.clever-cloud.com:3306/bjsa1yg2p28c1jctzcft</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
+    <data-source source="LOCAL" name="@localhost" uuid="0ab8d1a6-93c6-4ee1-b70e-d781602bc940">
+      <driver-ref>mysql_aurora.aws_wrapper</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>software.amazon.jdbc.Driver</jdbc-driver>
+      <jdbc-url>jdbc:aws-wrapper:mysql://localhost:3306</jdbc-url>
+      <working-dir>$ProjectFileDir$</working-dir>
+    </data-source>
   </component>
 </project>
