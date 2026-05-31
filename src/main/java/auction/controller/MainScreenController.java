@@ -548,4 +548,8 @@ public class MainScreenController {
             }
         }
     }
+    @FXML
+    private void handleRefresh(ActionEvent event) {
+
+    }
 }
