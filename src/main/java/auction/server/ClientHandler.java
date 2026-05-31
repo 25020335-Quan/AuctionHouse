@@ -51,10 +51,15 @@ public class ClientHandler extends Thread {
                     } else {
                         sendMessage("FAILED");
                     }
+
                 }
-                if (request instanceof LoginRequest loginData) {
-                    User user = dbService.checkLogin(loginData.getUsername(), loginData.getPassword());
-                    this.sendMessage(user);
+                else if (request instanceof LoginRequest loginData) {
+                    try {
+                        User user = dbService.checkLogin(loginData.getUsername(), loginData.getPassword());
+                        this.sendMessage(user);
+                    } catch (Exception e) {
+                        this.sendMessage("LỖI: " + e.getMessage());
+                    }
 
                 } else if (request instanceof AddItemRequest itemData) {
                     itemData.getItem().setId(auction.model.item.Item.generateNewId());
