@@ -199,7 +199,7 @@ public class ProductRowController {
             timeLeft.setText("Ended");
             timeLeft.setStyle("-fx-text-fill: #ef4444; -fx-font-weight: bold;"); // Chữ đỏ
 
-            if (item.getState() == AuctionState.OPEN || item.getState() == AuctionState.RUNNING) {
+            if ((item.getState() == AuctionState.OPEN || item.getState() == AuctionState.RUNNING) && item.getState() != AuctionState.SOLD) {
                 item.setState(AuctionState.CLOSED);
             }
             updateBadge(item.getState());

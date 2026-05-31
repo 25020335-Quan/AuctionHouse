@@ -93,14 +93,16 @@ public class AuctionManager {
 
     // Lấy lịch sử đặt giá của một sản phẩm cụ thể
     public List<BidTransaction> getHistoryByItem(String itemId) {
-        return transactions.stream()
+        List<BidTransaction> snapshot = new ArrayList<>(transactions);
+        return snapshot.stream()
                 .filter(tx -> tx.getItemId().equals(itemId))
                 .collect(Collectors.toList());
     }
 
     // Tìm giá cao nhất hiện tại của một sản phẩm
     public double getCurrentMaxPrice(String itemId) {
-        return transactions.stream()
+        List<BidTransaction> snapshot = new ArrayList<>(transactions);
+        return snapshot.stream()
                 .filter(tx -> tx.getItemId().equals(itemId))
                 .mapToDouble(BidTransaction::getBidAmount)
                 .max()
@@ -119,7 +121,8 @@ public class AuctionManager {
                 throw new InvalidBidException("Lỗi: Phiên đấu giá chưa bắt đầu.");
             }
 
-            if (getUserById(bidderId).getBalance() < amount) {
+            User bidUser = getUserById(bidderId);
+            if (bidUser != null && bidUser.getBalance() < amount) {
                 throw new InvalidBidException("Lỗi: Không có đủ tiền.");
             }
 
