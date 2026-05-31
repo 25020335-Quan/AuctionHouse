@@ -127,6 +127,8 @@ public class AuctionManagerTest {
         InvalidBidException ex = assertThrows(InvalidBidException.class,
                 () -> manager.attemptBid(item, bidder.getId(), 2000.0));
 
+        assertInstanceOf(AuctionClosedException.class, ex,
+                "Phải ném AuctionClosedException, không phải InvalidBidException gốc");
         assertEquals("Phiên đấu giá đã kết thúc!", ex.getMessage());
     }
 
@@ -134,8 +136,10 @@ public class AuctionManagerTest {
     @DisplayName("Phiên SOLD -> ném AuctionClosedException")
     void testAttemptBid_Sold_ThrowsAuctionClosedException() {
         item.setState(AuctionState.SOLD);
-        assertThrows(InvalidBidException.class,
+        InvalidBidException ex = assertThrows(InvalidBidException.class,
                 () -> manager.attemptBid(item, bidder.getId(), 2000.0));
+        assertInstanceOf(AuctionClosedException.class, ex,
+                "SOLD cũng phải ném AuctionClosedException");
     }
 
     @Test
@@ -144,8 +148,10 @@ public class AuctionManagerTest {
         item.setState(AuctionState.CLOSED);
 
         // catch (InvalidBidException) vẫn bắt được AuctionClosedException
-        assertThrows(InvalidBidException.class,
+        InvalidBidException ex = assertThrows(InvalidBidException.class,
                 () -> manager.attemptBid(item, bidder.getId(), 2000.0));
+        assertTrue(ex instanceof AuctionClosedException,
+                "AuctionClosedException phải là subclass của InvalidBidException");
     }
 
     // --- Bid thất bại không làm thay đổi trạng thái ---
