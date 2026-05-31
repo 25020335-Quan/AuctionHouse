@@ -371,7 +371,6 @@ public class MainScreenController {
                             bidder.setBalance(bidder.getBalance() - wonItem.getCurrentPrice());
                             dbService.updateItemState(wonItem.getId(), "SOLD");
                             wonItem.setState(AuctionState.SOLD);
-                            dbService.updateItemState(wonItem.getId(), "SOLD");
                             Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
                             successAlert.setTitle("Payment successful");
                             successAlert.setHeaderText(null);
@@ -550,6 +549,8 @@ public class MainScreenController {
     }
     @FXML
     private void handleRefresh(ActionEvent event) {
-
+        auction.model.service.DatabaseService dbService = new auction.model.service.DatabaseService();
+        dbService.loadAllItemsToManager();
+        dbService.loadAllTransactionsToManager();
     }
 }
