@@ -138,6 +138,24 @@ public class DatabaseService {
             return false;
         }
     }
+    // Hàm phục vụ Anti-Sniping để lưu thời gian kết thúc mới
+    public boolean updateBidAndExtendTimer(String itemId, double newPrice, String bidderId, java.time.LocalDateTime newEndTime) {
+        String sql = "UPDATE items SET current_price = ?, highest_bidder_id = ?, end_time = ? WHERE id = ?";
+        try (java.sql.Connection conn = DBConnection.getConnection();
+             java.sql.PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setDouble(1, newPrice);
+            pstmt.setString(2, bidderId);
+            // Ép từ LocalDateTime sang Timestamp để MySQL hiểu được
+            pstmt.setTimestamp(3, java.sql.Timestamp.valueOf(newEndTime));
+            pstmt.setString(4, itemId);
+
+            return pstmt.executeUpdate() > 0;
+        } catch (java.sql.SQLException e) {
+            System.err.println("[Database] Lỗi gia hạn thời gian: " + e.getMessage());
+            return false;
+        }
+    }
 
     public boolean updateItemState(String itemId, String currentState) {
         // SQL statement targeting specific columns for a single row
