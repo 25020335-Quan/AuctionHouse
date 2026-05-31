@@ -175,6 +175,8 @@ public class AuctionManagerTest {
         java.time.LocalDateTime now = java.time.LocalDateTime.now();
         other.setStartTime(now.minusMinutes(5)); // Đã mở cách đây 5 phút
         other.setEndTime(now.plusHours(2));
+
+        int before = manager.getHistoryByItem(item.getId()).size();
         manager.attemptBid(item,  bidder.getId(), 1200.0);
         manager.attemptBid(item,  bidder.getId(), 1400.0);
         manager.attemptBid(other, bidder.getId(), 6000.0);
