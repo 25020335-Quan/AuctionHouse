@@ -199,10 +199,11 @@ public class ProductRowController {
             timeLeft.setText("Ended");
             timeLeft.setStyle("-fx-text-fill: #ef4444; -fx-font-weight: bold;"); // Chữ đỏ
 
-            if ((item.getState() == AuctionState.OPEN || item.getState() == AuctionState.RUNNING) && item.getState() != AuctionState.SOLD) {
+            if ((item.getState() == AuctionState.OPEN || item.getState() == AuctionState.RUNNING || item.getState() == AuctionState.PENDING)) {
                 item.setState(AuctionState.CLOSED);
             }
             updateBadge(item.getState());
+            System.out.println(item.getState() + " " + item.getName());
 
             // Xử lý nút thanh toán cho người thắng
             if (btnBid != null && !isOwner) {
