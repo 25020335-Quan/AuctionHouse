@@ -61,14 +61,24 @@ public class EditItemController {
             itemToEdit.setName(nameField.getText());
             itemToEdit.setPrice(Double.parseDouble(priceField.getText()));
             itemToEdit.setDescription(descriptionField.getText());
+
+            auction.model.service.DatabaseService dbService = new auction.model.service.DatabaseService();
+            boolean isSaved = dbService.updateItemDetails(itemToEdit);
+            if(isSaved) {
             if (mainController != null) {
                 mainController.refreshLocalUI();
             }
-            ((Stage) nameField.getScene().getWindow()).close();
+                ((Stage) nameField.getScene().getWindow()).close();
+            }
+            else{
+                Alert alert = new Alert(Alert.AlertType.ERROR, "Lỗi kết nối cơ sở dữ liệu! Không thể lưu thay đổi.");
+                alert.showAndWait();
+            }
         } catch (NumberFormatException e) {
             Alert alert = new Alert(Alert.AlertType.ERROR, "Price must be a number!");
             alert.showAndWait();
         }
+
     }
 
     // Hàm vẽ ảnh vào khung và xử lý xóa ảnh
@@ -186,7 +196,7 @@ public class EditItemController {
                             // đẩy lên API
                             String cloudLink = auction.util.ImageUploadUtil.uploadImage(file);
                             if (cloudLink != null) {
-                                itemToEdit.addImageUrl(cloudLink); // Đút Link mới vào đối tượng Item
+                                itemToEdit.addImageUrl(cloudLink); // Đưa Link mới vào đối tượng Item
                             }
                         }
                         return null;
