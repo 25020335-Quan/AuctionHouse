@@ -1,6 +1,7 @@
 package auction.model;
 
 import auction.exception.InvalidBidException;
+import auction.exception.AuctionClosedException;
 import auction.model.item.Item;
 import auction.model.notification.BidNotification;
 import auction.model.state.AuctionState;
@@ -119,7 +120,7 @@ public class AuctionManager {
         try {
             // 1. Kiểm tra trạng thái phiên đấu giá
             if (item.getState() == AuctionState.CLOSED || item.getState() == AuctionState.SOLD) {
-                throw new InvalidBidException("Phiên đấu giá đã kết thúc!");
+                throw new AuctionClosedException("Phiên đấu giá đã kết thúc!");
             }
 
             if (item.getState() == AuctionState.PENDING) {
@@ -289,8 +290,8 @@ public class AuctionManager {
                         lock.unlock(); // Đi kiểm tra xong thì mở khóa
                     }
                 } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                } finally {
+                    Thread.currentThread().interrupt();
+                    break;
 
                 }
             }
