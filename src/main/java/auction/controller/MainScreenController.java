@@ -291,6 +291,8 @@ public class MainScreenController {
     }
 
     private void applySearchFilter(String keyWord) {
+        auction.model.service.DatabaseService dbService = new auction.model.service.DatabaseService();
+        dbService.loadAllItemsToManager();
         List<Item> allItems = AuctionManager.getInstance().getAllItems();
         // Nếu người dùng xóa trắng thanh search thì hiện lại toàn bộ danh sách gốc
         if (keyWord == null || keyWord.trim().isEmpty()) {
@@ -325,6 +327,8 @@ public class MainScreenController {
     }
 
     public void refreshLocalUI() {
+        auction.model.service.DatabaseService dbService = new auction.model.service.DatabaseService();
+        dbService.loadAllItemsToManager();
         if (searchField != null) {
             applySearchFilter(searchField.getText());
         } else {
@@ -367,6 +371,7 @@ public class MainScreenController {
                             bidder.setBalance(bidder.getBalance() - wonItem.getCurrentPrice());
                             dbService.updateItemState(wonItem.getId(), "SOLD");
                             wonItem.setState(AuctionState.SOLD);
+                            dbService.updateItemState(wonItem.getId(), "SOLD");
                             Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
                             successAlert.setTitle("Payment successful");
                             successAlert.setHeaderText(null);
@@ -374,6 +379,7 @@ public class MainScreenController {
                             successAlert.showAndWait();
                             // Load lại màn hình cập nhật lại nút
                             handleShowWonAuctions(null);
+                            dbService.loadAllItemsToManager();
                             List<Item> currentItems = AuctionManager.getInstance().getAllItems();
                             loadProducts(currentItems);
                         } else {
@@ -395,11 +401,14 @@ public class MainScreenController {
                 new Thread(paymentTask).start();
             } else if (response == btnCancelOrder) {
                 // Hủy giao dịch
+                auction.model.service.DatabaseService dbService = new auction.model.service.DatabaseService();
                 Alert confirmCancel = new Alert(Alert.AlertType.WARNING, "Are you sure you want to cancel this winning bid? This action cannot be undone and may affect your account reputation.", ButtonType.YES, ButtonType.NO);
                 confirmCancel.showAndWait().ifPresent(confirm -> {
                     if (confirm == ButtonType.YES) {
                         wonItem.setState(AuctionState.CANCELED);
+                        dbService.updateItemState(wonItem.getId(), "CANCELED");
                         handleShowWonAuctions(null); // Load lại màn hình
+                        dbService.loadAllItemsToManager();
                         List<Item> currentItems = AuctionManager.getInstance().getAllItems();
                         loadProducts(currentItems);
                     }
