@@ -229,6 +229,7 @@
                                     <Font name="System Bold" size="41.0" />
                                  </font>
                               </Label>
+                              <Button layoutX="957.0" layoutY="17.0" mnemonicParsing="false" prefHeight="52.0" prefWidth="248.0" styleClass="btn-bid" text="Refresh" />
                            </children>
                         </AnchorPane>
                      </children>
@@ -258,7 +259,7 @@
                         </StackPane>
                         <MenuButton fx:id="menuButton" alignment="CENTER" mnemonicParsing="false" prefHeight="54.0" prefWidth="247.0" styleClass="profile-menu">
                           <items>
-                            <MenuItem mnemonicParsing="false" text="Account Information" />
+                            <MenuItem mnemonicParsing="false" onAction="#switchProfile" text="Account Information" />
                             <MenuItem mnemonicParsing="false" onAction="#handleLogout" text="Logout" />
                           </items>
                            <HBox.margin>
